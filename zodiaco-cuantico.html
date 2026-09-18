@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Zodiaco Cuántico – Tu carta astral, decodificada con precisión real</title>
+<link rel="icon" type="image/jpeg" href="assets/logo-icon.jpg">
 <meta name="description" content="Nada de horóscopos genéricos. Zodiaco Cuántico cruza tu carta natal con ciclos de energía reales para decirte qué hacer hoy, con quién y cuándo. Pruébalo gratis.">
 
 <meta property="og:title" content="Zodiaco Cuántico – Tu carta astral, decodificada con precisión real">
@@ -82,12 +83,13 @@
   .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px}
   .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
   .brand-mark{
-    width:32px;height:32px;border-radius:50%;
-    background:conic-gradient(from 200deg, var(--red), var(--pink), var(--red-deep), var(--red));
+    width:34px;height:34px;border-radius:50%;
+    background:#000;
     display:flex;align-items:center;justify-content:center;
-    box-shadow:0 0 0 1px var(--border), 0 8px 20px rgba(229,52,52,0.35);
+    box-shadow:0 0 0 1px var(--border), 0 8px 20px rgba(0,0,0,0.35);
+    overflow:hidden;
   }
-  .brand-mark span{font-size:16px}
+  .brand-mark img{width:100%;height:100%;object-fit:cover;display:block;}
   .nav-cta{
     display:inline-flex;align-items:center;gap:8px;
     background:var(--green-soft);color:#06210f;
@@ -342,7 +344,7 @@
 <header>
   <div class="nav wrap" style="padding-left:0;padding-right:0">
     <div class="brand">
-      <span class="brand-mark"><span>✦</span></span>
+      <span class="brand-mark"><img src="assets/logo-icon.jpg" alt="Zodiaco Cuántico"></span>
       Zodiaco Cuántico
     </div>
     <a class="nav-cta" href="#precio">Probar gratis</a>
