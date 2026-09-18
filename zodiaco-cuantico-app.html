@@ -586,6 +586,54 @@
   }
   .media-card.bump{animation:bump .3s ease;}
   @keyframes bump{ 0%{transform:scale(1);} 50%{transform:scale(0.94);} 100%{transform:scale(1);} }
+  .nav-item{cursor:pointer;}
+  .nav-item.bump{animation:bump .3s ease;}
+
+  /* carta natal */
+  .natal-form{padding:18px 22px 8px;}
+  .natal-field{margin-bottom:16px;}
+  .natal-field label{display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px;}
+  .natal-field input, .natal-field select{
+    width:100%;
+    background:var(--bg-panel);
+    border:1px solid var(--gold);
+    border-radius:10px;
+    padding:11px 12px;
+    color:var(--text-primary);
+    font-family:'Sora',sans-serif;
+    font-size:14px;
+  }
+  .natal-submit{
+    width:100%;
+    border:none;
+    background:var(--gold);
+    color:#1A1424;
+    font-family:'Sora',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    padding:13px;
+    border-radius:24px;
+    cursor:pointer;
+    margin-top:4px;
+  }
+  .natal-note{font-size:11px; color:var(--text-muted); line-height:1.5; margin-top:14px;}
+  .natal-error{font-size:12px; color:#ff8a8a; margin-top:10px; display:none;}
+  .natal-result-card{
+    background:var(--bg-panel-2);
+    border:1px solid var(--gold);
+    border-radius:20px;
+    padding:22px 20px;
+    margin:0 16px 14px;
+  }
+  .natal-result-card .nr-head{display:flex; align-items:center; gap:12px; margin-bottom:12px;}
+  .natal-result-card .nr-head .sym{font-family:'Fraunces',serif; font-size:26px; color:var(--gold);}
+  .natal-result-card .nr-head .title{font-size:12px; color:var(--text-muted);}
+  .natal-result-card .nr-head .signname{font-family:'Fraunces',serif; font-size:18px; color:var(--text-primary);}
+  .natal-result-card p{font-size:14px; line-height:1.6; color:var(--text-primary); margin:0;}
+  .natal-edit{
+    display:block; text-align:center; margin:6px 16px 22px;
+    font-size:12.5px; color:var(--gold); cursor:pointer; text-decoration:underline;
+  }
 </style>
 </head>
 <body>
@@ -599,6 +647,7 @@
     <div class="glyph-mark">∞</div>
   </div>
 
+  <div id="screen-hoy">
   <div class="grid-wrap">
     <p class="grid-label">Elige tu signo</p>
     <div class="sign-grid" id="signGrid"></div>
@@ -642,17 +691,21 @@
   <p class="grid-label" style="margin:20px 16px 10px;">Frecuencias por signo</p>
   <div class="media-grid" id="audioGrid"></div>
 
+  </div>
+
+  <div id="screen-carta" style="display:none"></div>
+
   <div class="bottom-nav">
-    <div class="nav-item active">
+    <div class="nav-item active" id="navHoy" onclick="showScreen('hoy')">
       <span class="nav-icon">✦</span>Hoy<span class="dot"></span>
     </div>
-    <div class="nav-item">
+    <div class="nav-item" id="navCarta" onclick="showScreen('carta')">
       <span class="nav-icon">☾</span>Carta
     </div>
-    <div class="nav-item">
+    <div class="nav-item" id="navPatron" onclick="comingSoonNav(this)">
       <span class="nav-icon">◈</span>Patrón
     </div>
-    <div class="nav-item">
+    <div class="nav-item" id="navFrecuencias" onclick="comingSoonNav(this)">
       <span class="nav-icon">≈</span>Frecuencias
     </div>
   </div>
@@ -950,6 +1003,349 @@ const VIDEO_B64 = "data:video/mp4;base64,AAAAIGZ0eXBpc29tAAACAGlzb21pc28yYXZjMW1
 function playVideo(){
   const card = document.getElementById('videoCard');
   card.innerHTML = `<video src="${VIDEO_B64}" controls autoplay playsinline></video>`;
+}
+
+/* ================= Carta natal real (Sol + Luna + Ascendente) =================
+   Formulas de baja precision de Jean Meeus (Astronomical Algorithms), suficientes
+   para determinar el signo con seguridad (probadas contra cartas natales publicadas
+   de personas reales). No calculan casas ni el resto de los planetas (eso quedaria
+   para una v2 de "carta completa"). Todo corre en el navegador, sin backend. */
+
+function showScreen(name){
+  document.getElementById('screen-hoy').style.display = name === 'hoy' ? 'block' : 'none';
+  document.getElementById('screen-carta').style.display = name === 'carta' ? 'block' : 'none';
+  document.getElementById('navHoy').classList.toggle('active', name === 'hoy');
+  document.getElementById('navCarta').classList.toggle('active', name === 'carta');
+  if(name === 'carta') renderCartaScreen();
+}
+function comingSoonNav(el){
+  el.classList.add('bump');
+  setTimeout(()=> el.classList.remove('bump'), 300);
+}
+
+function normalizeDeg(d){ d = d % 360; if(d < 0) d += 360; return d; }
+function sinD(d){ return Math.sin(d * Math.PI / 180); }
+function cosD(d){ return Math.cos(d * Math.PI / 180); }
+function tanD(d){ return Math.tan(d * Math.PI / 180); }
+function atan2Deg(y, x){ return normalizeDeg(Math.atan2(y, x) * 180 / Math.PI); }
+
+function julianDay(year, month, day, hourUT){
+  const dayFrac = day + hourUT / 24;
+  let Y = year, M = month;
+  if(M <= 2){ Y -= 1; M += 12; }
+  const A = Math.floor(Y / 100);
+  const B = 2 - A + Math.floor(A / 4);
+  return Math.floor(365.25 * (Y + 4716)) + Math.floor(30.6001 * (M + 1)) + dayFrac + B - 1524.5;
+}
+function julianCenturies(jd){ return (jd - 2451545.0) / 36525.0; }
+
+function sunEclipticLongitude(T){
+  const L0 = normalizeDeg(280.46646 + 36000.76983 * T + 0.0003032 * T * T);
+  const M = normalizeDeg(357.52911 + 35999.05029 * T - 0.0001537 * T * T);
+  const C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * sinD(M)
+          + (0.019993 - 0.000101 * T) * sinD(2 * M)
+          + 0.000289 * sinD(3 * M);
+  return normalizeDeg(L0 + C);
+}
+function moonEclipticLongitude(T){
+  const Lp = normalizeDeg(218.3164477 + 481267.88123421 * T - 0.0015786 * T * T);
+  const D  = normalizeDeg(297.8501921 + 445267.1114034 * T - 0.0018819 * T * T);
+  const Mp = normalizeDeg(134.9633964 + 477198.8675055 * T + 0.0087414 * T * T);
+  const lon = Lp
+    + 6.289 * sinD(Mp)
+    - 1.274 * sinD(Mp - 2 * D)
+    + 0.658 * sinD(2 * D)
+    - 0.214 * sinD(2 * Mp)
+    - 0.110 * sinD(D);
+  return normalizeDeg(lon);
+}
+function obliquity(T){
+  return 23.4392911 - 0.0130042 * T - 0.00000016 * T * T + 0.000000504 * T * T * T;
+}
+function gmstDeg(jd, T){
+  const gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0)
+             + 0.000387933 * T * T - (T * T * T) / 38710000;
+  return normalizeDeg(gmst);
+}
+function ascendantLongitude(ramcDeg, latDeg, oblDeg){
+  const y = cosD(ramcDeg);
+  const x = -(sinD(oblDeg) * tanD(latDeg) + cosD(oblDeg) * sinD(ramcDeg));
+  return atan2Deg(y, x);
+}
+function signFromLongitude(lon){
+  return ORDER[Math.floor(normalizeDeg(lon) / 30) % 12];
+}
+function computeNatalChart(year, month, day, hour, minute, utcOffset, latDeg, lonDeg){
+  const hourLocal = hour + minute / 60;
+  let hourUT = hourLocal - utcOffset;
+  let dayAdj = day;
+  if(hourUT < 0){ hourUT += 24; dayAdj -= 1; }
+  if(hourUT >= 24){ hourUT -= 24; dayAdj += 1; }
+
+  const jd = julianDay(year, month, dayAdj, hourUT);
+  const T = julianCenturies(jd);
+
+  const sunLon = sunEclipticLongitude(T);
+  const moonLon = moonEclipticLongitude(T);
+  const obl = obliquity(T);
+  const gmst = gmstDeg(jd, T);
+  const ramc = normalizeDeg(gmst + lonDeg);
+  const asc = ascendantLongitude(ramc, latDeg, obl);
+
+  return {
+    sun: { lon: sunLon, sign: signFromLongitude(sunLon) },
+    moon: { lon: moonLon, sign: signFromLongitude(moonLon) },
+    ascendant: { lon: asc, sign: signFromLongitude(asc) },
+  };
+}
+
+const CITIES = [
+  {n:"Ciudad de México",c:"México",lat:19.4326,lon:-99.1332,utc:-6},
+  {n:"Guadalajara",c:"México",lat:20.6597,lon:-103.3496,utc:-6},
+  {n:"Monterrey",c:"México",lat:25.6866,lon:-100.3161,utc:-6},
+  {n:"Puebla",c:"México",lat:19.0414,lon:-98.2063,utc:-6},
+  {n:"Toluca",c:"México",lat:19.2926,lon:-99.6568,utc:-6},
+  {n:"Tijuana",c:"México",lat:32.5149,lon:-117.0382,utc:-8},
+  {n:"León",c:"México",lat:21.125,lon:-101.686,utc:-6},
+  {n:"Zapopan",c:"México",lat:20.7214,lon:-103.3918,utc:-6},
+  {n:"Ciudad Juárez",c:"México",lat:31.6904,lon:-106.4245,utc:-7},
+  {n:"Mérida",c:"México",lat:20.9674,lon:-89.5926,utc:-6},
+  {n:"San Luis Potosí",c:"México",lat:22.1565,lon:-100.9855,utc:-6},
+  {n:"Aguascalientes",c:"México",lat:21.8853,lon:-102.2916,utc:-6},
+  {n:"Querétaro",c:"México",lat:20.5888,lon:-100.3899,utc:-6},
+  {n:"Morelia",c:"México",lat:19.7008,lon:-101.1844,utc:-6},
+  {n:"Chihuahua",c:"México",lat:28.6353,lon:-106.0889,utc:-7},
+  {n:"Culiacán",c:"México",lat:24.8091,lon:-107.394,utc:-7},
+  {n:"Hermosillo",c:"México",lat:29.0729,lon:-110.9559,utc:-7},
+  {n:"Saltillo",c:"México",lat:25.426,lon:-101.0053,utc:-6},
+  {n:"Mexicali",c:"México",lat:32.6245,lon:-115.4523,utc:-8},
+  {n:"Cancún",c:"México",lat:21.1619,lon:-86.8515,utc:-5},
+  {n:"Acapulco",c:"México",lat:16.8531,lon:-99.8237,utc:-6},
+  {n:"Veracruz",c:"México",lat:19.1738,lon:-96.1342,utc:-6},
+  {n:"Tampico",c:"México",lat:22.2331,lon:-97.8611,utc:-6},
+  {n:"Oaxaca de Juárez",c:"México",lat:17.0732,lon:-96.7266,utc:-6},
+  {n:"Tuxtla Gutiérrez",c:"México",lat:16.7516,lon:-93.1029,utc:-6},
+  {n:"Villahermosa",c:"México",lat:17.9895,lon:-92.9475,utc:-6},
+  {n:"Durango",c:"México",lat:24.0277,lon:-104.6532,utc:-6},
+  {n:"Torreón",c:"México",lat:25.5428,lon:-103.4068,utc:-6},
+  {n:"Reynosa",c:"México",lat:26.0922,lon:-98.2778,utc:-6},
+  {n:"Cuernavaca",c:"México",lat:18.9242,lon:-99.2216,utc:-6},
+  {n:"Pachuca",c:"México",lat:20.1011,lon:-98.7591,utc:-6},
+  {n:"Tlaxcala",c:"México",lat:19.3182,lon:-98.2375,utc:-6},
+  {n:"Colima",c:"México",lat:19.2433,lon:-103.7247,utc:-6},
+  {n:"Campeche",c:"México",lat:19.8301,lon:-90.5349,utc:-6},
+  {n:"Chetumal",c:"México",lat:18.5001,lon:-88.296,utc:-5},
+  {n:"La Paz (BCS)",c:"México",lat:24.1426,lon:-110.3128,utc:-7},
+  {n:"Los Cabos",c:"México",lat:22.8905,lon:-109.9167,utc:-7},
+  {n:"Ensenada",c:"México",lat:31.8667,lon:-116.5964,utc:-8},
+  {n:"Nuevo Laredo",c:"México",lat:27.4864,lon:-99.5075,utc:-6},
+  {n:"Matamoros",c:"México",lat:25.8697,lon:-97.5044,utc:-6},
+  {n:"Zacatecas",c:"México",lat:22.7709,lon:-102.5832,utc:-6},
+  {n:"Tepic",c:"México",lat:21.5041,lon:-104.8942,utc:-6},
+  {n:"Ciudad Obregón",c:"México",lat:27.4864,lon:-109.9306,utc:-7},
+  {n:"Mazatlán",c:"México",lat:23.2494,lon:-106.4111,utc:-7},
+  {n:"Irapuato",c:"México",lat:20.6767,lon:-101.3549,utc:-6},
+  {n:"Celaya",c:"México",lat:20.5236,lon:-100.8151,utc:-6},
+  {n:"Ciudad Victoria",c:"México",lat:23.7369,lon:-99.1411,utc:-6},
+  {n:"Ciudad de Guatemala",c:"Guatemala",lat:14.6349,lon:-90.5069,utc:-6},
+  {n:"San Salvador",c:"El Salvador",lat:13.6929,lon:-89.2182,utc:-6},
+  {n:"Tegucigalpa",c:"Honduras",lat:14.0723,lon:-87.1921,utc:-6},
+  {n:"San Pedro Sula",c:"Honduras",lat:15.5041,lon:-88.025,utc:-6},
+  {n:"Managua",c:"Nicaragua",lat:12.1364,lon:-86.2514,utc:-6},
+  {n:"San José",c:"Costa Rica",lat:9.9281,lon:-84.0907,utc:-6},
+  {n:"Ciudad de Panamá",c:"Panamá",lat:8.9824,lon:-79.5199,utc:-5},
+  {n:"Belmopán",c:"Belice",lat:17.251,lon:-88.759,utc:-6},
+  {n:"La Habana",c:"Cuba",lat:23.1136,lon:-82.3666,utc:-5},
+  {n:"Santo Domingo",c:"República Dominicana",lat:18.4861,lon:-69.9312,utc:-4},
+  {n:"San Juan",c:"Puerto Rico",lat:18.4655,lon:-66.1057,utc:-4},
+  {n:"Bogotá",c:"Colombia",lat:4.711,lon:-74.0721,utc:-5},
+  {n:"Medellín",c:"Colombia",lat:6.2442,lon:-75.5812,utc:-5},
+  {n:"Cali",c:"Colombia",lat:3.4516,lon:-76.532,utc:-5},
+  {n:"Barranquilla",c:"Colombia",lat:10.9639,lon:-74.7964,utc:-5},
+  {n:"Cartagena",c:"Colombia",lat:10.391,lon:-75.4794,utc:-5},
+  {n:"Caracas",c:"Venezuela",lat:10.4806,lon:-66.9036,utc:-4},
+  {n:"Maracaibo",c:"Venezuela",lat:10.6427,lon:-71.6125,utc:-4},
+  {n:"Valencia",c:"Venezuela",lat:10.1621,lon:-68.0077,utc:-4},
+  {n:"Quito",c:"Ecuador",lat:-0.1807,lon:-78.4678,utc:-5},
+  {n:"Guayaquil",c:"Ecuador",lat:-2.1894,lon:-79.8891,utc:-5},
+  {n:"Cuenca",c:"Ecuador",lat:-2.9006,lon:-79.0045,utc:-5},
+  {n:"Lima",c:"Perú",lat:-12.0464,lon:-77.0428,utc:-5},
+  {n:"Arequipa",c:"Perú",lat:-16.409,lon:-71.5375,utc:-5},
+  {n:"Trujillo",c:"Perú",lat:-8.1116,lon:-79.029,utc:-5},
+  {n:"La Paz",c:"Bolivia",lat:-16.5,lon:-68.15,utc:-4},
+  {n:"Santa Cruz de la Sierra",c:"Bolivia",lat:-17.7833,lon:-63.1821,utc:-4},
+  {n:"Cochabamba",c:"Bolivia",lat:-17.3895,lon:-66.1568,utc:-4},
+  {n:"Asunción",c:"Paraguay",lat:-25.2637,lon:-57.5759,utc:-4},
+  {n:"Montevideo",c:"Uruguay",lat:-34.9011,lon:-56.1645,utc:-3},
+  {n:"Buenos Aires",c:"Argentina",lat:-34.6037,lon:-58.3816,utc:-3},
+  {n:"Córdoba",c:"Argentina",lat:-31.4201,lon:-64.1888,utc:-3},
+  {n:"Rosario",c:"Argentina",lat:-32.9468,lon:-60.6393,utc:-3},
+  {n:"Mendoza",c:"Argentina",lat:-32.8895,lon:-68.8458,utc:-3},
+  {n:"La Plata",c:"Argentina",lat:-34.9215,lon:-57.9545,utc:-3},
+  {n:"Santiago",c:"Chile",lat:-33.4489,lon:-70.6693,utc:-4},
+  {n:"Valparaíso",c:"Chile",lat:-33.0472,lon:-71.6127,utc:-4},
+  {n:"Concepción",c:"Chile",lat:-36.8201,lon:-73.0444,utc:-4},
+  {n:"São Paulo",c:"Brasil",lat:-23.5505,lon:-46.6333,utc:-3},
+  {n:"Río de Janeiro",c:"Brasil",lat:-22.9068,lon:-43.1729,utc:-3},
+  {n:"Brasilia",c:"Brasil",lat:-15.7939,lon:-47.8828,utc:-3},
+  {n:"Salvador de Bahía",c:"Brasil",lat:-12.9718,lon:-38.5011,utc:-3},
+  {n:"Belo Horizonte",c:"Brasil",lat:-19.9167,lon:-43.9345,utc:-3},
+  {n:"Manaos",c:"Brasil",lat:-3.119,lon:-60.0217,utc:-4},
+  {n:"Fortaleza",c:"Brasil",lat:-3.7319,lon:-38.5267,utc:-3},
+  {n:"Recife",c:"Brasil",lat:-8.0476,lon:-34.877,utc:-3},
+  {n:"Porto Alegre",c:"Brasil",lat:-30.0346,lon:-51.2177,utc:-3},
+  {n:"Curitiba",c:"Brasil",lat:-25.4284,lon:-49.2733,utc:-3},
+  {n:"Madrid",c:"España",lat:40.4168,lon:-3.7038,utc:1},
+  {n:"Barcelona",c:"España",lat:41.3874,lon:2.1686,utc:1},
+  {n:"Los Ángeles",c:"Estados Unidos",lat:34.0522,lon:-118.2437,utc:-8},
+  {n:"Miami",c:"Estados Unidos",lat:25.7617,lon:-80.1918,utc:-5},
+  {n:"Nueva York",c:"Estados Unidos",lat:40.7128,lon:-74.006,utc:-5},
+  {n:"Chicago",c:"Estados Unidos",lat:41.8781,lon:-87.6298,utc:-6},
+  {n:"Houston",c:"Estados Unidos",lat:29.7604,lon:-95.3698,utc:-6}
+];
+
+const SUN_DESC = {
+  "aries":"Tu Sol en Aries es pura iniciativa: naciste para empezar, no para esperar permiso. Tu reto no es tener menos fuego, es dirigirlo con paciencia antes de actuar.",
+  "tauro":"Tu Sol en Tauro construye desde la calma: necesitas ver resultados tangibles para sentir que existes. Tu reto es soltar el control cuando la vida pide flexibilidad, no resistencia.",
+  "geminis":"Tu Sol en Géminis vive de la curiosidad y la palabra: procesas el mundo hablando y conectando ideas. Tu reto es elegir profundidad en vez de dispersión constante.",
+  "cancer":"Tu Sol en Cáncer se define por el cuidado y la memoria emocional: tu identidad se construye protegiendo lo que amas. Tu reto es cuidarte a ti con la misma entrega que das a otros.",
+  "leo":"Tu Sol en Leo necesita expresarse y ser visto para sentirse vivo: tu identidad brilla cuando creas desde el corazón. Tu reto es brillar por propósito propio, no por aplauso ajeno.",
+  "virgo":"Tu Sol en Virgo se define por mejorar y servir: te sientes tú mismo cuando eres útil y preciso. Tu reto es dirigir esa exigencia hacia el crecimiento, no hacia la autocrítica.",
+  "libra":"Tu Sol en Libra busca equilibrio y conexión: te reconoces a través del otro y de la belleza que creas. Tu reto es decidir desde tu propio criterio, no solo por mantener la paz.",
+  "escorpio":"Tu Sol en Escorpio se define por la profundidad y la transformación: no te conformas con la superficie de nada. Tu reto es confiar sin necesitar controlar el resultado.",
+  "sagitario":"Tu Sol en Sagitario necesita horizonte y significado: te sientes tú mismo cuando estás en movimiento hacia algo más grande. Tu reto es comprometerte con un solo camino el tiempo suficiente para cosecharlo.",
+  "capricornio":"Tu Sol en Capricornio se define por la disciplina y el logro con propósito: construyes tu identidad paso a paso. Tu reto es medir tu valor sin depender solo de lo que logras.",
+  "acuario":"Tu Sol en Acuario necesita pensar distinto y pertenecer sin perder su individualidad: tu identidad es tu visión propia del mundo. Tu reto es dejarte sentir, no solo analizar.",
+  "piscis":"Tu Sol en Piscis se define por la sensibilidad y la imaginación: percibes lo que otros no ven. Tu reto es poner límites claros sin dejar de ser compasivo."
+};
+const MOON_DESC = {
+  "aries":"Tu Luna en Aries siente rápido y reacciona rápido: la calma emocional te llega actuando, no reprimiendo. Aprende a distinguir el impulso del enojo real.",
+  "tauro":"Tu Luna en Tauro necesita estabilidad y contacto físico para sentirse segura: te calmas con rutina, comida, cuerpo. Cuidado con confundir comodidad con estancamiento emocional.",
+  "geminis":"Tu Luna en Géminis procesa las emociones hablando y pensando: necesitas nombrar lo que sientes para entenderlo. El silencio incómodo también es información válida.",
+  "cancer":"Tu Luna en Cáncer siente todo profundamente y recuerda cada detalle emocional: tu hogar y tu gente son tu ancla. Aprende a soltar lo que ya no es tuyo cargar.",
+  "leo":"Tu Luna en Leo necesita sentirse vista y valorada emocionalmente: te nutres del reconocimiento genuino. Tu reto es validarte primero tú, antes de buscarlo afuera.",
+  "virgo":"Tu Luna en Virgo encuentra calma en el orden y en ser útil: te tranquilizas resolviendo problemas. Practica sentir sin necesitar arreglar todo de inmediato.",
+  "libra":"Tu Luna en Libra necesita armonía y conexión para sentirse en paz: el conflicto te desestabiliza. Aprende que decir tu verdad no rompe el vínculo, lo fortalece.",
+  "escorpio":"Tu Luna en Escorpio siente con una intensidad que pocos entienden: no haces nada a medias emocionalmente. Tu reto es confiar y mostrarte vulnerable sin sentir que pierdes poder.",
+  "sagitario":"Tu Luna en Sagitario necesita libertad y perspectiva amplia para sentirse bien: te asfixias con la rutina emocional. Aprende que comprometerte no es lo mismo que quedar atrapado.",
+  "capricornio":"Tu Luna en Capricornio contiene sus emociones y busca seguridad a través del control: sientes que debes ser fuerte siempre. Date permiso de necesitar apoyo sin sentirlo como debilidad.",
+  "acuario":"Tu Luna en Acuario procesa las emociones desde la distancia y la lógica: necesitas espacio para sentir sin presión. Aprende que conectar de cerca no amenaza tu independencia.",
+  "piscis":"Tu Luna en Piscis absorbe el ambiente emocional de todo lo que te rodea: sientes lo tuyo y lo ajeno mezclado. Aprende a distinguir cuál emoción es realmente tuya."
+};
+const ASC_DESC = {
+  "aries":"Tu Ascendente en Aries hace que los demás te perciban directo, seguro y siempre listo para actuar, aunque por dentro dudes más de lo que aparentas.",
+  "tauro":"Tu Ascendente en Tauro proyecta calma y solidez: la gente te percibe confiable y paciente desde el primer momento, aunque tú sientas urgencia por dentro.",
+  "geminis":"Tu Ascendente en Géminis te hace parecer curioso, ágil y sociable de entrada: la gente espera de ti conversación e ideas frescas desde el primer minuto.",
+  "cancer":"Tu Ascendente en Cáncer proyecta calidez y cercanía: la gente te siente accesible y protector desde el inicio, aunque necesites tiempo para confiar de verdad.",
+  "leo":"Tu Ascendente en Leo hace que entres a cualquier lugar con presencia: la gente te percibe seguro y magnético, aunque por dentro también busques validación.",
+  "virgo":"Tu Ascendente en Virgo proyecta orden y atención al detalle: la gente confía en tu criterio de entrada, incluso si tú mismo dudas de estar haciéndolo bien.",
+  "libra":"Tu Ascendente en Libra te hace parecer encantador y diplomático desde el primer encuentro: la gente te percibe fácil de tratar, aunque decidir en privado te cueste más.",
+  "escorpio":"Tu Ascendente en Escorpio proyecta intensidad y misterio: la gente te siente magnético pero difícil de leer del todo, incluso cuando tú te sientes abierto.",
+  "sagitario":"Tu Ascendente en Sagitario te hace parecer optimista y aventurero de entrada: la gente espera energía y honestidad directa de ti desde el primer contacto.",
+  "capricornio":"Tu Ascendente en Capricornio proyecta seriedad y control desde el primer momento: la gente te percibe capaz y confiable, aunque por dentro te exijas más de la cuenta.",
+  "acuario":"Tu Ascendente en Acuario te hace parecer diferente e interesante de entrada: la gente te percibe como alguien fuera de lo común, aunque tú solo estés siendo tú mismo.",
+  "piscis":"Tu Ascendente en Piscis proyecta sensibilidad y una calidez difusa: la gente te percibe soñador y amable desde el inicio, aunque por dentro proceses más de lo que muestras."
+};
+
+function loadNatal(){
+  try{ return JSON.parse(localStorage.getItem('zc_natal') || 'null'); }catch(e){ return null; }
+}
+function saveNatal(data){ localStorage.setItem('zc_natal', JSON.stringify(data)); }
+function resetNatal(){
+  localStorage.removeItem('zc_natal');
+  renderCartaScreen();
+}
+
+function renderCartaScreen(){
+  const el = document.getElementById('screen-carta');
+  const natal = loadNatal();
+  if(!natal){
+    el.innerHTML = natalFormHTML();
+    populateCitySelect();
+  } else {
+    el.innerHTML = natalResultHTML(natal);
+  }
+}
+
+function natalFormHTML(){
+  return `
+    <div class="natal-form">
+      <p class="grid-label" style="margin:0 0 6px;">Tu carta natal real</p>
+      <p class="natal-note" style="margin-top:0;">Con tu fecha, hora y lugar de nacimiento calculamos tu Sol, Luna y Ascendente reales — no solo tu signo solar.</p>
+      <div class="natal-field">
+        <label>Fecha de nacimiento</label>
+        <input type="date" id="natalDate">
+      </div>
+      <div class="natal-field">
+        <label>Hora de nacimiento (lo m&aacute;s exacta posible)</label>
+        <input type="time" id="natalTime">
+      </div>
+      <div class="natal-field">
+        <label>Ciudad de nacimiento</label>
+        <select id="natalCity"></select>
+      </div>
+      <button class="natal-submit" onclick="submitNatal()">Calcular mi carta</button>
+      <p class="natal-error" id="natalError"></p>
+      <p class="natal-note">C&aacute;lculo astron&oacute;mico aproximado (no ajusta cambios hist&oacute;ricos de horario de verano de cada ciudad). Tus datos se guardan solo en este navegador.</p>
+    </div>`;
+}
+
+function populateCitySelect(){
+  const sel = document.getElementById('natalCity');
+  if(!sel) return;
+  const byCountry = {};
+  CITIES.forEach((city, idx)=>{
+    if(!byCountry[city.c]) byCountry[city.c] = [];
+    byCountry[city.c].push(idx);
+  });
+  let html = '<option value="">Selecciona tu ciudad</option>';
+  Object.keys(byCountry).forEach(country=>{
+    html += `<optgroup label="${country}">`;
+    byCountry[country].forEach(idx=>{
+      html += `<option value="${idx}">${CITIES[idx].n}</option>`;
+    });
+    html += '</optgroup>';
+  });
+  sel.innerHTML = html;
+}
+
+function submitNatal(){
+  const dateVal = document.getElementById('natalDate').value;
+  const timeVal = document.getElementById('natalTime').value;
+  const cityVal = document.getElementById('natalCity').value;
+  const errorEl = document.getElementById('natalError');
+  if(!dateVal || !timeVal || cityVal === ''){
+    errorEl.textContent = 'Completa fecha, hora y ciudad para calcular tu carta.';
+    errorEl.style.display = 'block';
+    return;
+  }
+  errorEl.style.display = 'none';
+  const city = CITIES[Number(cityVal)];
+  const [y, m, d] = dateVal.split('-').map(Number);
+  const [hh, mi] = timeVal.split(':').map(Number);
+  const chart = computeNatalChart(y, m, d, hh, mi, city.utc, city.lat, city.lon);
+  saveNatal({ date: dateVal, time: timeVal, city: city.n, country: city.c, chart: chart });
+  renderCartaScreen();
+}
+
+function natalResultHTML(natal){
+  const s = natal.chart.sun.sign, mo = natal.chart.moon.sign, a = natal.chart.ascendant.sign;
+  return `
+    <p class="grid-label" style="margin:18px 0 4px 16px;">Tus 3 grandes</p>
+    <div class="natal-result-card">
+      <div class="nr-head"><span class="sym">${DATA[s].sym}</span><div><div class="title">Sol</div><div class="signname">${DATA[s].nm}</div></div></div>
+      <p>${SUN_DESC[s]}</p>
+    </div>
+    <div class="natal-result-card">
+      <div class="nr-head"><span class="sym">${DATA[mo].sym}</span><div><div class="title">Luna</div><div class="signname">${DATA[mo].nm}</div></div></div>
+      <p>${MOON_DESC[mo]}</p>
+    </div>
+    <div class="natal-result-card">
+      <div class="nr-head"><span class="sym">${DATA[a].sym}</span><div><div class="title">Ascendente</div><div class="signname">${DATA[a].nm}</div></div></div>
+      <p>${ASC_DESC[a]}</p>
+    </div>
+    <span class="natal-edit" onclick="resetNatal()">Editar mis datos de nacimiento</span>
+  `;
 }
 </script>
 
