@@ -551,6 +551,41 @@
     line-height:1.5;
     margin:0;
   }
+
+  /* galerias de video/audio por signo */
+  .media-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:8px;
+    padding:0 16px 4px;
+  }
+  .media-card{
+    aspect-ratio:1;
+    background:var(--bg-panel);
+    border:1px solid var(--gold);
+    border-radius:14px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
+    cursor:pointer;
+    position:relative;
+    transition:transform .2s ease;
+  }
+  .media-card:hover{transform:translateY(-2px);}
+  .media-card .sym{font-size:16px; font-family:'Fraunces',serif; color:var(--text-primary);}
+  .media-card .nm{font-size:8px; color:var(--text-muted); letter-spacing:0.02em; text-align:center;}
+  .media-card .soon{font-size:6.5px; color:var(--gold-dim); margin-top:1px; letter-spacing:0.03em; text-transform:uppercase;}
+  .media-card.locked{opacity:0.55;}
+  .media-card.locked::after{
+    content:"\1F512";
+    position:absolute;
+    font-size:8px;
+    top:6px; right:7px;
+  }
+  .media-card.bump{animation:bump .3s ease;}
+  @keyframes bump{ 0%{transform:scale(1);} 50%{transform:scale(0.94);} 100%{transform:scale(1);} }
 </style>
 </head>
 <body>
@@ -600,6 +635,12 @@
       </div>
     </div>
   </div>
+
+  <p class="grid-label" style="margin:20px 16px 10px;">Videos por signo</p>
+  <div class="media-grid" id="videoGrid"></div>
+
+  <p class="grid-label" style="margin:20px 16px 10px;">Frecuencias por signo</p>
+  <div class="media-grid" id="audioGrid"></div>
 
   <div class="bottom-nav">
     <div class="nav-item active">
@@ -692,18 +733,74 @@ let isSubscribed = localStorage.getItem('zc_subscribed') === 'true';
 let saved = JSON.parse(localStorage.getItem('zc_saved') || '{}');
 let revealed = JSON.parse(localStorage.getItem('zc_revealed') || '{}');
 
+function isSignLocked(signKey){
+  if(isSubscribed) return false;
+  return !!freeSign && signKey !== freeSign;
+}
+
 function isLocked(signKey, tab){
   if(isSubscribed) return false;
   if(tab === 'weekly') return true;
-  return !!freeSign && signKey !== freeSign;
+  return isSignLocked(signKey);
 }
 
 function renderGridLocks(){
   ORDER.forEach(key=>{
     const btn = document.getElementById('btn-'+key);
     if(!btn) return;
-    btn.classList.toggle('locked', isLocked(key, 'daily'));
+    btn.classList.toggle('locked', isSignLocked(key));
   });
+}
+
+// Contenido futuro por signo (12 videos, 12 audios). Por ahora estan vacios
+// ("Proximamente"). Cuando tengas el archivo o link real, solo pon la URL, ej:
+//   VIDEOS.aries.url = "https://tu-hosting.com/videos/aries.mp4";
+//   AUDIOS.aries.url = "https://tu-hosting.com/audio/aries.mp3";
+// No conviene meter los archivos directo en este HTML como el video/cancion
+// de arriba: cada uno pesa varios MB y con 24 archivos el sitio quedaria
+// enorme y lento. Mejor subirlos a un hosting de video/audio y solo enlazarlos.
+const VIDEOS = {};
+const AUDIOS = {};
+ORDER.forEach(key=>{
+  VIDEOS[key] = { url: null };
+  AUDIOS[key] = { url: null };
+});
+
+function renderMediaGrids(){
+  const videoGrid = document.getElementById('videoGrid');
+  const audioGrid = document.getElementById('audioGrid');
+  if(!videoGrid || !audioGrid) return;
+  videoGrid.innerHTML = '';
+  audioGrid.innerHTML = '';
+  ORDER.forEach(key=>{
+    const d = DATA[key];
+    const locked = isSignLocked(key);
+
+    const vCard = document.createElement('div');
+    vCard.className = 'media-card' + (locked ? ' locked' : '');
+    vCard.innerHTML = `<span class="sym">${d.sym}</span><span class="nm">${d.nm}</span><span class="soon">${VIDEOS[key].url ? '' : 'Pr\u00f3ximamente'}</span>`;
+    vCard.addEventListener('click', ()=> handleMediaClick(key, VIDEOS[key], vCard));
+    videoGrid.appendChild(vCard);
+
+    const aCard = document.createElement('div');
+    aCard.className = 'media-card' + (locked ? ' locked' : '');
+    aCard.innerHTML = `<span class="sym">${d.sym}</span><span class="nm">${d.nm}</span><span class="soon">${AUDIOS[key].url ? '' : 'Pr\u00f3ximamente'}</span>`;
+    aCard.addEventListener('click', ()=> handleMediaClick(key, AUDIOS[key], aCard));
+    audioGrid.appendChild(aCard);
+  });
+}
+
+function handleMediaClick(signKey, item, cardEl){
+  if(isSignLocked(signKey)){
+    openPaywall();
+    return;
+  }
+  if(!item.url){
+    cardEl.classList.add('bump');
+    setTimeout(()=> cardEl.classList.remove('bump'), 300);
+    return;
+  }
+  // TODO: cuando item.url ya exista, aqui se reproduce el video/audio real.
 }
 
 function openPaywall(){
@@ -723,6 +820,7 @@ ORDER.forEach(key=>{
   grid.appendChild(btn);
 });
 renderGridLocks();
+renderMediaGrids();
 
 function selectSign(key){
   if(currentSign) document.getElementById('btn-'+currentSign).classList.remove('active');
@@ -733,6 +831,7 @@ function selectSign(key){
     freeSign = key;
     localStorage.setItem('zc_freeSign', freeSign);
     renderGridLocks();
+    renderMediaGrids();
   }
   renderPanel();
 }
