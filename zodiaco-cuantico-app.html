@@ -555,6 +555,12 @@
     line-height:1.5;
     margin:0;
   }
+  .paywall-divider{
+    font-size:11px;
+    color:var(--text-muted);
+    text-align:center;
+    margin:18px 0 14px;
+  }
 
   /* galerias de video/audio por signo */
   .media-grid{
@@ -864,13 +870,83 @@ const panel = document.getElementById('panel');
 let currentSign = null;
 let currentTab = 'daily';
 
-// --- Suscripcion (sin backend todavia) ---
+// --- Suscripcion (via Hotmart) ---
 // freeSign: el primer signo que el usuario elige queda gratis para siempre en este navegador.
-// isSubscribed: true solo si el usuario pago (por ahora, se activa manualmente hasta conectar Stripe).
+// isSubscribed: true cuando confirmamos con el puente de Hotmart que ese
+// correo tiene un pago activo. Ver backend/hotmart-bridge/README.md.
+const HOTMART_BRIDGE_URL = 'REEMPLAZA_CON_TU_URL_DEL_WORKER';
 let freeSign = localStorage.getItem('zc_freeSign') || null;
 let isSubscribed = localStorage.getItem('zc_subscribed') === 'true';
+let subscribedEmail = localStorage.getItem('zc_subscribed_email') || '';
 let saved = JSON.parse(localStorage.getItem('zc_saved') || '{}');
 let revealed = JSON.parse(localStorage.getItem('zc_revealed') || '{}');
+
+async function checkSubscriptionActive(email){
+  if(HOTMART_BRIDGE_URL.startsWith('REEMPLAZA_')) return null; // puente aun no conectado
+  try{
+    const res = await fetch(`${HOTMART_BRIDGE_URL}/check?email=${encodeURIComponent(email)}`);
+    if(!res.ok) return null;
+    const data = await res.json();
+    return !!data.active;
+  }catch(err){
+    return null;
+  }
+}
+
+function setSubscribed(active, email){
+  isSubscribed = active;
+  subscribedEmail = active ? email : '';
+  localStorage.setItem('zc_subscribed', active ? 'true' : 'false');
+  localStorage.setItem('zc_subscribed_email', subscribedEmail);
+  localStorage.setItem('zc_subscribed_checked', String(Date.now()));
+  renderGridLocks();
+  renderMediaGrids();
+  if(currentSign) renderPanel();
+}
+
+async function maybeRevalidateSubscription(){
+  if(!isSubscribed || !subscribedEmail) return;
+  const lastChecked = Number(localStorage.getItem('zc_subscribed_checked') || 0);
+  const ONE_DAY = 24 * 60 * 60 * 1000;
+  if(Date.now() - lastChecked < ONE_DAY) return;
+  const active = await checkSubscriptionActive(subscribedEmail);
+  if(active === null) return; // no se pudo verificar (sin internet, puente caido): no revocar
+  setSubscribed(active, subscribedEmail);
+}
+
+async function submitPaywallEmail(){
+  const input = document.getElementById('paywallEmail');
+  const errorEl = document.getElementById('paywallEmailError');
+  const btn = document.getElementById('paywallEmailBtn');
+  const email = (input.value || '').trim().toLowerCase();
+  errorEl.style.display = 'none';
+
+  if(!email || !email.includes('@')){
+    errorEl.textContent = 'Escribe el correo con el que compraste en Hotmart.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Verificando...';
+  const active = await checkSubscriptionActive(email);
+  btn.disabled = false;
+  btn.textContent = 'Ya pagué, desbloquear';
+
+  if(active === null){
+    errorEl.textContent = 'No pudimos verificar tu correo en este momento. Intenta de nuevo en un minuto.';
+    errorEl.style.display = 'block';
+    return;
+  }
+  if(!active){
+    errorEl.textContent = 'No encontramos una suscripción activa con ese correo. Si acabas de pagar, espera 1-2 minutos e intenta de nuevo.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  setSubscribed(true, email);
+  closePaywall();
+}
 
 function isSignLocked(signKey){
   if(isSubscribed) return false;
@@ -1001,6 +1077,7 @@ ORDER.forEach(key=>{
 });
 renderGridLocks();
 renderMediaGrids();
+maybeRevalidateSubscription();
 
 function selectSign(key){
   if(currentSign) document.getElementById('btn-'+currentSign).classList.remove('active');
@@ -1575,8 +1652,16 @@ function natalResultHTML(natal){
     <h3>Desbloquea tu Zodiaco Cu&aacute;ntico completo</h3>
     <p class="paywall-modal-sub">Acceso a los 12 signos, lecturas semanales y rituales guiados cada semana.</p>
     <div class="plan-price"><span class="amount">$6.99</span><span class="cycle">&nbsp;USD/mes</span></div>
-    <a class="subscribe-cta" id="subscribeCta" href="REEMPLAZA_CON_TU_LINK_DE_STRIPE" target="_blank" rel="noopener">Suscribirme ahora</a>
-    <p class="paywall-fine">Cancelas cuando quieras. Pago seguro procesado por Stripe.</p>
+    <a class="subscribe-cta" id="subscribeCta" href="REEMPLAZA_CON_TU_LINK_DE_HOTMART" target="_blank" rel="noopener">Suscribirme ahora</a>
+    <p class="paywall-fine">Cancelas cuando quieras. Pago seguro procesado por Hotmart.</p>
+
+    <p class="paywall-divider">&mdash; ya pagu&eacute; &mdash;</p>
+    <div class="natal-field" style="text-align:left;">
+      <label for="paywallEmail">Correo con el que compraste</label>
+      <input type="email" id="paywallEmail" placeholder="tucorreo@ejemplo.com" autocomplete="email">
+    </div>
+    <button class="natal-submit" id="paywallEmailBtn" onclick="submitPaywallEmail()">Ya pagu&eacute;, desbloquear</button>
+    <p class="natal-error" id="paywallEmailError"></p>
   </div>
 </div>
 
