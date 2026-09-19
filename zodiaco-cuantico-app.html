@@ -637,6 +637,62 @@
     display:block; text-align:center; margin:6px 16px 22px;
     font-size:12.5px; color:var(--gold); cursor:pointer; text-decoration:underline;
   }
+
+  /* carta del dia (tarot) */
+  .tarot-wrap{padding:20px 22px 8px;}
+  .tarot-streak{
+    text-align:center;
+    font-size:13px;
+    color:var(--gold);
+    background:rgba(201,161,90,0.12);
+    border:1px solid var(--gold);
+    border-radius:var(--radius-pill, 999px);
+    padding:8px 14px;
+    margin:0 auto 22px;
+    width:fit-content;
+  }
+  .tarot-back{
+    width:180px; height:288px;
+    margin:0 auto;
+    border-radius:16px;
+    border:1px solid var(--gold);
+    background:
+      repeating-linear-gradient(45deg, rgba(201,161,90,0.08) 0 8px, transparent 8px 16px),
+      linear-gradient(160deg, var(--bg-panel-2), var(--bg-panel));
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;
+    box-shadow:0 20px 40px -20px rgba(0,0,0,0.6);
+    transition:transform .2s ease;
+  }
+  .tarot-back:hover{transform:translateY(-3px);}
+  .tarot-back-glyph{
+    font-family:'Fraunces',serif;
+    font-size:44px;
+    color:var(--gold);
+    opacity:0.7;
+  }
+  .tarot-card-reveal{text-align:center;}
+  .tarot-img{
+    width:200px;
+    border-radius:16px;
+    margin:0 auto 16px;
+    border:1px solid var(--gold);
+    box-shadow:0 20px 40px -18px rgba(0,0,0,0.65);
+  }
+  .tarot-name{
+    font-family:'Fraunces',serif;
+    font-weight:450;
+    font-size:19px;
+    margin:0 0 14px;
+  }
+  .tarot-text{
+    font-size:14.5px;
+    line-height:1.65;
+    color:var(--text-primary);
+    margin:0 0 14px;
+    text-align:left;
+  }
+  .tarot-wrap .reflection{text-align:left; border-top:1px solid var(--line); padding-top:14px;}
 </style>
 </head>
 <body>
@@ -698,6 +754,8 @@
 
   <div id="screen-carta" style="display:none"></div>
 
+  <div id="screen-patron" style="display:none"></div>
+
   <div class="bottom-nav">
     <div class="nav-item active" id="navHoy" onclick="showScreen('hoy')">
       <span class="nav-icon">✦</span>Hoy<span class="dot"></span>
@@ -705,7 +763,7 @@
     <div class="nav-item" id="navCarta" onclick="showScreen('carta')">
       <span class="nav-icon">☾</span>Carta
     </div>
-    <div class="nav-item" id="navPatron" onclick="comingSoonNav(this)">
+    <div class="nav-item" id="navPatron" onclick="showScreen('patron')">
       <span class="nav-icon">◈</span>Patrón
     </div>
     <div class="nav-item" id="navFrecuencias" onclick="comingSoonNav(this)">
@@ -1017,13 +1075,113 @@ function playVideo(){
 function showScreen(name){
   document.getElementById('screen-hoy').style.display = name === 'hoy' ? 'block' : 'none';
   document.getElementById('screen-carta').style.display = name === 'carta' ? 'block' : 'none';
+  document.getElementById('screen-patron').style.display = name === 'patron' ? 'block' : 'none';
   document.getElementById('navHoy').classList.toggle('active', name === 'hoy');
   document.getElementById('navCarta').classList.toggle('active', name === 'carta');
+  document.getElementById('navPatron').classList.toggle('active', name === 'patron');
   if(name === 'carta') renderCartaScreen();
+  if(name === 'patron') renderPatronScreen();
 }
 function comingSoonNav(el){
   el.classList.add('bump');
   setTimeout(()=> el.classList.remove('bump'), 300);
+}
+
+/* ================= Carta del dia (juego de tarot + racha) =================
+   22 arcanos mayores. Cada dia el usuario puede revelar UNA carta al azar;
+   si vuelve al dia siguiente sin fallar un dia, la racha sube. Todo vive en
+   localStorage, sin backend ni cuentas. */
+const TAROT = {
+  "loco": {nm:"El Loco", img:"assets/tarot/mayores/00-loco.jpg", text:"El Loco no anuncia caos, refleja el momento exacto en el que decides confiar sin tener el mapa completo. Lo que sientes ahora —mezcla de miedo y ganas de saltar— es la señal de que ya decidiste, solo falta que tu cuerpo lo alcance.", q:"¿Qué salto ya tomé por dentro, aunque todavía no lo vea afuera?"},
+  "mago": {nm:"El Mago", img:"assets/tarot/mayores/01-mago.jpg", text:"El Mago aparece cuando ya tienes todo lo que necesitas y la única pregunta es si te lo crees. No es sobre conseguir más herramientas, es sobre actuar como si las que ya tienes fueran suficientes.", q:"¿Qué haría hoy si ya supiera que tengo todo lo necesario?"},
+  "sacerdotisa": {nm:"La Sacerdotisa", img:"assets/tarot/mayores/02-sacerdotisa.jpg", text:"La Sacerdotisa no esconde un secreto en otro lado —refleja algo que tú ya sabes y todavía no te has permitido escuchar. La respuesta no está afuera, está en el silencio que evitas.", q:"¿Qué llevo sabiendo en silencio hace tiempo?"},
+  "emperatriz": {nm:"La Emperatriz", img:"assets/tarot/mayores/03-emperatriz.jpg", text:"La Emperatriz no habla de una abundancia que llega de fuera, habla de la que ya estás cultivando por dentro sin darte cuenta. Lo que hoy sientes crecer merece espacio, no prisa.", q:"¿Qué estoy dejando crecer sin exigirle resultados todavía?"},
+  "emperador": {nm:"El Emperador", img:"assets/tarot/mayores/04-emperador.jpg", text:"El Emperador no es una orden que viene de afuera, es el recordatorio de que la estructura que necesitas ya la puedes construir tú mismo, decisión por decisión.", q:"¿Qué estructura interna necesito sostener antes de pedir orden afuera?"},
+  "sumo-sacerdote": {nm:"El Sumo Sacerdote", img:"assets/tarot/mayores/05-sumo-sacerdote.jpg", text:"El Sumo Sacerdote no dicta una regla que debas obedecer, refleja qué tan alineado estás entre lo que dices creer y lo que en verdad vives cada día.", q:"¿Mi día de hoy coincide con lo que digo que valoro?"},
+  "enamorados": {nm:"Los Enamorados", img:"assets/tarot/mayores/06-enamorados.jpg", text:"Los Enamorados no hablan de elegir entre dos personas, hablan de elegir entre la versión de ti que actúa por miedo y la que actúa por lo que de verdad quiere sentir.", q:"¿Esta decisión la estoy tomando desde el miedo o desde el deseo real?"},
+  "carro": {nm:"El Carro", img:"assets/tarot/mayores/07-carro.jpg", text:"El Carro no promete que vas a ganar, refleja que ya tienes el control de la dirección —la pregunta es si vas a manejar tú, o vas a dejar que el miedo lleve el volante.", q:"¿Quién está manejando hoy: mi intención o mi ansiedad?"},
+  "justicia": {nm:"La Justicia", img:"assets/tarot/mayores/08-justicia.jpg", text:"La Justicia no juzga desde afuera, refleja las consecuencias naturales de una decisión que ya tomaste, consciente o no. No hay castigo aquí, solo causa y efecto que puedes empezar a dirigir.", q:"¿Qué decisión mía está generando lo que hoy vivo?"},
+  "ermitano": {nm:"El Ermitaño", img:"assets/tarot/mayores/09-ermitano.jpg", text:"El Ermitaño no pide que te aísles del mundo, pide que por un momento dejes de buscar la respuesta afuera y la escuches en el único lugar donde siempre ha estado: adentro.", q:"¿Qué pregunta dejo de escuchar por estar mirando hacia fuera?"},
+  "rueda-fortuna": {nm:"La Rueda de la Fortuna", img:"assets/tarot/mayores/10-rueda-fortuna.jpg", text:"La Rueda no gira por azar —gira reflejando los ciclos que tú mismo alimentas con lo que repites pensar y sentir cada día. Lo que hoy cambia, empezó a moverse hace tiempo dentro de ti.", q:"¿Qué vengo repitiendo por dentro que ahora se manifiesta afuera?"},
+  "fuerza": {nm:"La Fuerza", img:"assets/tarot/mayores/11-fuerza.jpg", text:"La Fuerza no es dominar al león de afuera, es la calma con la que tratas a la parte de ti que reacciona con miedo. Entre más gentil eres contigo, menos necesitas pelear con nada.", q:"¿A qué parte de mí necesito tratar con más ternura hoy?"},
+  "colgado": {nm:"El Colgado", img:"assets/tarot/mayores/12-colgado.jpg", text:"El Colgado no está atrapado, está en pausa a propósito —viendo el mismo problema desde un ángulo que solo aparece cuando dejas de forzar una salida.", q:"¿Qué veo distinto si dejo de intentar resolver esto ahora mismo?"},
+  "muerte": {nm:"La Muerte", img:"assets/tarot/mayores/13-muerte.jpg", text:"La Muerte no anuncia un final trágico, refleja que ya terminaste algo por dentro y solo falta que lo sueltes también por fuera. Lo nuevo no puede entrar mientras sigas cargando lo que ya cerraste.", q:"¿Qué ya terminé adentro que sigo cargando afuera?"},
+  "templanza": {nm:"La Templanza", img:"assets/tarot/mayores/14-templanza.jpg", text:"La Templanza no habla de un balance perfecto, habla de mezclar con paciencia lo que sientes, sin apurarte a que sea perfecto ya. Lo que hoy combinas con calma, mañana se sostiene solo.", q:"¿Dónde estoy exigiendo un resultado inmediato en vez de una mezcla paciente?"},
+  "diablo": {nm:"El Diablo", img:"assets/tarot/mayores/15-diablo.jpg", text:"El Diablo no representa un mal externo, refleja la cadena que tú mismo sostienes creyendo que no puedes soltarla. Casi siempre, la puerta ya está abierta —lo que pesa es la creencia, no la cadena.", q:"¿Qué cadena sigo sosteniendo yo mismo, creyendo que no puedo soltarla?"},
+  "torre": {nm:"La Torre", img:"assets/tarot/mayores/16-torre.jpg", text:"La Torre no castiga, derrumba lo que ya no estaba sostenido por algo real —solo por costumbre o miedo a empezar de nuevo. Lo que se cae hoy, deja espacio para algo construido con verdad.", q:"¿Qué se estaba sosteniendo solo por costumbre, no por verdad?"},
+  "estrella": {nm:"La Estrella", img:"assets/tarot/mayores/17-estrella.jpg", text:"La Estrella no promete que todo va a estar bien sin que hagas nada, refleja la calma que aparece cuando vuelves a confiar en tu propia dirección después de una caída.", q:"¿En qué parte de mí ya empecé a confiar de nuevo?"},
+  "luna": {nm:"La Luna", img:"assets/tarot/mayores/18-luna.jpg", text:"La Luna no habla de un peligro oculto, refleja la parte de ti que sabe algo mucho antes de que puedas explicarlo con palabras. No todo necesita lógica todavía.", q:"¿Qué sé sin poder explicarlo todavía?"},
+  "sol": {nm:"El Sol", img:"assets/tarot/mayores/19-sol.jpg", text:"El Sol no es una alegría que llega desde afuera, refleja lo que ya eres cuando dejas de esconderte detrás de la duda. Esto que sientes hoy no es suerte, es tuyo.", q:"¿Qué parte de mi luz he estado escondiendo por dudar de mí?"},
+  "juicio": {nm:"El Juicio", img:"assets/tarot/mayores/20-juicio.jpg", text:"El Juicio no es una sentencia externa, es el llamado que sientes por dentro a dejar de posponer quién ya decidiste ser. No necesitas permiso de nadie más para responder ese llamado.", q:"¿Qué llamado interno llevo posponiendo por esperar una señal de afuera?"},
+  "mundo": {nm:"El Mundo", img:"assets/tarot/mayores/21-mundo.jpg", text:"El Mundo no es una meta lejana por alcanzar, refleja que un ciclo ya se completó dentro de ti, aunque afuera todavía no se note del todo. Ya llegaste a algo —date el crédito.", q:"¿Qué ciclo ya cerré por dentro que todavía no celebro?"}
+};
+const TAROT_KEYS = Object.keys(TAROT);
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function yesterdayStr(){
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function loadTarotState(){
+  try{
+    return JSON.parse(localStorage.getItem('zc_tarot') || 'null') || { streak: 0, lastDate: null, lastCard: null };
+  }catch(e){
+    return { streak: 0, lastDate: null, lastCard: null };
+  }
+}
+function saveTarotState(state){
+  localStorage.setItem('zc_tarot', JSON.stringify(state));
+}
+function drawTarotCard(){
+  const state = loadTarotState();
+  const today = todayStr();
+  if(state.lastDate === today) return state;
+  state.streak = (state.lastDate === yesterdayStr()) ? state.streak + 1 : 1;
+  state.lastDate = today;
+  state.lastCard = TAROT_KEYS[Math.floor(Math.random() * TAROT_KEYS.length)];
+  saveTarotState(state);
+  return state;
+}
+function revealTarotCard(){
+  drawTarotCard();
+  renderPatronScreen();
+}
+function renderPatronScreen(){
+  const el = document.getElementById('screen-patron');
+  if(!el) return;
+  const state = loadTarotState();
+  const today = todayStr();
+  const alreadyDrawn = state.lastDate === today;
+  const streakLabel = state.streak + (state.streak === 1 ? ' d\u00eda' : ' d\u00edas');
+
+  if(alreadyDrawn){
+    const card = TAROT[state.lastCard];
+    el.innerHTML = `
+      <div class="tarot-wrap">
+        <div class="tarot-streak">\u{1F525} Racha: ${streakLabel}</div>
+        <div class="tarot-card-reveal fade-in">
+          <img src="${card.img}" alt="${card.nm}" class="tarot-img">
+          <h3 class="tarot-name">${card.nm}</h3>
+          <p class="tarot-text">${card.text}</p>
+          <p class="reflection">${card.q}</p>
+        </div>
+        <p class="natal-note" style="text-align:center;">Vuelve ma\u00f1ana por tu siguiente carta.</p>
+      </div>`;
+  } else {
+    el.innerHTML = `
+      <div class="tarot-wrap">
+        <div class="tarot-streak">\u{1F525} Racha: ${streakLabel}</div>
+        <p class="grid-label" style="text-align:center;margin:8px 0 20px;">Tu carta del d\u00eda te espera</p>
+        <div class="tarot-back" onclick="revealTarotCard()">
+          <span class="tarot-back-glyph">\u2726</span>
+        </div>
+        <p class="natal-note" style="text-align:center;">Toca la carta para revelarla.</p>
+      </div>`;
+  }
 }
 
 function normalizeDeg(d){ d = d % 360; if(d < 0) d += 360; return d; }
