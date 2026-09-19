@@ -1,0 +1,619 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Zodiaco Cuántico – Tu carta astral, decodificada con precisión real</title>
+<link rel="icon" type="image/jpeg" href="assets/logo-icon.jpg">
+<meta name="description" content="Nada de horóscopos genéricos. Zodiaco Cuántico cruza tu carta natal con ciclos de energía reales para decirte qué hacer hoy, con quién y cuándo. Pruébalo gratis.">
+
+<meta property="og:title" content="Zodiaco Cuántico – Tu carta astral, decodificada con precisión real">
+<meta property="og:description" content="Nada de horóscopos genéricos. Cruza tu carta natal con ciclos de energía reales para decirte qué hacer hoy, con quién y cuándo.">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#0b0b0d;
+    --bg-soft:#0f0e13;
+    --surface:#16141c;
+    --surface-2:#1c1a24;
+    --border:rgba(255,255,255,0.08);
+    --text:#ffffff;
+    --muted:#c9c7d2;
+    --muted-2:#8a8794;
+    --red:#e53434;
+    --red-deep:#7f1f1f;
+    --pink:#e91e63;
+    --green:#1ab754;
+    --green-soft:#22c55e;
+    --radius-pill:999px;
+    --radius-lg:22px;
+    --radius-md:16px;
+    --radius-sm:12px;
+    --shadow-lg:0 20px 55px rgba(0,0,0,0.35);
+    --shadow-sm:0 14px 30px rgba(0,0,0,0.25);
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
+    overflow-x:hidden;
+  }
+  img{max-width:100%;display:block}
+  a{color:inherit;text-decoration:none}
+  ul{margin:0;padding:0;list-style:none}
+  h1,h2,h3,h4{margin:0;font-weight:800;letter-spacing:-0.025em}
+  p{margin:0}
+  button{font:inherit;cursor:pointer}
+
+  .wrap{max-width:1120px;margin:0 auto;padding:0 24px}
+
+  /* stars background */
+  .stars{
+    position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:
+      radial-gradient(2px 2px at 20% 30%, rgba(255,255,255,0.5) 0, transparent 50%),
+      radial-gradient(2px 2px at 70% 60%, rgba(255,255,255,0.4) 0, transparent 50%),
+      radial-gradient(1.5px 1.5px at 40% 80%, rgba(255,255,255,0.35) 0, transparent 50%),
+      radial-gradient(1.5px 1.5px at 85% 15%, rgba(255,255,255,0.4) 0, transparent 50%),
+      radial-gradient(1.5px 1.5px at 55% 45%, rgba(255,255,255,0.3) 0, transparent 50%),
+      radial-gradient(1.5px 1.5px at 10% 65%, rgba(255,255,255,0.3) 0, transparent 50%);
+    background-repeat:repeat;
+    background-size:600px 600px;
+    opacity:0.6;
+  }
+
+  /* ---------- header ---------- */
+  header{
+    position:sticky;top:0;z-index:20;
+    background:rgba(11,11,13,0.85);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--border);
+  }
+  .nav{display:flex;align-items:center;justify-content:space-between;padding:16px 24px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:18px}
+  .brand-mark{
+    width:34px;height:34px;border-radius:50%;
+    background:#000;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:0 0 0 1px var(--border), 0 8px 20px rgba(0,0,0,0.35);
+    overflow:hidden;
+  }
+  .brand-mark img{width:100%;height:100%;object-fit:cover;display:block;}
+  .nav-cta{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--green-soft);color:#06210f;
+    font-weight:700;font-size:14px;
+    padding:10px 20px;border-radius:var(--radius-pill);
+    box-shadow:0 10px 24px rgba(34,197,94,0.25);
+  }
+
+  /* ---------- hero ---------- */
+  .hero{
+    position:relative;z-index:1;
+    padding:72px 24px 56px;
+    text-align:center;
+    background:
+      radial-gradient(60% 50% at 50% 0%, rgba(229,52,52,0.35) 0%, rgba(229,52,52,0) 70%),
+      radial-gradient(50% 40% at 80% 20%, rgba(233,30,99,0.2) 0%, rgba(233,30,99,0) 70%),
+      var(--bg);
+  }
+  .eyebrow{
+    display:inline-flex;align-items:center;gap:8px;
+    background:rgba(229,52,52,0.12);
+    border:1px solid rgba(229,52,52,0.35);
+    color:#ff8a8a;
+    font-size:13px;font-weight:700;
+    padding:8px 16px;border-radius:var(--radius-pill);
+    margin-bottom:24px;
+  }
+  .hero h1{
+    font-size:clamp(32px,5.5vw,56px);
+    line-height:1.08;
+    max-width:840px;
+    margin:0 auto 20px;
+  }
+  .hero h1 em{
+    font-style:normal;
+    background:linear-gradient(90deg,var(--red),var(--pink));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+  }
+  .hero p.sub{
+    max-width:600px;margin:0 auto 32px;
+    color:var(--muted);font-size:18px;line-height:1.6;
+  }
+  .cta-row{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-bottom:20px}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:16px 32px;border-radius:var(--radius-pill);
+    font-weight:800;font-size:16px;
+    border:none;
+  }
+  .btn-primary{
+    background:linear-gradient(90deg,var(--green),var(--green-soft));
+    color:#06210f;
+    box-shadow:0 16px 34px rgba(34,197,94,0.3);
+  }
+  .btn-ghost{
+    background:transparent;color:var(--text);
+    border:1px solid var(--border);
+  }
+  .hero-note{color:var(--muted-2);font-size:13px}
+
+  /* zodiac wheel */
+  .wheel-wrap{display:flex;justify-content:center;margin:48px auto 0}
+  .wheel{
+    width:220px;height:220px;border-radius:50%;
+    position:relative;
+    background:radial-gradient(circle at 50% 50%, var(--surface-2) 0%, var(--surface) 60%, #0b0b0d 100%);
+    border:1px solid var(--border);
+    box-shadow:var(--shadow-lg), inset 0 0 40px rgba(229,52,52,0.15);
+    display:flex;align-items:center;justify-content:center;
+  }
+  .wheel::before{
+    content:"";position:absolute;inset:14px;border-radius:50%;
+    border:1px dashed rgba(255,255,255,0.15);
+  }
+  .wheel-glyphs{
+    position:absolute;inset:0;
+  }
+  .wheel-glyphs span{
+    position:absolute;font-size:15px;color:var(--muted);
+    width:24px;height:24px;display:flex;align-items:center;justify-content:center;
+  }
+  .wheel-core{
+    width:64px;height:64px;border-radius:50%;
+    background:linear-gradient(135deg,var(--red),var(--pink));
+    display:flex;align-items:center;justify-content:center;
+    font-size:26px;
+    box-shadow:0 0 30px rgba(233,30,99,0.55);
+  }
+
+  /* ---------- section basics ---------- */
+  section{position:relative;z-index:1;padding:72px 24px}
+  .section-head{max-width:640px;margin:0 auto 44px;text-align:center}
+  .kicker{
+    display:block;color:var(--pink);font-weight:700;font-size:13px;
+    letter-spacing:0.08em;text-transform:uppercase;margin-bottom:12px;
+  }
+  .section-head h2{font-size:clamp(26px,4vw,38px);line-height:1.15;margin-bottom:14px}
+  .section-head p{color:var(--muted);font-size:16px;line-height:1.6}
+
+  /* ---------- pains ---------- */
+  .pains{background:var(--bg-soft);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .pains-grid{
+    max-width:900px;margin:0 auto;
+    display:grid;grid-template-columns:1fr;gap:14px;
+  }
+  .pain-item{
+    display:flex;gap:14px;align-items:flex-start;
+    background:var(--surface);border:1px solid var(--border);
+    padding:18px 20px;border-radius:var(--radius-md);
+  }
+  .pain-item .x{
+    flex:none;width:26px;height:26px;border-radius:50%;
+    background:rgba(229,52,52,0.15);color:var(--red);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:14px;
+  }
+  .pain-item p{color:var(--muted);font-size:15.5px;line-height:1.55}
+  .pain-item strong{color:var(--text)}
+
+  /* ---------- features ---------- */
+  .features-grid{
+    max-width:1000px;margin:0 auto;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;
+  }
+  .feature-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-lg);padding:28px 24px;
+    box-shadow:var(--shadow-sm);
+  }
+  .feature-icon{
+    width:48px;height:48px;border-radius:14px;
+    display:flex;align-items:center;justify-content:center;font-size:22px;
+    background:linear-gradient(135deg,rgba(229,52,52,0.25),rgba(233,30,99,0.2));
+    margin-bottom:18px;
+  }
+  .feature-card h3{font-size:18px;margin-bottom:10px}
+  .feature-card p{color:var(--muted);font-size:14.5px;line-height:1.6}
+
+  /* ---------- steps ---------- */
+  .steps{background:var(--bg-soft);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .steps-grid{
+    max-width:960px;margin:0 auto;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;
+  }
+  .step{text-align:center;padding:0 8px}
+  .step-num{
+    width:44px;height:44px;border-radius:50%;margin:0 auto 18px;
+    background:linear-gradient(135deg,var(--red),var(--pink));
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;
+  }
+  .step h3{font-size:17px;margin-bottom:10px}
+  .step p{color:var(--muted);font-size:14.5px;line-height:1.6}
+
+  /* ---------- testimonials ---------- */
+  .testi-grid{
+    max-width:1000px;margin:0 auto;
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;
+  }
+  .testi-card{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-lg);padding:26px 24px;
+  }
+  .stars-row{color:#f5b400;font-size:15px;margin-bottom:14px;letter-spacing:2px}
+  .testi-card p.quote{color:var(--text);font-size:15px;line-height:1.65;margin-bottom:18px}
+  .testi-person{display:flex;align-items:center;gap:12px}
+  .avatar{
+    width:38px;height:38px;border-radius:50%;
+    background:linear-gradient(135deg,var(--red-deep),var(--pink));
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;
+  }
+  .testi-person .name{font-weight:700;font-size:14px}
+  .testi-person .role{color:var(--muted-2);font-size:12.5px}
+
+  /* ---------- pricing ---------- */
+  .pricing-card{
+    max-width:420px;margin:0 auto;
+    background:linear-gradient(180deg,var(--surface-2),var(--surface));
+    border:1px solid rgba(233,30,99,0.35);
+    border-radius:var(--radius-lg);
+    padding:36px 32px;text-align:center;
+    box-shadow:var(--shadow-lg);
+    position:relative;
+  }
+  .pricing-badge{
+    position:absolute;top:-14px;left:50%;transform:translateX(-50%);
+    background:var(--pink);color:#fff;font-size:12px;font-weight:800;
+    padding:6px 16px;border-radius:var(--radius-pill);
+    text-transform:uppercase;letter-spacing:0.04em;
+  }
+  .price-row{display:flex;align-items:baseline;justify-content:center;gap:8px;margin:18px 0 6px}
+  .price-old{color:var(--muted-2);text-decoration:line-through;font-size:18px}
+  .price-new{font-size:46px;font-weight:900}
+  .price-cycle{color:var(--muted);font-size:14px}
+  .pricing-list{margin:26px 0 30px;text-align:left;display:flex;flex-direction:column;gap:12px}
+  .pricing-list li{display:flex;gap:10px;align-items:flex-start;color:var(--muted);font-size:14.5px}
+  .pricing-list li .check{
+    flex:none;width:20px;height:20px;border-radius:50%;
+    background:rgba(26,183,84,0.18);color:var(--green-soft);
+    display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;
+  }
+  .pricing-list li strong{color:var(--text)}
+  .guarantee{margin-top:16px;color:var(--muted-2);font-size:12.5px}
+
+  /* ---------- faq ---------- */
+  .faq-list{max-width:720px;margin:0 auto;display:flex;flex-direction:column;gap:12px}
+  .faq-item{
+    background:var(--surface);border:1px solid var(--border);
+    border-radius:var(--radius-md);overflow:hidden;
+  }
+  .faq-q{
+    width:100%;text-align:left;background:none;border:none;color:var(--text);
+    padding:18px 22px;font-weight:700;font-size:15px;
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+  }
+  .faq-q .plus{color:var(--pink);font-size:20px;transition:transform 0.2s ease}
+  .faq-item.open .faq-q .plus{transform:rotate(45deg)}
+  .faq-a{
+    max-height:0;overflow:hidden;transition:max-height 0.25s ease;
+    padding:0 22px;color:var(--muted);font-size:14.5px;line-height:1.6;
+  }
+  .faq-item.open .faq-a{padding-bottom:20px}
+
+  /* ---------- final cta ---------- */
+  .final-cta{
+    text-align:center;
+    background:
+      radial-gradient(60% 80% at 50% 100%, rgba(229,52,52,0.3) 0%, rgba(229,52,52,0) 70%),
+      var(--bg-soft);
+    border-top:1px solid var(--border);
+  }
+  .final-cta h2{font-size:clamp(26px,4.5vw,40px);max-width:640px;margin:0 auto 16px}
+  .final-cta p{color:var(--muted);max-width:520px;margin:0 auto 32px;font-size:16px;line-height:1.6}
+
+  footer{
+    padding:36px 24px;text-align:center;
+    border-top:1px solid var(--border);
+    color:var(--muted-2);font-size:13px;
+  }
+  footer .foot-links{display:flex;gap:20px;justify-content:center;margin-bottom:14px;flex-wrap:wrap}
+  footer a{color:var(--muted)}
+
+  @media (max-width:640px){
+    .nav-cta{padding:8px 16px;font-size:13px}
+    .hero{padding:48px 20px 40px}
+    section{padding:52px 20px}
+  }
+</style>
+</head>
+<body>
+
+<div class="stars" aria-hidden="true"></div>
+
+<header>
+  <div class="nav wrap" style="padding-left:0;padding-right:0">
+    <div class="brand">
+      <span class="brand-mark"><img src="assets/logo-icon.jpg" alt="Zodiaco Cuántico"></span>
+      Zodiaco Cuántico
+    </div>
+    <a class="nav-cta" href="#precio">Probar gratis</a>
+  </div>
+</header>
+
+<main>
+  <!-- HERO -->
+  <section class="hero">
+    <div class="wrap">
+      <span class="eyebrow">✦ Astrología + datos reales, no adivinanzas</span>
+      <h1>Tu carta astral dice más de lo que <em>cualquier horóscopo genérico</em> te ha contado</h1>
+      <p class="sub">Zodiaco Cuántico cruza tu carta natal exacta con los ciclos energéticos del día para decirte, en concreto, qué decisión tomar, con quién hablar y cuándo actuar.</p>
+      <div class="cta-row">
+        <a href="#precio" class="btn btn-primary">Descubrir mi mapa energético →</a>
+        <a href="#como-funciona" class="btn btn-ghost">Ver cómo funciona</a>
+      </div>
+      <p class="hero-note">Más de 40,000 cartas natales calculadas · Disponible en iOS y Android</p>
+
+      <div class="wheel-wrap">
+        <div class="wheel">
+          <div class="wheel-glyphs">
+            <span style="top:6px;left:50%;transform:translateX(-50%)">♈</span>
+            <span style="top:26px;right:26px">♉</span>
+            <span style="top:50%;right:6px;transform:translateY(-50%)">♊</span>
+            <span style="bottom:26px;right:26px">♋</span>
+            <span style="bottom:6px;left:50%;transform:translateX(-50%)">♌</span>
+            <span style="bottom:26px;left:26px">♍</span>
+            <span style="top:50%;left:6px;transform:translateY(-50%)">♎</span>
+            <span style="top:26px;left:26px">♏</span>
+          </div>
+          <div class="wheel-core">✦</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PAINS -->
+  <section class="pains">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">¿Te suena familiar?</span>
+        <h2>Los horóscopos que lees no te sirven de nada</h2>
+      </div>
+      <div class="pains-grid">
+        <div class="pain-item">
+          <span class="x">✕</span>
+          <p><strong>El mismo texto para 400 millones de personas.</strong> "Hoy tendrás buena energía" no te dice nada sobre tu vida real.</p>
+        </div>
+        <div class="pain-item">
+          <span class="x">✕</span>
+          <p><strong>Sabes tu signo solar, pero no tu carta completa.</strong> Ascendente, casas y tránsitos son los que de verdad marcan tus decisiones.</p>
+        </div>
+        <div class="pain-item">
+          <span class="x">✕</span>
+          <p><strong>Tomas decisiones importantes a ciegas:</strong> cambiar de trabajo, terminar una relación, invertir, sin saber si el momento te favorece.</p>
+        </div>
+        <div class="pain-item">
+          <span class="x">✕</span>
+          <p><strong>Ya probaste apps de astrología</strong> y son solo animaciones bonitas sin ningún cálculo real detrás.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">La diferencia</span>
+        <h2>Un mapa energético calculado con precisión, no un texto genérico</h2>
+        <p>Ingresas fecha, hora y lugar de nacimiento exactos. Zodiaco Cuántico calcula tu carta natal real y la cruza contra los tránsitos planetarios de hoy.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon">🪐</div>
+          <h3>Carta natal completa</h3>
+          <p>Sol, luna, ascendente, casas y aspectos calculados con datos astronómicos reales, explicados en lenguaje simple.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">⚡</div>
+          <h3>Lectura diaria personalizada</h3>
+          <p>Cada mañana recibes qué energía domina tu día y en qué área de tu vida (dinero, pareja, trabajo) va a notarse más.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">💞</div>
+          <h3>Compatibilidad cuántica</h3>
+          <p>Compara tu carta con la de otra persona y entiende de raíz por qué chocan o por qué fluyen tan bien.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🗓️</div>
+          <h3>Momentos clave del mes</h3>
+          <p>Te avisamos con anticipación las fechas favorables (y las de precaución) para decisiones grandes.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">🔔</div>
+          <h3>Alertas de tránsitos</h3>
+          <p>Notificaciones cuando un planeta activa un punto sensible de tu carta, antes de que lo sientas en tu día a día.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon">📓</div>
+          <h3>Diario energético</h3>
+          <p>Registra cómo te sentiste cada día y descubre tus propios patrones cruzados con tus ciclos astrológicos.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="como-funciona" class="steps">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Así de simple</span>
+        <h2>De tus datos de nacimiento a tu primera lectura, en 2 minutos</h2>
+      </div>
+      <div class="steps-grid">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h3>Ingresa tus datos</h3>
+          <p>Fecha, hora exacta y lugar de nacimiento. Entre más precisos, más exacto tu mapa.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <h3>Calculamos tu carta</h3>
+          <p>El sistema construye tu carta natal y la cruza con los tránsitos planetarios actuales.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <h3>Recibes tu guía</h3>
+          <p>Lecturas diarias, alertas de momentos clave y compatibilidades, directo en tu teléfono.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Lo que dicen</span>
+        <h2>Personas que dejaron de decidir a ciegas</h2>
+      </div>
+      <div class="testi-grid">
+        <div class="testi-card">
+          <div class="stars-row">★★★★★</div>
+          <p class="quote">"Renuncié a mi trabajo el día que la app marcó como favorable para grandes cambios. Tres meses después monté mi propio negocio."</p>
+          <div class="testi-person">
+            <div class="avatar">MJ</div>
+            <div><div class="name">María José R.</div><div class="role">Usuaria desde hace 8 meses</div></div>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="stars-row">★★★★★</div>
+          <p class="quote">"La compatibilidad con mi pareja explicó cosas que ningún terapeuta nos había puesto tan claras. Cambió cómo nos hablamos."</p>
+          <div class="testi-person">
+            <div class="avatar">DL</div>
+            <div><div class="name">Daniel L.</div><div class="role">Usuario desde hace 5 meses</div></div>
+          </div>
+        </div>
+        <div class="testi-card">
+          <div class="stars-row">★★★★★</div>
+          <p class="quote">"Dejé de leer horóscopos genéricos. Esto es lo primero que se siente hecho específicamente para mí."</p>
+          <div class="testi-person">
+            <div class="avatar">CS</div>
+            <div><div class="name">Camila S.</div><div class="role">Usuaria desde hace 1 año</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section id="precio" class="pains">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Acceso completo</span>
+        <h2>Empieza gratis, sin tarjeta</h2>
+        <p>Prueba 7 días completos. Si no sientes que tu mapa energético es preciso, cancelas en un toque.</p>
+      </div>
+      <div class="pricing-card">
+        <span class="pricing-badge">Más elegido</span>
+        <h3 style="font-size:20px">Plan Cuántico Mensual</h3>
+        <div class="price-row">
+          <span class="price-old">$19.99</span>
+          <span class="price-new">$9.99</span>
+        </div>
+        <span class="price-cycle">USD / mes · cancelas cuando quieras</span>
+        <ul class="pricing-list">
+          <li><span class="check">✓</span> <span><strong>Carta natal completa</strong> con explicación en lenguaje simple</span></li>
+          <li><span class="check">✓</span> <span>Lecturas diarias personalizadas ilimitadas</span></li>
+          <li><span class="check">✓</span> <span>Compatibilidad cuántica con personas ilimitadas</span></li>
+          <li><span class="check">✓</span> <span>Alertas de tránsitos y momentos clave del mes</span></li>
+          <li><span class="check">✓</span> <span>Diario energético con seguimiento de patrones</span></li>
+        </ul>
+        <a href="#" class="btn btn-primary" style="width:100%">Empezar prueba gratis de 7 días</a>
+        <p class="guarantee">Sin compromisos. Sin cargos ocultos. Cancela desde la app en un solo paso.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section id="faq">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Preguntas frecuentes</span>
+        <h2>Antes de que preguntes</h2>
+      </div>
+      <div class="faq-list">
+        <div class="faq-item">
+          <button class="faq-q">¿Necesito saber mi hora exacta de nacimiento? <span class="plus">+</span></button>
+          <div class="faq-a"><p>Es lo ideal para calcular tu ascendente y casas con precisión. Si no la tienes, puedes usar una hora aproximada y aun así obtener una lectura útil de sol y luna; te lo indicamos claramente en la app.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">¿En qué se diferencia de otras apps de horóscopo? <span class="plus">+</span></button>
+          <div class="faq-a"><p>No usamos textos genéricos por signo solar. Calculamos tu carta natal completa y la cruzamos con los tránsitos del día, así que cada lectura es específica a tu combinación única de planetas y casas.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">¿Puedo cancelar cuando quiera? <span class="plus">+</span></button>
+          <div class="faq-a"><p>Sí. Cancelas directamente desde la app en un solo paso, sin llamadas ni correos. Si cancelas durante la prueba gratuita, no se te cobra nada.</p></div>
+        </div>
+        <div class="faq-item">
+          <button class="faq-q">¿Funciona si no creo del todo en la astrología? <span class="plus">+</span></button>
+          <div class="faq-a"><p>Muchas personas empiezan por curiosidad. Lo que las mantiene es que las lecturas apuntan a situaciones concretas de su semana, no frases vagas que aplican a cualquiera.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FINAL CTA -->
+  <section class="final-cta">
+    <div class="wrap">
+      <h2>Deja de decidir a ciegas. Empieza a leer tu propio mapa.</h2>
+      <p>Tu prueba gratuita de 7 días incluye tu carta natal completa y tu primera lectura personalizada.</p>
+      <a href="#precio" class="btn btn-primary">Descubrir mi mapa energético →</a>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="foot-links">
+    <a href="#features">Funciones</a>
+    <a href="#precio">Precio</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <p>© 2026 Zodiaco Cuántico. Todos los derechos reservados.</p>
+</footer>
+
+<script>
+  document.querySelectorAll('.faq-item').forEach(function(item){
+    var q = item.querySelector('.faq-q');
+    var a = item.querySelector('.faq-a');
+    q.addEventListener('click', function(){
+      var isOpen = item.classList.contains('open');
+      document.querySelectorAll('.faq-item.open').forEach(function(openItem){
+        if (openItem !== item){
+          openItem.classList.remove('open');
+          openItem.querySelector('.faq-a').style.maxHeight = null;
+        }
+      });
+      if (isOpen){
+        item.classList.remove('open');
+        a.style.maxHeight = null;
+      } else {
+        item.classList.add('open');
+        a.style.maxHeight = a.scrollHeight + 'px';
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
