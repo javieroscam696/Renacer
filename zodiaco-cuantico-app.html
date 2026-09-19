@@ -656,21 +656,14 @@
     margin:0 auto;
     border-radius:16px;
     border:1px solid var(--gold);
-    background:
-      repeating-linear-gradient(45deg, rgba(201,161,90,0.08) 0 8px, transparent 8px 16px),
-      linear-gradient(160deg, var(--bg-panel-2), var(--bg-panel));
-    display:flex;align-items:center;justify-content:center;
+    background-image:url('assets/tarot/reverso.jpg');
+    background-size:cover;
+    background-position:center;
     cursor:pointer;
     box-shadow:0 20px 40px -20px rgba(0,0,0,0.6);
     transition:transform .2s ease;
   }
   .tarot-back:hover{transform:translateY(-3px);}
-  .tarot-back-glyph{
-    font-family:'Fraunces',serif;
-    font-size:44px;
-    color:var(--gold);
-    opacity:0.7;
-  }
   .tarot-card-reveal{text-align:center;}
   .tarot-img{
     width:200px;
@@ -1176,9 +1169,7 @@ function renderPatronScreen(){
       <div class="tarot-wrap">
         <div class="tarot-streak">\u{1F525} Racha: ${streakLabel}</div>
         <p class="grid-label" style="text-align:center;margin:8px 0 20px;">Tu carta del d\u00eda te espera</p>
-        <div class="tarot-back" onclick="revealTarotCard()">
-          <span class="tarot-back-glyph">\u2726</span>
-        </div>
+        <div class="tarot-back" onclick="revealTarotCard()"></div>
         <p class="natal-note" style="text-align:center;">Toca la carta para revelarla.</p>
       </div>`;
   }
