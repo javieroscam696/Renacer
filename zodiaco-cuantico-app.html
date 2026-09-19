@@ -527,6 +527,17 @@
     line-height:1.5;
     margin:0 0 20px;
   }
+  .plan-tabs{margin:4px auto 16px; width:fit-content;}
+  .plan-save{
+    background:rgba(240,199,94,0.18);
+    color:var(--gold);
+    font-size:9.5px;
+    font-weight:700;
+    padding:1px 6px;
+    border-radius:10px;
+    margin-left:5px;
+  }
+  .tab-btn.active .plan-save{background:rgba(26,20,36,0.25); color:#1A1424;}
   .plan-price{margin-bottom:20px;}
   .plan-price .amount{
     font-family:'Fraunces',serif;
@@ -1059,7 +1070,28 @@ function closeMediaPlayer(){
   document.getElementById('mediaPlayerBody').innerHTML = '';
 }
 
+const PLANS = {
+  monthly: { amount: '$6.99', cycle: ' USD/mes', link: 'REEMPLAZA_CON_TU_LINK_DE_HOTMART_MENSUAL' },
+  annual:  { amount: '$49.99', cycle: ' USD/año', link: 'REEMPLAZA_CON_TU_LINK_DE_HOTMART_ANUAL' },
+};
+let selectedPlan = 'annual';
+
+function selectPlan(plan){
+  selectedPlan = plan;
+  renderPlanUI();
+}
+
+function renderPlanUI(){
+  const p = PLANS[selectedPlan];
+  document.getElementById('planTabMonthly').classList.toggle('active', selectedPlan === 'monthly');
+  document.getElementById('planTabAnnual').classList.toggle('active', selectedPlan === 'annual');
+  document.getElementById('planAmount').textContent = p.amount;
+  document.getElementById('planCycle').textContent = p.cycle;
+  document.getElementById('subscribeCta').href = p.link;
+}
+
 function openPaywall(){
+  renderPlanUI();
   document.getElementById('paywallModal').classList.add('open');
 }
 function closePaywall(){
@@ -1651,7 +1683,13 @@ function natalResultHTML(natal){
     <div class="paywall-modal-icon">&#10022;</div>
     <h3>Desbloquea tu Zodiaco Cu&aacute;ntico completo</h3>
     <p class="paywall-modal-sub">Acceso a los 12 signos, lecturas semanales y rituales guiados cada semana.</p>
-    <div class="plan-price"><span class="amount">$6.99</span><span class="cycle">&nbsp;USD/mes</span></div>
+
+    <div class="tabs plan-tabs">
+      <button class="tab-btn" id="planTabMonthly" onclick="selectPlan('monthly')">Mensual</button>
+      <button class="tab-btn" id="planTabAnnual" onclick="selectPlan('annual')">Anual <span class="plan-save">-40%</span></button>
+    </div>
+
+    <div class="plan-price"><span class="amount" id="planAmount">$6.99</span><span class="cycle" id="planCycle">&nbsp;USD/mes</span></div>
     <a class="subscribe-cta" id="subscribeCta" href="REEMPLAZA_CON_TU_LINK_DE_HOTMART" target="_blank" rel="noopener">Suscribirme ahora</a>
     <p class="paywall-fine">Cancelas cuando quieras. Pago seguro procesado por Hotmart.</p>
 
