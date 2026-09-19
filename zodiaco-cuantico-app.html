@@ -687,6 +687,35 @@
     text-align:left;
   }
   .tarot-wrap .reflection{text-align:left; border-top:1px solid var(--line); padding-top:14px;}
+
+  /* reproductor de video/audio por signo */
+  .media-player-modal{
+    position:fixed; inset:0;
+    background:rgba(6,7,20,0.85);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease;
+    z-index:90;
+    padding:20px;
+  }
+  .media-player-modal.open{opacity:1; pointer-events:auto;}
+  .media-player-card{
+    background:var(--bg-panel-2);
+    border:1px solid var(--gold);
+    border-radius:20px;
+    padding:20px;
+    max-width:360px;
+    width:100%;
+    position:relative;
+  }
+  .media-player-close{
+    position:absolute; top:10px; right:12px;
+    background:none;border:none;color:var(--text-muted);
+    font-size:16px;cursor:pointer;
+    z-index:2;
+  }
+  .media-player-card video{width:100%;border-radius:14px;display:block;margin-top:26px;}
+  .media-player-card audio{width:100%;margin-top:26px;}
 </style>
 </head>
 <body>
@@ -875,6 +904,7 @@ ORDER.forEach(key=>{
   VIDEOS[key] = { url: null };
   AUDIOS[key] = { url: null };
 });
+VIDEOS.aries.url = "assets/videos/aries.mp4";
 
 function renderMediaGrids(){
   const videoGrid = document.getElementById('videoGrid');
@@ -889,18 +919,18 @@ function renderMediaGrids(){
     const vCard = document.createElement('div');
     vCard.className = 'media-card' + (locked ? ' locked' : '');
     vCard.innerHTML = `<span class="sym">${d.sym}</span><span class="nm">${d.nm}</span><span class="soon">${VIDEOS[key].url ? '' : 'Pr\u00f3ximamente'}</span>`;
-    vCard.addEventListener('click', ()=> handleMediaClick(key, VIDEOS[key], vCard));
+    vCard.addEventListener('click', ()=> handleMediaClick(key, VIDEOS[key], vCard, 'video'));
     videoGrid.appendChild(vCard);
 
     const aCard = document.createElement('div');
     aCard.className = 'media-card' + (locked ? ' locked' : '');
     aCard.innerHTML = `<span class="sym">${d.sym}</span><span class="nm">${d.nm}</span><span class="soon">${AUDIOS[key].url ? '' : 'Pr\u00f3ximamente'}</span>`;
-    aCard.addEventListener('click', ()=> handleMediaClick(key, AUDIOS[key], aCard));
+    aCard.addEventListener('click', ()=> handleMediaClick(key, AUDIOS[key], aCard, 'audio'));
     audioGrid.appendChild(aCard);
   });
 }
 
-function handleMediaClick(signKey, item, cardEl){
+function handleMediaClick(signKey, item, cardEl, type){
   if(isSignLocked(signKey)){
     openPaywall();
     return;
@@ -910,7 +940,21 @@ function handleMediaClick(signKey, item, cardEl){
     setTimeout(()=> cardEl.classList.remove('bump'), 300);
     return;
   }
-  // TODO: cuando item.url ya exista, aqui se reproduce el video/audio real.
+  openMediaPlayer(type, item.url);
+}
+function openMediaPlayer(type, url){
+  const modal = document.getElementById('mediaPlayerModal');
+  const body = document.getElementById('mediaPlayerBody');
+  if(type === 'video'){
+    body.innerHTML = `<video src="${url}" controls autoplay playsinline></video>`;
+  } else {
+    body.innerHTML = `<audio src="${url}" controls autoplay></audio>`;
+  }
+  modal.classList.add('open');
+}
+function closeMediaPlayer(){
+  document.getElementById('mediaPlayerModal').classList.remove('open');
+  document.getElementById('mediaPlayerBody').innerHTML = '';
 }
 
 function openPaywall(){
@@ -1507,6 +1551,13 @@ function natalResultHTML(natal){
     <div class="plan-price"><span class="amount">$6.99</span><span class="cycle">&nbsp;USD/mes</span></div>
     <a class="subscribe-cta" id="subscribeCta" href="REEMPLAZA_CON_TU_LINK_DE_STRIPE" target="_blank" rel="noopener">Suscribirme ahora</a>
     <p class="paywall-fine">Cancelas cuando quieras. Pago seguro procesado por Stripe.</p>
+  </div>
+</div>
+
+<div class="media-player-modal" id="mediaPlayerModal">
+  <div class="media-player-card">
+    <button class="media-player-close" onclick="closeMediaPlayer()">&#10005;</button>
+    <div id="mediaPlayerBody"></div>
   </div>
 </div>
 
