@@ -1,0 +1,12 @@
+name = "zodiaco-cuantico-hotmart"
+main = "src/worker.js"
+compatibility_date = "2024-11-01"
+
+# Se crea con: wrangler kv namespace create SUBS
+# y el id que te devuelva se pega abajo en vez de "REEMPLAZA_CON_TU_KV_ID".
+kv_namespaces = [
+  { binding = "SUBS", id = "REEMPLAZA_CON_TU_KV_ID" }
+]
+
+# El secreto HOTMART_HOTTOK NO va aqui (este archivo se sube a git).
+# Se sube aparte con: wrangler secret put HOTMART_HOTTOK
