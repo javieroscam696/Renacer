@@ -885,7 +885,7 @@ let currentTab = 'daily';
 // freeSign: el primer signo que el usuario elige queda gratis para siempre en este navegador.
 // isSubscribed: true cuando confirmamos con el puente de Hotmart que ese
 // correo tiene un pago activo. Ver backend/hotmart-bridge/README.md.
-const HOTMART_BRIDGE_URL = 'REEMPLAZA_CON_TU_URL_DEL_WORKER';
+const HOTMART_BRIDGE_URL = 'https://zodiaco-cuantico-hotmart.zodiacocuantico.workers.dev';
 let freeSign = localStorage.getItem('zc_freeSign') || null;
 let isSubscribed = localStorage.getItem('zc_subscribed') === 'true';
 let subscribedEmail = localStorage.getItem('zc_subscribed_email') || '';
