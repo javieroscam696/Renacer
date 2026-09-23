@@ -330,6 +330,70 @@
   }
   .time-row{display:flex;justify-content:space-between;font-size:9.5px;color:var(--text-muted);margin-top:6px;}
 
+  .np-card{
+    margin:0 16px 14px;
+    background:var(--bg-panel-2);
+    border:1px solid var(--gold);
+    border-radius:20px;
+    padding:22px 20px 20px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .np-card::before{
+    content:"";
+    position:absolute;
+    top:-60px; left:50%; transform:translateX(-50%);
+    width:200px;height:200px;
+    background:radial-gradient(circle, var(--gold-glow), transparent 70%);
+    pointer-events:none;
+  }
+  .np-art{
+    width:112px;height:112px;
+    margin:0 auto 16px;
+    border-radius:16px;
+    overflow:hidden;
+    border:1px solid var(--gold-dim);
+    position:relative;
+    z-index:1;
+    box-shadow:0 10px 30px rgba(0,0,0,0.35);
+  }
+  .np-art img{width:100%;height:100%;object-fit:cover;display:block;}
+  .np-title{font-family:'Fraunces',serif; font-size:17px; color:var(--text-primary); margin:0 0 3px; position:relative; z-index:1;}
+  .np-sub{font-size:11.5px; color:var(--text-muted); margin:0 0 18px; position:relative; z-index:1;}
+  .np-progress-track{
+    height:3px;border-radius:2px;background:rgba(255,255,255,0.1);
+    position:relative;cursor:pointer;z-index:1;
+  }
+  .np-progress-fill{
+    position:absolute;left:0;top:0;height:100%;
+    background:var(--gold);border-radius:2px;width:0%;
+  }
+  .np-progress-dot{
+    position:absolute; top:50%; width:10px;height:10px;border-radius:50%;
+    background:var(--gold); transform:translate(-50%,-50%);
+    box-shadow:0 0 0 4px var(--gold-glow);
+    left:0%;
+  }
+  .np-time-row{display:flex;justify-content:space-between;font-size:9.5px;color:var(--text-muted);margin-top:8px; position:relative; z-index:1;}
+  .np-controls{
+    display:flex; align-items:center; justify-content:center; gap:22px;
+    margin-top:18px; position:relative; z-index:1;
+  }
+  .np-ctrl{
+    background:none;border:none;color:var(--text-muted);
+    font-size:17px;cursor:pointer;padding:6px;
+    transition:color .2s ease;
+  }
+  .np-ctrl:hover{color:var(--text-primary);}
+  .np-play{
+    width:56px;height:56px;border-radius:50%;
+    background:var(--gold);border:none;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:#1A1424;font-size:17px;
+    box-shadow:0 6px 20px var(--gold-glow);
+  }
+
   .intro-block{
     display:flex;
     gap:14px;
@@ -1042,10 +1106,7 @@ function renderWeeklyButtons(){
   }
 
   area.querySelectorAll('.weekly-track-pill').forEach(btn=>{
-    btn.addEventListener('click', ()=>{
-      weeklyIndex[weeklyTab] = Number(btn.dataset.i);
-      renderWeeklyButtons();
-    });
+    btn.addEventListener('click', ()=> selectWeeklyIndex(Number(btn.dataset.i), true));
   });
 }
 
@@ -1062,15 +1123,19 @@ function renderWeeklyVideoCard(item){
 
 function renderWeeklyAudioCard(item){
   return `
-    <div class="player-card">
-      <button class="play-btn" id="weeklyPlayBtn">&#9654;</button>
-      <div class="player-info">
-        <p class="t-title">${item.title}</p>
-        <p class="t-sub">Audio de la semana</p>
-        <div class="progress-track" id="weeklyProgressTrack">
-          <div class="progress-fill" id="weeklyProgressFill"></div>
-        </div>
-        <div class="time-row"><span id="weeklyCurTime">0:00</span><span id="weeklyDurTime">0:00</span></div>
+    <div class="np-card">
+      <div class="np-art"><img src="assets/logo-icon.jpg" alt=""></div>
+      <p class="np-title">${item.title}</p>
+      <p class="np-sub">Audio de la semana</p>
+      <div class="np-progress-track" id="weeklyProgressTrack">
+        <div class="np-progress-fill" id="weeklyProgressFill"></div>
+        <div class="np-progress-dot" id="weeklyProgressDot"></div>
+      </div>
+      <div class="np-time-row"><span id="weeklyCurTime">0:00</span><span id="weeklyDurTime">0:00</span></div>
+      <div class="np-controls">
+        <button class="np-ctrl" onclick="weeklyStep(-1)" aria-label="Anterior">&#9198;</button>
+        <button class="np-play" id="weeklyPlayBtn">&#9654;</button>
+        <button class="np-ctrl" onclick="weeklyStep(1)" aria-label="Siguiente">&#9197;</button>
       </div>
     </div>`;
 }
@@ -1079,6 +1144,7 @@ function wireWeeklyAudioCard(item){
   const audioEl = document.getElementById('weeklyAudioEl');
   const playBtn = document.getElementById('weeklyPlayBtn');
   const fill = document.getElementById('weeklyProgressFill');
+  const dot = document.getElementById('weeklyProgressDot');
   const track = document.getElementById('weeklyProgressTrack');
   const curTime = document.getElementById('weeklyCurTime');
   const durTime = document.getElementById('weeklyDurTime');
@@ -1090,9 +1156,10 @@ function wireWeeklyAudioCard(item){
   audioEl.ontimeupdate = ()=>{
     const pct = (audioEl.currentTime/audioEl.duration)*100 || 0;
     fill.style.width = pct+'%';
+    dot.style.left = pct+'%';
     curTime.textContent = fmt(audioEl.currentTime);
   };
-  audioEl.onended = ()=>{ playBtn.innerHTML = '&#9654;'; };
+  audioEl.onended = ()=>{ weeklyStep(1); };
   playBtn.onclick = ()=>{
     if(audioEl.paused){ audioEl.play(); playBtn.innerHTML = '&#10073;&#10073;'; }
     else { audioEl.pause(); playBtn.innerHTML = '&#9654;'; }
@@ -1102,6 +1169,21 @@ function wireWeeklyAudioCard(item){
     const pct = (e.clientX-rect.left)/rect.width;
     audioEl.currentTime = pct*audioEl.duration;
   };
+}
+
+function selectWeeklyIndex(i, autoplay){
+  const list = weeklyTab === 'video' ? WEEKLY_VIDEOS : WEEKLY_AUDIOS;
+  if(!list.length) return;
+  weeklyIndex[weeklyTab] = ((i % list.length) + list.length) % list.length;
+  renderWeeklyButtons();
+  if(autoplay && weeklyTab === 'audio'){
+    const audioEl = document.getElementById('weeklyAudioEl');
+    audioEl.play();
+    document.getElementById('weeklyPlayBtn').innerHTML = '&#10073;&#10073;';
+  }
+}
+function weeklyStep(dir){
+  selectWeeklyIndex(weeklyIndex[weeklyTab] + dir, true);
 }
 
 function renderPlaylist(type, list, body){
