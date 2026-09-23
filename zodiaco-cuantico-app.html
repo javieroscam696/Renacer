@@ -578,37 +578,29 @@
   }
 
   /* galerias de video/audio por signo */
-  .weekly-media-row{
+  .weekly-track-list{
     display:flex;
-    gap:10px;
-    padding:0 16px 4px;
-  }
-  .weekly-media-btn{
-    flex:1;
-    background:var(--bg-panel);
-    border:1px solid var(--gold);
-    border-radius:14px;
-    display:flex;
-    align-items:center;
-    justify-content:center;
     gap:8px;
-    padding:16px 10px;
+    overflow-x:auto;
+    padding:0 16px 4px;
+    margin-top:2px;
+    scrollbar-width:none;
+  }
+  .weekly-track-list::-webkit-scrollbar{display:none;}
+  .weekly-track-pill{
+    flex:0 0 auto;
+    background:var(--bg-panel);
+    border:1px solid var(--gold-dim);
+    border-radius:20px;
+    padding:8px 14px;
+    font-family:'Sora',sans-serif;
+    font-size:11.5px;
+    color:var(--text-muted);
+    white-space:nowrap;
     cursor:pointer;
-    position:relative;
-    font-family:inherit;
-    transition:transform .2s ease;
   }
-  .weekly-media-btn:hover{transform:translateY(-2px);}
-  .weekly-media-btn .wm-icon{font-size:15px; color:var(--gold);}
-  .weekly-media-btn .wm-label{font-size:13px; color:var(--text-primary); letter-spacing:0.02em;}
-  .weekly-media-btn.locked{opacity:0.55;}
-  .weekly-media-btn.locked::after{
-    content:"\1F512";
-    position:absolute;
-    font-size:9px;
-    top:8px; right:10px;
-  }
-  .weekly-media-btn.bump{animation:bump .3s ease;}
+  .weekly-track-pill.active{border-color:var(--gold); color:var(--text-primary); background:var(--bg-panel-2);}
+  .weekly-track-title{margin:10px 16px 14px; font-size:12px; color:var(--text-muted);}
   @keyframes bump{ 0%{transform:scale(1);} 50%{transform:scale(0.94);} 100%{transform:scale(1);} }
   .playlist{display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto;}
   .playlist-item{
@@ -727,34 +719,6 @@
   }
   .tarot-wrap .reflection{text-align:left; border-top:1px solid var(--line); padding-top:14px;}
 
-  /* reproductor de video/audio por signo */
-  .media-player-modal{
-    position:fixed; inset:0;
-    background:rgba(6,7,20,0.85);
-    display:flex; align-items:center; justify-content:center;
-    opacity:0; pointer-events:none;
-    transition:opacity .25s ease;
-    z-index:90;
-    padding:20px;
-  }
-  .media-player-modal.open{opacity:1; pointer-events:auto;}
-  .media-player-card{
-    background:var(--bg-panel-2);
-    border:1px solid var(--gold);
-    border-radius:20px;
-    padding:20px;
-    max-width:360px;
-    width:100%;
-    position:relative;
-  }
-  .media-player-close{
-    position:absolute; top:10px; right:12px;
-    background:none;border:none;color:var(--text-muted);
-    font-size:16px;cursor:pointer;
-    z-index:2;
-  }
-  .media-player-card video{width:100%;border-radius:14px;display:block;margin-top:26px;}
-  .media-player-card audio{width:100%;margin-top:26px;}
 </style>
 </head>
 <body>
@@ -809,14 +773,12 @@
   </div>
 
   <p class="grid-label" style="margin:20px 16px 10px;">Contenido de la semana</p>
-  <div class="weekly-media-row">
-    <button class="weekly-media-btn" id="btnWeeklyVideo" onclick="handleWeeklyClick('video')">
-      <span class="wm-icon">&#9654;</span><span class="wm-label">Videos</span>
-    </button>
-    <button class="weekly-media-btn" id="btnWeeklyAudio" onclick="handleWeeklyClick('audio')">
-      <span class="wm-icon">&#9834;</span><span class="wm-label">Audio</span>
-    </button>
+  <div class="tabs" style="margin:0 16px 14px; width:fit-content;">
+    <button class="tab-btn active" id="weeklyTabVideo" onclick="setWeeklyTab('video')">Videos</button>
+    <button class="tab-btn" id="weeklyTabAudio" onclick="setWeeklyTab('audio')">Audio</button>
   </div>
+  <div id="weeklyPlayerArea"></div>
+  <audio id="weeklyAudioEl" style="display:none"></audio>
 
   </div>
 
@@ -1033,24 +995,113 @@ const WEEKLY_AUDIOS = [
   { title: 'Atención Libra', url: 'assets/audio/semanal/libra-432hz.mp3' },
 ];
 
-function renderWeeklyButtons(){
-  const locked = !isSubscribed;
-  const vBtn = document.getElementById('btnWeeklyVideo');
-  const aBtn = document.getElementById('btnWeeklyAudio');
-  if(vBtn) vBtn.classList.toggle('locked', locked);
-  if(aBtn) aBtn.classList.toggle('locked', locked);
+let weeklyTab = 'video';
+const weeklyIndex = { video: 0, audio: 0 };
+
+function setWeeklyTab(tab){
+  weeklyTab = tab;
+  document.getElementById('weeklyTabVideo').classList.toggle('active', tab === 'video');
+  document.getElementById('weeklyTabAudio').classList.toggle('active', tab === 'audio');
+  renderWeeklyButtons();
 }
 
-function handleWeeklyClick(type){
+function renderWeeklyButtons(){
+  const area = document.getElementById('weeklyPlayerArea');
+  const weeklyAudioEl = document.getElementById('weeklyAudioEl');
+  if(weeklyTab !== 'audio' && weeklyAudioEl) weeklyAudioEl.pause();
+
   if(!isSubscribed){
-    openPaywall();
+    const label = weeklyTab === 'video' ? 'Los videos' : 'El audio';
+    area.innerHTML = `
+      <div class="paywall-block" style="border-top:none;">
+        <div class="lock-icon">&#128274;</div>
+        <p class="paywall-text">${label} de la semana son para miembros de Zodiaco Cuántico.</p>
+        <button class="subscribe-btn" onclick="openPaywall()">Desbloquear por $6.99/mes</button>
+      </div>`;
     return;
   }
-  const list = type === 'video' ? WEEKLY_VIDEOS : WEEKLY_AUDIOS;
-  const modal = document.getElementById('mediaPlayerModal');
-  const body = document.getElementById('mediaPlayerBody');
-  renderPlaylist(type, list, body);
-  modal.classList.add('open');
+
+  const list = weeklyTab === 'video' ? WEEKLY_VIDEOS : WEEKLY_AUDIOS;
+  if(!list.length){
+    const label = weeklyTab === 'video' ? 'videos' : 'audios';
+    area.innerHTML = `<p class="playlist-empty">Todavía no hay ${label} publicados esta semana. Vuelve pronto.</p>`;
+    return;
+  }
+  if(weeklyIndex[weeklyTab] >= list.length) weeklyIndex[weeklyTab] = 0;
+  const current = list[weeklyIndex[weeklyTab]];
+
+  const listHtml = `<div class="weekly-track-list">${list.map((item, i)=>
+    `<button class="weekly-track-pill ${i === weeklyIndex[weeklyTab] ? 'active' : ''}" data-i="${i}">${item.title}</button>`
+  ).join('')}</div>`;
+
+  if(weeklyTab === 'video'){
+    area.innerHTML = renderWeeklyVideoCard(current) + listHtml;
+  } else {
+    area.innerHTML = renderWeeklyAudioCard(current) + listHtml;
+    wireWeeklyAudioCard(current);
+  }
+
+  area.querySelectorAll('.weekly-track-pill').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      weeklyIndex[weeklyTab] = Number(btn.dataset.i);
+      renderWeeklyButtons();
+    });
+  });
+}
+
+function renderWeeklyVideoCard(item){
+  const ytMatch = item.url.match(/(?:youtube\.com\/(?:shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  let mediaHtml;
+  if(ytMatch){
+    mediaHtml = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" title="${item.title}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%;aspect-ratio:9/16;max-height:340px;border:0;display:block;"></iframe>`;
+  } else {
+    mediaHtml = `<video src="${item.url}" controls playsinline style="width:100%;aspect-ratio:9/16;max-height:340px;display:block;background:#000;"></video>`;
+  }
+  return `<div class="video-card">${mediaHtml}</div><p class="weekly-track-title">${item.title}</p>`;
+}
+
+function renderWeeklyAudioCard(item){
+  return `
+    <div class="player-card">
+      <button class="play-btn" id="weeklyPlayBtn">&#9654;</button>
+      <div class="player-info">
+        <p class="t-title">${item.title}</p>
+        <p class="t-sub">Audio de la semana</p>
+        <div class="progress-track" id="weeklyProgressTrack">
+          <div class="progress-fill" id="weeklyProgressFill"></div>
+        </div>
+        <div class="time-row"><span id="weeklyCurTime">0:00</span><span id="weeklyDurTime">0:00</span></div>
+      </div>
+    </div>`;
+}
+
+function wireWeeklyAudioCard(item){
+  const audioEl = document.getElementById('weeklyAudioEl');
+  const playBtn = document.getElementById('weeklyPlayBtn');
+  const fill = document.getElementById('weeklyProgressFill');
+  const track = document.getElementById('weeklyProgressTrack');
+  const curTime = document.getElementById('weeklyCurTime');
+  const durTime = document.getElementById('weeklyDurTime');
+
+  audioEl.src = item.url;
+  audioEl.currentTime = 0;
+
+  audioEl.onloadedmetadata = ()=>{ durTime.textContent = fmt(audioEl.duration); };
+  audioEl.ontimeupdate = ()=>{
+    const pct = (audioEl.currentTime/audioEl.duration)*100 || 0;
+    fill.style.width = pct+'%';
+    curTime.textContent = fmt(audioEl.currentTime);
+  };
+  audioEl.onended = ()=>{ playBtn.innerHTML = '&#9654;'; };
+  playBtn.onclick = ()=>{
+    if(audioEl.paused){ audioEl.play(); playBtn.innerHTML = '&#10073;&#10073;'; }
+    else { audioEl.pause(); playBtn.innerHTML = '&#9654;'; }
+  };
+  track.onclick = (e)=>{
+    const rect = track.getBoundingClientRect();
+    const pct = (e.clientX-rect.left)/rect.width;
+    audioEl.currentTime = pct*audioEl.duration;
+  };
 }
 
 function renderPlaylist(type, list, body){
@@ -1079,10 +1130,6 @@ function renderPlaylistPlayer(type, item, list, body){
   }
   body.innerHTML = `<button class="playlist-back" id="playlistBack">&larr; Volver a la lista</button><p class="playlist-title">${item.title}</p>${mediaHtml}`;
   document.getElementById('playlistBack').addEventListener('click', ()=> renderPlaylist(type, list, body));
-}
-function closeMediaPlayer(){
-  document.getElementById('mediaPlayerModal').classList.remove('open');
-  document.getElementById('mediaPlayerBody').innerHTML = '';
 }
 
 const PLANS = {
@@ -1732,13 +1779,6 @@ function natalResultHTML(natal){
     </div>
     <button class="natal-submit" id="paywallEmailBtn" onclick="submitPaywallEmail()">Ya pagu&eacute;, desbloquear</button>
     <p class="natal-error" id="paywallEmailError"></p>
-  </div>
-</div>
-
-<div class="media-player-modal" id="mediaPlayerModal">
-  <div class="media-player-card">
-    <button class="media-player-close" onclick="closeMediaPlayer()">&#10005;</button>
-    <div id="mediaPlayerBody"></div>
   </div>
 </div>
 
