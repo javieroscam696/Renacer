@@ -574,39 +574,57 @@
   }
 
   /* galerias de video/audio por signo */
-  .media-grid{
-    display:grid;
-    grid-template-columns:repeat(4, 1fr);
-    gap:8px;
+  .weekly-media-row{
+    display:flex;
+    gap:10px;
     padding:0 16px 4px;
   }
-  .media-card{
-    aspect-ratio:1;
+  .weekly-media-btn{
+    flex:1;
     background:var(--bg-panel);
     border:1px solid var(--gold);
     border-radius:14px;
     display:flex;
-    flex-direction:column;
     align-items:center;
     justify-content:center;
-    gap:3px;
+    gap:8px;
+    padding:16px 10px;
     cursor:pointer;
     position:relative;
+    font-family:inherit;
     transition:transform .2s ease;
   }
-  .media-card:hover{transform:translateY(-2px);}
-  .media-card .sym{font-size:16px; font-family:'Fraunces',serif; color:var(--text-primary);}
-  .media-card .nm{font-size:8px; color:var(--text-muted); letter-spacing:0.02em; text-align:center;}
-  .media-card .soon{font-size:6.5px; color:var(--gold-dim); margin-top:1px; letter-spacing:0.03em; text-transform:uppercase;}
-  .media-card.locked{opacity:0.55;}
-  .media-card.locked::after{
+  .weekly-media-btn:hover{transform:translateY(-2px);}
+  .weekly-media-btn .wm-icon{font-size:15px; color:var(--gold);}
+  .weekly-media-btn .wm-label{font-size:13px; color:var(--text-primary); letter-spacing:0.02em;}
+  .weekly-media-btn.locked{opacity:0.55;}
+  .weekly-media-btn.locked::after{
     content:"\1F512";
     position:absolute;
-    font-size:8px;
-    top:6px; right:7px;
+    font-size:9px;
+    top:8px; right:10px;
   }
-  .media-card.bump{animation:bump .3s ease;}
+  .weekly-media-btn.bump{animation:bump .3s ease;}
   @keyframes bump{ 0%{transform:scale(1);} 50%{transform:scale(0.94);} 100%{transform:scale(1);} }
+  .playlist{display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto;}
+  .playlist-item{
+    background:var(--bg-panel);
+    border:1px solid var(--gold-dim);
+    border-radius:10px;
+    padding:12px 14px;
+    text-align:left;
+    font-family:inherit;
+    font-size:13px;
+    color:var(--text-primary);
+    cursor:pointer;
+  }
+  .playlist-item:hover{border-color:var(--gold);}
+  .playlist-empty{font-size:13px; color:var(--text-muted); text-align:center; padding:24px 10px;}
+  .playlist-back{
+    background:none; border:none; color:var(--gold); font-family:inherit;
+    font-size:12px; cursor:pointer; padding:0 0 10px; text-align:left;
+  }
+  .playlist-title{font-size:13px; color:var(--text-primary); margin:0 0 10px;}
   .nav-item{cursor:pointer;}
   .nav-item.bump{animation:bump .3s ease;}
 
@@ -786,11 +804,15 @@
     </iframe>
   </div>
 
-  <p class="grid-label" style="margin:20px 16px 10px;">Videos por signo</p>
-  <div class="media-grid" id="videoGrid"></div>
-
-  <p class="grid-label" style="margin:20px 16px 10px;">Frecuencias por signo</p>
-  <div class="media-grid" id="audioGrid"></div>
+  <p class="grid-label" style="margin:20px 16px 10px;">Contenido de la semana</p>
+  <div class="weekly-media-row">
+    <button class="weekly-media-btn" id="btnWeeklyVideo" onclick="handleWeeklyClick('video')">
+      <span class="wm-icon">&#9654;</span><span class="wm-label">Videos</span>
+    </button>
+    <button class="weekly-media-btn" id="btnWeeklyAudio" onclick="handleWeeklyClick('audio')">
+      <span class="wm-icon">&#9834;</span><span class="wm-label">Audio</span>
+    </button>
+  </div>
 
   </div>
 
@@ -911,7 +933,7 @@ function setSubscribed(active, email){
   localStorage.setItem('zc_subscribed_email', subscribedEmail);
   localStorage.setItem('zc_subscribed_checked', String(Date.now()));
   renderGridLocks();
-  renderMediaGrids();
+  renderWeeklyButtons();
   if(currentSign) renderPanel();
 }
 
@@ -978,92 +1000,63 @@ function renderGridLocks(){
   });
 }
 
-// Contenido futuro por signo (12 videos, 12 audios). Por ahora estan vacios
-// ("Proximamente"). Cuando tengas el archivo o link real, solo pon la URL, ej:
-//   VIDEOS.aries.url = "https://tu-hosting.com/videos/aries.mp4";
-//   AUDIOS.aries.url = "https://tu-hosting.com/audio/aries.mp3";
-// No conviene meter los archivos directo en este HTML como el video/cancion
-// de arriba: cada uno pesa varios MB y con 24 archivos el sitio quedaria
-// enorme y lento. Mejor subirlos a un hosting de video/audio y solo enlazarlos.
-const VIDEOS = {};
-const AUDIOS = {};
-ORDER.forEach(key=>{
-  VIDEOS[key] = { url: null };
-  AUDIOS[key] = { url: null };
-});
-VIDEOS.aries.url = "assets/videos/aries.mp4";
-VIDEOS.tauro.url = "assets/videos/tauro.mp4";
-VIDEOS.geminis.url = "assets/videos/geminis.mp4";
-VIDEOS.cancer.url = "assets/videos/cancer.mp4";
-VIDEOS.leo.url = "assets/videos/leo.mp4";
-VIDEOS.virgo.url = "assets/videos/virgo.mp4";
-VIDEOS.libra.url = "assets/videos/libra.mp4";
-VIDEOS.escorpio.url = "assets/videos/escorpio.mp4";
-VIDEOS.sagitario.url = "assets/videos/sagitario.mp4";
-VIDEOS.capricornio.url = "assets/videos/capricornio.mp4";
-VIDEOS.piscis.url = "assets/videos/piscis.mp4";
-VIDEOS.acuario.url = "https://youtube.com/shorts/wuT2Ee7Gr60";
-AUDIOS.aries.url = "assets/audio/aries.mp3";
-AUDIOS.tauro.url = "assets/audio/tauro.mp3";
-AUDIOS.geminis.url = "assets/audio/geminis.mp3";
-AUDIOS.cancer.url = "assets/audio/cancer.mp3";
-AUDIOS.leo.url = "assets/audio/leo.mp3";
-AUDIOS.virgo.url = "assets/audio/virgo.mp3";
-AUDIOS.libra.url = "assets/audio/libra.mp3";
-AUDIOS.escorpio.url = "assets/audio/escorpio.mp3";
-AUDIOS.sagitario.url = "assets/audio/sagitario.mp3";
-AUDIOS.capricornio.url = "assets/audio/capricornio.mp3";
-AUDIOS.acuario.url = "assets/audio/acuario.mp3";
-AUDIOS.piscis.url = "assets/audio/piscis.mp3";
+// Contenido semanal general (no por signo): un video y un audio nuevos cada
+// semana, para todos los suscriptores por igual. Para publicar uno nuevo,
+// agrega un objeto arriba de todo en la lista correspondiente (el mas
+// reciente queda primero) con un titulo y la URL del archivo (o un link de
+// YouTube). Ejemplo:
+//   { title: 'Semana del 30 de septiembre', url: 'assets/videos/2026-09-30.mp4' },
+const WEEKLY_VIDEOS = [
+];
+const WEEKLY_AUDIOS = [
+];
 
-function renderMediaGrids(){
-  const videoGrid = document.getElementById('videoGrid');
-  const audioGrid = document.getElementById('audioGrid');
-  if(!videoGrid || !audioGrid) return;
-  videoGrid.innerHTML = '';
-  audioGrid.innerHTML = '';
-  ORDER.forEach(key=>{
-    const d = DATA[key];
-    const locked = isSignLocked(key);
-
-    const vCard = document.createElement('div');
-    vCard.className = 'media-card' + (locked ? ' locked' : '');
-    vCard.innerHTML = `<span class="sym">${d.sym}</span><span class="nm">${d.nm}</span><span class="soon">${VIDEOS[key].url ? '' : 'Pr\u00f3ximamente'}</span>`;
-    vCard.addEventListener('click', ()=> handleMediaClick(key, VIDEOS[key], vCard, 'video'));
-    videoGrid.appendChild(vCard);
-
-    const aCard = document.createElement('div');
-    aCard.className = 'media-card' + (locked ? ' locked' : '');
-    aCard.innerHTML = `<span class="sym">${d.sym}</span><span class="nm">${d.nm}</span><span class="soon">${AUDIOS[key].url ? '' : 'Pr\u00f3ximamente'}</span>`;
-    aCard.addEventListener('click', ()=> handleMediaClick(key, AUDIOS[key], aCard, 'audio'));
-    audioGrid.appendChild(aCard);
-  });
+function renderWeeklyButtons(){
+  const locked = !isSubscribed;
+  const vBtn = document.getElementById('btnWeeklyVideo');
+  const aBtn = document.getElementById('btnWeeklyAudio');
+  if(vBtn) vBtn.classList.toggle('locked', locked);
+  if(aBtn) aBtn.classList.toggle('locked', locked);
 }
 
-function handleMediaClick(signKey, item, cardEl, type){
-  if(isSignLocked(signKey)){
+function handleWeeklyClick(type){
+  if(!isSubscribed){
     openPaywall();
     return;
   }
-  if(!item.url){
-    cardEl.classList.add('bump');
-    setTimeout(()=> cardEl.classList.remove('bump'), 300);
-    return;
-  }
-  openMediaPlayer(type, item.url);
-}
-function openMediaPlayer(type, url){
+  const list = type === 'video' ? WEEKLY_VIDEOS : WEEKLY_AUDIOS;
   const modal = document.getElementById('mediaPlayerModal');
   const body = document.getElementById('mediaPlayerBody');
-  const ytMatch = url.match(/(?:youtube\.com\/(?:shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  if(ytMatch){
-    body.innerHTML = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" title="Zodiaco Cu\u00e1ntico" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%;aspect-ratio:9/16;border:0;border-radius:14px;display:block;"></iframe>`;
-  } else if(type === 'video'){
-    body.innerHTML = `<video src="${url}" controls autoplay playsinline></video>`;
-  } else {
-    body.innerHTML = `<audio src="${url}" controls autoplay></audio>`;
-  }
+  renderPlaylist(type, list, body);
   modal.classList.add('open');
+}
+
+function renderPlaylist(type, list, body){
+  if(!list.length){
+    const label = type === 'video' ? 'videos' : 'audios';
+    body.innerHTML = `<p class="playlist-empty">Todav\u00eda no hay ${label} publicados esta semana. Vuelve pronto.</p>`;
+    return;
+  }
+  body.innerHTML = `<div class="playlist">${list.map((item, i)=>
+    `<button class="playlist-item" data-i="${i}">${item.title}</button>`
+  ).join('')}</div>`;
+  body.querySelectorAll('.playlist-item').forEach(btn=>{
+    btn.addEventListener('click', ()=> renderPlaylistPlayer(type, list[Number(btn.dataset.i)], list, body));
+  });
+}
+
+function renderPlaylistPlayer(type, item, list, body){
+  const ytMatch = item.url.match(/(?:youtube\.com\/(?:shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  let mediaHtml;
+  if(ytMatch){
+    mediaHtml = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" title="${item.title}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%;aspect-ratio:9/16;border:0;border-radius:14px;display:block;"></iframe>`;
+  } else if(type === 'video'){
+    mediaHtml = `<video src="${item.url}" controls autoplay playsinline style="width:100%;border-radius:14px;display:block;"></video>`;
+  } else {
+    mediaHtml = `<audio src="${item.url}" controls autoplay style="width:100%;"></audio>`;
+  }
+  body.innerHTML = `<button class="playlist-back" id="playlistBack">&larr; Volver a la lista</button><p class="playlist-title">${item.title}</p>${mediaHtml}`;
+  document.getElementById('playlistBack').addEventListener('click', ()=> renderPlaylist(type, list, body));
 }
 function closeMediaPlayer(){
   document.getElementById('mediaPlayerModal').classList.remove('open');
@@ -1108,7 +1101,7 @@ ORDER.forEach(key=>{
   grid.appendChild(btn);
 });
 renderGridLocks();
-renderMediaGrids();
+renderWeeklyButtons();
 maybeRevalidateSubscription();
 
 function selectSign(key){
@@ -1120,7 +1113,7 @@ function selectSign(key){
     freeSign = key;
     localStorage.setItem('zc_freeSign', freeSign);
     renderGridLocks();
-    renderMediaGrids();
+    renderWeeklyButtons();
   }
   renderPanel();
 }
