@@ -140,20 +140,24 @@
     background:radial-gradient(circle, var(--gold-glow), transparent 70%);
     pointer-events:none;
   }
+  .panel:has(.panel-empty){
+    padding:16px 18px 14px;
+    min-height:auto;
+  }
   .panel-empty{
     display:flex;
     flex-direction:column;
     align-items:flex-start;
-    gap:6px;
+    gap:4px;
     color:var(--text-muted);
-    font-size:14px;
-    line-height:1.5;
+    font-size:12.5px;
+    line-height:1.45;
   }
   .panel-empty .big-sym{
     font-family:'Fraunces',serif;
-    font-size:34px;
+    font-size:22px;
     color:var(--gold-dim);
-    margin-bottom:6px;
+    margin-bottom:2px;
   }
 
   .panel-head{
@@ -767,16 +771,7 @@
   </div>
 
   <p class="grid-label" style="margin:0 16px 10px;">Video</p>
-  <div class="video-card">
-    <iframe
-      src="https://www.youtube.com/embed/-hPjUAjlUB4"
-      title="Zodiaco Cuántico"
-      loading="lazy"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowfullscreen
-      style="width:100%;aspect-ratio:9/16;max-height:340px;border:0;display:block;">
-    </iframe>
-  </div>
+  <div id="introVideoArea"></div>
 
   <p class="grid-label" style="margin:20px 16px 10px;">Contenido de la semana</p>
   <div class="tabs" style="margin:0 16px 14px; width:fit-content;">
@@ -975,6 +970,42 @@ function renderGridLocks(){
     const btn = document.getElementById('btn-'+key);
     if(!btn) return;
     btn.classList.toggle('locked', isSignLocked(key));
+  });
+}
+
+// Video(s) de bienvenida al inicio de "Hoy" (gratis, visible para todos).
+// Para agregar otro, suma un objeto mas a la lista con su titulo y su link
+// de YouTube (o archivo .mp4); si hay mas de uno aparece una lista debajo
+// para elegir cual ver.
+const INTRO_VIDEOS = [
+  { title: 'Video Oficial ZodiacoCuántico', url: 'https://www.youtube.com/embed/-hPjUAjlUB4' },
+];
+let introVideoIndex = 0;
+
+function renderIntroVideo(){
+  const area = document.getElementById('introVideoArea');
+  if(!area || !INTRO_VIDEOS.length) return;
+  if(introVideoIndex >= INTRO_VIDEOS.length) introVideoIndex = 0;
+  const current = INTRO_VIDEOS[introVideoIndex];
+  const ytMatch = current.url.match(/(?:youtube\.com\/(?:shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  let mediaHtml;
+  if(ytMatch){
+    mediaHtml = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" title="${current.title}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%;aspect-ratio:9/16;max-height:340px;border:0;display:block;"></iframe>`;
+  } else {
+    mediaHtml = `<video src="${current.url}" controls playsinline style="width:100%;aspect-ratio:9/16;max-height:340px;display:block;background:#000;"></video>`;
+  }
+  let listHtml = '';
+  if(INTRO_VIDEOS.length > 1){
+    listHtml = `<div class="weekly-track-list">${INTRO_VIDEOS.map((item, i)=>
+      `<button class="weekly-track-pill ${i === introVideoIndex ? 'active' : ''}" data-i="${i}">${item.title}</button>`
+    ).join('')}</div>`;
+  }
+  area.innerHTML = `<div class="video-card">${mediaHtml}</div>${listHtml}`;
+  area.querySelectorAll('.weekly-track-pill').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      introVideoIndex = Number(btn.dataset.i);
+      renderIntroVideo();
+    });
   });
 }
 
@@ -1206,6 +1237,7 @@ ORDER.forEach(key=>{
   grid.appendChild(btn);
 });
 renderGridLocks();
+renderIntroVideo();
 renderWeeklyButtons();
 maybeRevalidateSubscription();
 
