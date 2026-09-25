@@ -84,6 +84,18 @@
     background:#000;
   }
   .glyph-mark img{width:100%;height:100%;object-fit:cover;display:block;}
+  .saved-mark{
+    position:absolute;
+    top:22px; right:78px;
+    width:42px;height:42px;
+    border-radius:50%;
+    border:1px solid var(--gold);
+    background:#000;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--gold);
+    cursor:pointer;
+  }
+  .saved-mark svg{width:18px;height:18px;}
 
   /* sign grid */
   .grid-wrap{padding:6px 22px 4px;}
@@ -753,6 +765,9 @@
   <div class="app-header">
     <p class="wordmark">zodiaco <em>cuántico</em></p>
     <p class="tagline">no predice. refleja.</p>
+    <button class="saved-mark" onclick="showScreen('guardados')" aria-label="Guardados">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h12a1 1 0 0 1 1 1v19l-7-4.2L5 22V3a1 1 0 0 1 1-1z"/></svg>
+    </button>
     <div class="glyph-mark"><img src="assets/logo-icon.jpg" alt="Zodiaco Cuántico"></div>
   </div>
 
@@ -792,6 +807,8 @@
     <p style="margin:0 16px 16px; font-size:12px; line-height:1.5; color:var(--text-muted);">Sonidos instrumentales para meditar o dormir. Ve agregando pistas nuevas cuando quieras — todas quedan disponibles aqu&iacute;.</p>
     <div id="frecuenciasBody" style="padding:0 16px 24px;"></div>
   </div>
+
+  <div id="screen-guardados" style="display:none"></div>
 
   <div class="bottom-nav">
     <div class="nav-item active" id="navHoy" onclick="showScreen('hoy')">
@@ -863,13 +880,17 @@ function dayOfYear(d){
 function weekOfYear(d){
   return Math.floor(dayOfYear(d) / 7);
 }
+function getDailyIndex(sign){
+  return dayOfYear(new Date()) % DATA[sign].daily.length;
+}
+function getWeeklyIndex(sign){
+  return weekOfYear(new Date()) % DATA[sign].weekly.length;
+}
 function getDailyEntry(sign){
-  const arr = DATA[sign].daily;
-  return arr[dayOfYear(new Date()) % arr.length];
+  return DATA[sign].daily[getDailyIndex(sign)];
 }
 function getWeeklyEntry(sign){
-  const arr = DATA[sign].weekly;
-  return arr[weekOfYear(new Date()) % arr.length];
+  return DATA[sign].weekly[getWeeklyIndex(sign)];
 }
 
 const grid = document.getElementById('signGrid');
@@ -1264,15 +1285,76 @@ function revealReading(){
   renderPanel();
 }
 
+function currentSaveKey(){
+  const idx = currentTab === 'daily' ? getDailyIndex(currentSign) : getWeeklyIndex(currentSign);
+  return currentSign + '-' + currentTab + '-' + idx;
+}
 function toggleSave(){
-  saved[currentSign+currentTab] = !saved[currentSign+currentTab];
+  const key = currentSaveKey();
+  if(saved[key]){
+    delete saved[key];
+  } else {
+    const entry = currentTab === 'daily' ? getDailyEntry(currentSign) : getWeeklyEntry(currentSign);
+    saved[key] = {
+      sign: currentSign,
+      tab: currentTab,
+      text: entry.text,
+      q: entry.q || '',
+      ritual: entry.ritual || '',
+      savedAt: Date.now()
+    };
+  }
   localStorage.setItem('zc_saved', JSON.stringify(saved));
   renderPanel();
+}
+function removeSaved(key){
+  delete saved[key];
+  localStorage.setItem('zc_saved', JSON.stringify(saved));
+  renderGuardadosScreen();
+}
+function renderGuardadosScreen(){
+  const el = document.getElementById('screen-guardados');
+  if(!el) return;
+  const entries = Object.entries(saved)
+    .filter(([key, v]) => v && typeof v === 'object' && DATA[v.sign])
+    .map(([key, v]) => ({ key, ...v }))
+    .sort((a, b) => b.savedAt - a.savedAt);
+
+  if(!entries.length){
+    el.innerHTML = `
+      <p class="grid-label" style="margin:16px 16px 4px;">Guardados</p>
+      <p class="playlist-empty">Todavía no has guardado ninguna reflexión. Toca "Guardar reflexión" en cualquier horoscópo para verlo aquí.</p>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <p class="grid-label" style="margin:16px 16px 4px;">Guardados</p>
+    <div style="padding:0 16px 24px; display:flex; flex-direction:column; gap:14px;">
+      ${entries.map(e => {
+        const d = DATA[e.sign];
+        const tabLabel = e.tab === 'daily' ? 'Hoy' : 'Semana';
+        const date = new Date(e.savedAt).toLocaleDateString('es-MX', { day: 'numeric', month: 'short' });
+        return `
+        <div class="panel" style="margin:0;">
+          <div class="panel-head" style="margin-bottom:10px;">
+            <div class="panel-sign">
+              <span class="sym">${d.sym}</span>
+              <span class="nm">${d.nm} &middot; ${tabLabel}</span>
+            </div>
+            <button class="save-btn" onclick="removeSaved('${e.key}')" style="font-size:11px;">Quitar</button>
+          </div>
+          <p class="reading-text">${e.text}</p>
+          ${e.q ? `<p class="reflection">${e.q}</p>` : ''}
+          ${e.ritual ? `<div class="ritual-line"><b>Ritual de la semana &mdash;</b> ${e.ritual}</div>` : ''}
+          <p style="font-size:10px; color:var(--text-muted); margin-top:10px;">Guardado el ${date}</p>
+        </div>`;
+      }).join('')}
+    </div>`;
 }
 
 function renderPanel(){
   const d = DATA[currentSign];
-  const isSaved = !!saved[currentSign+currentTab];
+  const isSaved = !!saved[currentSaveKey()];
 
   const introBlock = `
     <div class="intro-block">
@@ -1356,6 +1438,7 @@ function showScreen(name){
   document.getElementById('screen-carta').style.display = name === 'carta' ? 'block' : 'none';
   document.getElementById('screen-patron').style.display = name === 'patron' ? 'block' : 'none';
   document.getElementById('screen-frecuencias').style.display = name === 'frecuencias' ? 'block' : 'none';
+  document.getElementById('screen-guardados').style.display = name === 'guardados' ? 'block' : 'none';
   document.getElementById('navHoy').classList.toggle('active', name === 'hoy');
   document.getElementById('navCarta').classList.toggle('active', name === 'carta');
   document.getElementById('navPatron').classList.toggle('active', name === 'patron');
@@ -1363,6 +1446,7 @@ function showScreen(name){
   if(name === 'carta') renderCartaScreen();
   if(name === 'patron') renderPatronScreen();
   if(name === 'frecuencias') renderFrecuenciasScreen();
+  if(name === 'guardados') renderGuardadosScreen();
 }
 
 // Pistas instrumentales para meditar/dormir (no cambian cada semana como las
