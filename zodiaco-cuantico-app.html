@@ -282,7 +282,8 @@
   }
   .nav-item:hover{transform:translateY(-2px);}
   .nav-item.active{color:var(--text-primary); border-color:var(--gold);}
-  .nav-icon{font-family:'Fraunces',serif; font-size:19px;}
+  .nav-icon{font-family:'Fraunces',serif; font-size:24px;}
+  svg.nav-icon{width:25px; height:25px; display:block;}
 
   @media (max-width:420px){
     body{padding:0;}
@@ -794,13 +795,14 @@
 
   <div class="bottom-nav">
     <div class="nav-item active" id="navHoy" onclick="showScreen('hoy')">
-      <span class="nav-icon">✦</span>Hoy
+      <span class="nav-icon">✦</span>Hor&oacute;scopos
     </div>
     <div class="nav-item" id="navCarta" onclick="showScreen('carta')">
-      <span class="nav-icon">⊕</span>Carta
+      <span class="nav-icon">⊕</span>Carta Astral
     </div>
     <div class="nav-item" id="navPatron" onclick="showScreen('patron')">
-      <span class="nav-icon">&#127924;</span>Patr&oacute;n
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4" y="2" width="16" height="20" rx="2.6"/><path d="M12 8.3l1.05 2.5 2.7.2-2.05 1.85.65 2.65-2.35-1.45-2.35 1.45.65-2.65-2.05-1.85 2.7-.2z" fill="currentColor" stroke="none"/></svg>
+      Tarot
     </div>
     <div class="nav-item" id="navFrecuencias" onclick="handleFrecuenciasNav()">
       <span class="nav-icon">≈</span>Frecuencias
