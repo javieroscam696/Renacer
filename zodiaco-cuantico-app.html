@@ -239,6 +239,24 @@
   }
   .ritual-line b{color:var(--text-primary); font-weight:500;}
 
+  .abundance-card{
+    margin:0 22px 8px;
+    padding:34px 24px;
+    border-radius:20px;
+    background:var(--bg-panel);
+    border:1px solid var(--gold-dim);
+    text-align:center;
+  }
+  .abundance-line{
+    font-family:'Fraunces',serif;
+    font-size:17px;
+    line-height:1.9;
+    color:var(--text-primary);
+    margin:0 0 10px;
+  }
+  .abundance-line:nth-child(even){color:var(--gold); font-style:italic;}
+  .abundance-line:last-child{margin-bottom:0;}
+
   .save-row{
     display:flex;
     justify-content:flex-end;
@@ -811,6 +829,8 @@
 
   <div id="screen-guardados" style="display:none"></div>
 
+  <div id="screen-abundancia" style="display:none"></div>
+
   <div class="bottom-nav">
     <div class="nav-item active" id="navHoy" onclick="showScreen('hoy')">
       <span class="nav-icon">✦</span>Hor&oacute;scopos
@@ -824,6 +844,9 @@
     </div>
     <div class="nav-item" id="navFrecuencias" onclick="handleFrecuenciasNav()">
       <span class="nav-icon">≈</span>Frecuencias
+    </div>
+    <div class="nav-item" id="navAbundancia" onclick="handleAbundanciaNav()">
+      <span class="nav-icon">∞</span>Abundancia
     </div>
   </div>
 
@@ -1391,7 +1414,7 @@ function loadImageEl(src){
     img.src = src;
   });
 }
-async function buildShareCanvas({ symbol, cardImg, title, subtitle, body, reflection }){
+async function buildShareCanvas({ symbol, cardImg, title, subtitle, body, reflection, lines }){
   if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
   const W = 1080, H = 1920;
   const canvas = document.createElement('canvas');
@@ -1466,16 +1489,27 @@ async function buildShareCanvas({ symbol, cardImg, title, subtitle, body, reflec
   ctx.lineTo(W/2 + 140, dividerY);
   ctx.stroke();
 
-  ctx.textAlign = 'left';
-  ctx.fillStyle = '#F3EEE3';
-  ctx.font = '400 38px Sora';
-  let y = wrapCanvasText(ctx, body, 110, dividerY + 70, W - 220, 56);
+  if(lines && lines.length){
+    ctx.textAlign = 'center';
+    let ly = dividerY + 110;
+    lines.forEach((line, i) => {
+      ctx.fillStyle = i % 2 === 0 ? '#F3EEE3' : '#C9A15A';
+      ctx.font = (i % 2 === 0 ? '400 42px Sora' : 'italic 450 44px Fraunces');
+      ly = wrapCanvasText(ctx, line, W/2, ly, W - 200, 58);
+      ly += 26;
+    });
+  } else {
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#F3EEE3';
+    ctx.font = '400 38px Sora';
+    let y = wrapCanvasText(ctx, body, 110, dividerY + 70, W - 220, 56);
 
-  if(reflection){
-    y += 30;
-    ctx.fillStyle = '#C9A15A';
-    ctx.font = 'italic 400 36px Fraunces';
-    wrapCanvasText(ctx, reflection, 110, y, W - 220, 50);
+    if(reflection){
+      y += 30;
+      ctx.fillStyle = '#C9A15A';
+      ctx.font = 'italic 400 36px Fraunces';
+      wrapCanvasText(ctx, reflection, 110, y, W - 220, 50);
+    }
   }
 
   ctx.textAlign = 'center';
@@ -1622,14 +1656,17 @@ function showScreen(name){
   document.getElementById('screen-patron').style.display = name === 'patron' ? 'block' : 'none';
   document.getElementById('screen-frecuencias').style.display = name === 'frecuencias' ? 'block' : 'none';
   document.getElementById('screen-guardados').style.display = name === 'guardados' ? 'block' : 'none';
+  document.getElementById('screen-abundancia').style.display = name === 'abundancia' ? 'block' : 'none';
   document.getElementById('navHoy').classList.toggle('active', name === 'hoy');
   document.getElementById('navCarta').classList.toggle('active', name === 'carta');
   document.getElementById('navPatron').classList.toggle('active', name === 'patron');
   document.getElementById('navFrecuencias').classList.toggle('active', name === 'frecuencias');
+  document.getElementById('navAbundancia').classList.toggle('active', name === 'abundancia');
   if(name === 'carta') renderCartaScreen();
   if(name === 'patron') renderPatronScreen();
   if(name === 'frecuencias') renderFrecuenciasScreen();
   if(name === 'guardados') renderGuardadosScreen();
+  if(name === 'abundancia') renderAbundanciaScreen();
 }
 
 // Pistas instrumentales para meditar/dormir (no cambian cada semana como las
@@ -1649,6 +1686,57 @@ function handleFrecuenciasNav(){
 
 function renderFrecuenciasScreen(){
   renderPlaylist('audio', FREQUENCIES, document.getElementById('frecuenciasBody'));
+}
+
+/* ================= Crear Abundancia (afirmaciones estilo Neville Goddard) =================
+   Una serie de afirmaciones distinta cada dia (rota igual que el horoscopo
+   diario). Contenido exclusivo para suscriptores. Para agregar mas series,
+   suma un objeto nuevo aqui con "lines": [linea1, linea2, ...]. */
+const ABUNDANCE = [
+  { lines: ["Yo soy abundancia ahora.", "Siento la riqueza como un hecho cumplido.", "Nada me falta. Todo ya es mío.", "Mi imaginación ha creado este estado.", "Lo vivo, lo siento y lo acepto.", "Así es. Y así permanece."] },
+  { lines: ["Vivo en el final.", "Mi vida ya rebosa de prosperidad.", "Lo siento, lo acepto y lo soy.", "No espero. Ya estoy allí.", "La riqueza me rodea en este instante.", "Este es mi único estado verdadero."] },
+  { lines: ["Asumo el estado del hombre rico.", "El dinero llega a mí con facilidad.", "Esta es mi realidad presente.", "Siento la libertad de ya poseerlo todo.", "No hay esfuerzo. Solo recepción.", "Yo soy aquel que ya tiene."] },
+  { lines: ["Yo soy la fuente de toda riqueza.", "Mi imaginación ya lo ha creado.", "Siento gratitud porque ya lo tengo.", "El mundo exterior solo confirma lo interno.", "Camino en la certeza de lo cumplido.", "Nada nuevo debo buscar. Ya es."] },
+  { lines: ["Camino en la certeza de la abundancia.", "Todo lo que deseo ya me pertenece.", "Así lo siento. Así es.", "Mi conciencia no admite falta.", "Solo conozco plenitud.", "Este es el estado que habito ahora."] },
+  { lines: ["Estoy en el estado de plenitud total.", "La fortuna me busca y me encuentra.", "Yo no persigo. Yo recibo.", "Siento el flujo constante de riqueza.", "Todo llega a mí porque ya soy eso.", "La abundancia es mi naturaleza."] },
+  { lines: ["Siento ahora la libertad de ser rico.", "Mi mundo exterior refleja lo que ya soy.", "La prosperidad es mi única verdad.", "No hay dualidad. Solo este estado.", "Lo asumo completamente.", "Y el mundo se doblega ante él."] },
+  { lines: ["En silencio asumo que ya lo tengo todo.", "Veo, siento y soy abundancia.", "El deseo ya se ha cumplido.", "No hay mañana. Solo este ahora.", "Mi sentimiento es la prueba.", "Así lo he creado. Así permanece."] },
+  { lines: ["Mi conciencia es de infinita riqueza.", "Nada puede negar lo que ya soy.", "Yo soy, y eso basta.", "No necesito evidencia externa.", "El sentimiento es la evidencia.", "Habito este estado sin dudar."] },
+  { lines: ["Acepto ahora mi herencia divina.", "Riqueza, paz y libertad son mías.", "Lo siento profundamente. Ya está hecho.", "No pido. Reconozco lo que ya es.", "Vivo desde el final cumplido.", "Y la vida no puede sino reflejarlo."] }
+];
+function getAbundanceSet(){
+  return ABUNDANCE[dayOfYear(new Date()) % ABUNDANCE.length];
+}
+function handleAbundanciaNav(){
+  if(!isSubscribed){
+    openPaywall();
+    return;
+  }
+  showScreen('abundancia');
+}
+function renderAbundanciaScreen(){
+  const el = document.getElementById('screen-abundancia');
+  if(!el) return;
+  const set = getAbundanceSet();
+  el.innerHTML = `
+    <p class="grid-label" style="text-align:center;margin:16px 0 4px;">Crear Abundancia</p>
+    <p style="text-align:center;font-size:12px;color:var(--text-muted);margin:0 30px 20px;">Léelo en voz alta. Siente que ya es tuyo.</p>
+    <div class="abundance-card">
+      ${set.lines.map(l => `<p class="abundance-line">${l}</p>`).join('')}
+    </div>
+    <div class="save-row" style="justify-content:center;">
+      <button class="save-btn" onclick="shareAbundance()">Compartir &#10554;</button>
+    </div>`;
+}
+async function shareAbundance(){
+  const set = getAbundanceSet();
+  const blob = await buildShareCanvas({
+    symbol: '∞',
+    title: 'ABUNDANCIA',
+    subtitle: 'AFIRMACIÓN DEL DÍA',
+    lines: set.lines
+  });
+  shareImageBlob(blob, `zodiaco-cuantico-abundancia.png`);
 }
 
 /* ================= Carta del dia (juego de tarot + racha) =================
