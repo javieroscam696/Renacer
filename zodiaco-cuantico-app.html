@@ -1519,16 +1519,24 @@ async function buildShareCanvas({ symbol, cardImg, title, subtitle, body, reflec
 
   return new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
 }
+function isMobileDevice(){
+  return matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+}
 async function shareImageBlob(blob, filename){
   if(!blob) return;
-  try{
-    const file = new File([blob], filename, { type: 'image/png' });
-    if(navigator.canShare && navigator.canShare({ files: [file] })){
-      await navigator.share({ files: [file], title: 'Zodiaco Cuántico' });
-      return;
+  // El panel nativo de "compartir" de Windows/Mac no tiene apps registradas
+  // para recibir imagenes y se queda en blanco/colgado. En computadora
+  // vamos directo a la descarga; navigator.share solo se usa en celular.
+  if(isMobileDevice()){
+    try{
+      const file = new File([blob], filename, { type: 'image/png' });
+      if(navigator.canShare && navigator.canShare({ files: [file] })){
+        await navigator.share({ files: [file], title: 'Zodiaco Cuántico' });
+        return;
+      }
+    }catch(err){
+      if(err && err.name === 'AbortError') return;
     }
-  }catch(err){
-    if(err && err.name === 'AbortError') return;
   }
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
