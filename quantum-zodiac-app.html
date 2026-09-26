@@ -1,0 +1,2388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quantum Zodiac</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,450;9..144,600&family=Sora:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#0C0E22;
+    --bg-deep-2:#141833;
+    --bg-panel:#171B3D;
+    --bg-panel-2:#1D2246;
+    --gold:#C9A15A;
+    --gold-dim:#8E7642;
+    --gold-glow:rgba(201,161,90,0.16);
+    --text-primary:#F3EEE3;
+    --text-muted:#9497B8;
+    --line:rgba(201,161,90,0.4);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{min-height:100%;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:flex-start;
+    justify-content:center;
+    background:
+      radial-gradient(ellipse 900px 600px at 20% 0%, #191F45 0%, transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 100%, #1A1638 0%, transparent 55%),
+      var(--bg-deep);
+    font-family:'Sora',sans-serif;
+    color:var(--text-primary);
+    padding:28px 12px;
+  }
+
+  .phone{
+    width:390px;
+    max-width:100%;
+    min-height:780px;
+    background:linear-gradient(180deg, var(--bg-deep-2) 0%, var(--bg-deep) 100%);
+    border-radius:36px;
+    border:1px solid var(--gold);
+    box-shadow:0 40px 80px -30px rgba(0,0,0,0.7), 0 0 0 8px rgba(255,255,255,0.02) inset;
+    overflow:hidden;
+    position:relative;
+    display:flex;
+    flex-direction:column;
+  }
+
+  /* header */
+  .app-header{
+    padding:30px 26px 18px;
+    position:relative;
+  }
+  .wordmark{
+    font-family:'Fraunces',serif;
+    font-weight:450;
+    font-size:22px;
+    letter-spacing:0.02em;
+    color:var(--text-primary);
+    margin:0;
+  }
+  .wordmark em{font-style:italic; color:var(--gold);}
+  .tagline{
+    margin:4px 0 0;
+    font-size:12.5px;
+    color:var(--text-muted);
+    letter-spacing:0.03em;
+  }
+  .glyph-mark{
+    position:absolute;
+    top:22px; right:26px;
+    width:42px;height:42px;
+    border-radius:50%;
+    border:1px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    font-size:15px;
+    color:var(--gold);
+    font-family:'Fraunces',serif;
+    overflow:hidden;
+    background:#000;
+  }
+  .glyph-mark img{width:100%;height:100%;object-fit:cover;display:block;}
+  .saved-mark{
+    position:absolute;
+    top:22px; right:78px;
+    width:42px;height:42px;
+    border-radius:50%;
+    border:1px solid var(--gold);
+    background:#000;
+    display:flex;align-items:center;justify-content:center;
+    color:var(--gold);
+    cursor:pointer;
+  }
+  .saved-mark svg{width:18px;height:18px;}
+
+  /* sign grid */
+  .grid-wrap{padding:6px 22px 4px;}
+  .grid-label{
+    font-size:13px;
+    color:var(--text-muted);
+    margin:6px 4px 12px;
+  }
+  .sign-grid{
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    gap:10px;
+  }
+  .sign-btn{
+    aspect-ratio:1;
+    background:var(--bg-panel);
+    border:1px solid var(--gold);
+    border-radius:16px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    cursor:pointer;
+    transition:border-color .25s ease, background .25s ease, transform .2s ease;
+    color:var(--text-muted);
+  }
+  .sign-btn:hover{transform:translateY(-2px);}
+  .sign-btn .sym{font-size:20px; font-family:'Fraunces',serif; color:var(--text-primary);}
+  .sign-btn .nm{font-size:9.5px; letter-spacing:0.02em;}
+  .sign-btn.active{
+    background:linear-gradient(160deg, var(--gold-glow), transparent);
+    border-color:var(--gold-dim);
+  }
+  .sign-btn.active .sym{color:var(--gold);}
+  .sign-btn.active .nm{color:var(--text-primary);}
+
+  /* reading panel */
+  .panel{
+    margin:20px 16px 24px;
+    background:var(--bg-panel-2);
+    border-radius:20px;
+    border:1px solid var(--gold);
+    padding:26px 22px 22px;
+    position:relative;
+    overflow:hidden;
+    min-height:150px;
+  }
+  .panel::before{
+    content:"";
+    position:absolute;
+    top:-60px; right:-60px;
+    width:180px;height:180px;
+    background:radial-gradient(circle, var(--gold-glow), transparent 70%);
+    pointer-events:none;
+  }
+  .panel:has(.panel-empty){
+    padding:16px 18px 14px;
+    min-height:auto;
+  }
+  .panel-empty{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-start;
+    gap:4px;
+    color:var(--text-muted);
+    font-size:12.5px;
+    line-height:1.45;
+  }
+  .panel-empty .big-sym{
+    font-family:'Fraunces',serif;
+    font-size:22px;
+    color:var(--gold-dim);
+    margin-bottom:2px;
+  }
+
+  .panel-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:16px;
+    position:relative;
+  }
+  .panel-sign{
+    display:flex;
+    align-items:baseline;
+    gap:10px;
+  }
+  .panel-sign .sym{font-family:'Fraunces',serif; font-size:26px; color:var(--gold);}
+  .panel-sign .nm{font-family:'Fraunces',serif; font-size:19px;}
+
+  .tabs{
+    display:flex;
+    gap:2px;
+    background:rgba(255,255,255,0.04);
+    border-radius:20px;
+    padding:3px;
+    position:relative;
+  }
+  .tab-btn{
+    border:none;
+    background:transparent;
+    color:var(--text-muted);
+    font-family:'Sora',sans-serif;
+    font-size:11.5px;
+    padding:6px 12px;
+    border-radius:16px;
+    cursor:pointer;
+    transition:color .2s ease;
+  }
+  .tab-btn.active{
+    background:var(--gold);
+    color:#1A1424;
+    font-weight:600;
+  }
+
+  .reading-text{
+    font-size:14.5px;
+    line-height:1.65;
+    color:var(--text-primary);
+    margin:0 0 16px;
+    position:relative;
+  }
+  .reflection{
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-size:14px;
+    color:var(--gold);
+    line-height:1.5;
+    border-top:1px solid var(--line);
+    padding-top:14px;
+    margin:0;
+  }
+  .ritual-line{
+    font-size:12.5px;
+    color:var(--text-muted);
+    margin-top:12px;
+    padding-top:12px;
+    border-top:1px solid rgba(255,255,255,0.06);
+    line-height:1.5;
+  }
+  .ritual-line b{color:var(--text-primary); font-weight:500;}
+
+  .abundance-card{
+    margin:0 22px 8px;
+    padding:34px 24px;
+    border-radius:20px;
+    background:var(--bg-panel);
+    border:1px solid var(--gold-dim);
+    text-align:center;
+  }
+  .abundance-line{
+    font-family:'Fraunces',serif;
+    font-size:17px;
+    line-height:1.9;
+    color:var(--text-primary);
+    margin:0 0 10px;
+  }
+  .abundance-line:nth-child(even){color:var(--gold); font-style:italic;}
+  .abundance-line:last-child{margin-bottom:0;}
+
+  .save-row{
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+    margin-top:16px;
+  }
+  .save-btn{
+    border:1px solid var(--gold);
+    background:transparent;
+    color:var(--gold);
+    font-family:'Sora',sans-serif;
+    font-size:12px;
+    padding:8px 16px;
+    border-radius:20px;
+    cursor:pointer;
+    transition:background .2s ease, color .2s ease;
+  }
+  .save-btn.saved{
+    background:var(--gold);
+    color:#1A1424;
+    border-color:var(--gold);
+  }
+
+  .fade-in{animation:fadeIn .45s ease both;}
+  @keyframes fadeIn{
+    from{opacity:0; transform:translateY(6px);}
+    to{opacity:1; transform:translateY(0);}
+  }
+
+  /* bottom nav */
+  .bottom-nav{
+    margin-top:auto;
+    display:flex;
+    gap:8px;
+    padding:12px 16px 22px;
+    border-top:1px solid rgba(255,255,255,0.05);
+  }
+  .nav-item{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:4px;
+    aspect-ratio:1;
+    background:var(--bg-panel);
+    border:1px solid var(--gold-dim);
+    border-radius:14px;
+    color:var(--text-muted);
+    font-size:9.5px;
+    letter-spacing:0.02em;
+    cursor:pointer;
+    transition:transform .2s ease, border-color .2s ease;
+  }
+  .nav-item:hover{transform:translateY(-2px);}
+  .nav-item.active{color:var(--text-primary); border-color:var(--gold);}
+  .nav-icon{font-family:'Fraunces',serif; font-size:24px;}
+  svg.nav-icon{width:25px; height:25px; display:block;}
+
+  @media (max-width:420px){
+    body{padding:0;}
+    .phone{border-radius:0; min-height:100vh; border:none;}
+  }
+
+
+  .np-card{
+    margin:0 16px 14px;
+    background:var(--bg-panel-2);
+    border:1px solid var(--gold);
+    border-radius:20px;
+    padding:22px 20px 20px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+  }
+  .np-card::before{
+    content:"";
+    position:absolute;
+    top:-60px; left:50%; transform:translateX(-50%);
+    width:200px;height:200px;
+    background:radial-gradient(circle, var(--gold-glow), transparent 70%);
+    pointer-events:none;
+  }
+  .np-art{
+    width:112px;height:112px;
+    margin:0 auto 16px;
+    border-radius:16px;
+    overflow:hidden;
+    border:1px solid var(--gold-dim);
+    position:relative;
+    z-index:1;
+    box-shadow:0 10px 30px rgba(0,0,0,0.35);
+  }
+  .np-art img{width:100%;height:100%;object-fit:cover;display:block;}
+  .np-title{font-family:'Fraunces',serif; font-size:17px; color:var(--text-primary); margin:0 0 3px; position:relative; z-index:1;}
+  .np-sub{font-size:11.5px; color:var(--text-muted); margin:0 0 18px; position:relative; z-index:1;}
+  .np-progress-track{
+    height:3px;border-radius:2px;background:rgba(255,255,255,0.1);
+    position:relative;cursor:pointer;z-index:1;
+  }
+  .np-progress-fill{
+    position:absolute;left:0;top:0;height:100%;
+    background:var(--gold);border-radius:2px;width:0%;
+  }
+  .np-progress-dot{
+    position:absolute; top:50%; width:10px;height:10px;border-radius:50%;
+    background:var(--gold); transform:translate(-50%,-50%);
+    box-shadow:0 0 0 4px var(--gold-glow);
+    left:0%;
+  }
+  .np-time-row{display:flex;justify-content:space-between;font-size:9.5px;color:var(--text-muted);margin-top:8px; position:relative; z-index:1;}
+  .np-controls{
+    display:flex; align-items:center; justify-content:center; gap:22px;
+    margin-top:18px; position:relative; z-index:1;
+  }
+  .np-ctrl{
+    background:none;border:none;color:var(--text-muted);
+    font-size:17px;cursor:pointer;padding:6px;
+    transition:color .2s ease;
+  }
+  .np-ctrl:hover{color:var(--text-primary);}
+  .np-play{
+    width:56px;height:56px;border-radius:50%;
+    background:var(--gold);border:none;
+    display:flex;align-items:center;justify-content:center;
+    cursor:pointer;color:#1A1424;font-size:17px;
+    box-shadow:0 6px 20px var(--gold-glow);
+  }
+
+  .intro-block{
+    display:flex;
+    gap:14px;
+    align-items:flex-start;
+    margin-bottom:18px;
+    padding-bottom:18px;
+    border-bottom:1px solid var(--gold);
+  }
+  .avatar{
+    width:50px;height:50px;
+    border-radius:50%;
+    flex-shrink:0;
+    background:radial-gradient(circle at 35% 30%, #2B2F5C, #10122A 70%);
+    border:1px solid var(--gold);
+    display:flex;align-items:center;justify-content:center;
+    font-family:'Fraunces',serif;
+    font-style:italic;
+    font-size:19px;
+    color:var(--gold);
+  }
+  .intro-text{
+    font-size:13px;
+    line-height:1.6;
+    color:var(--text-primary);
+    font-style:italic;
+    font-family:'Fraunces',serif;
+    margin:2px 0 0;
+  }
+  .reveal-row{
+    display:flex;
+    justify-content:center;
+    margin-top:16px;
+  }
+  .reveal-btn{
+    border:1px solid var(--gold);
+    background:var(--gold);
+    color:#1A1424;
+    font-family:'Sora',sans-serif;
+    font-weight:600;
+    font-size:12.5px;
+    padding:10px 22px;
+    border-radius:24px;
+    cursor:pointer;
+    letter-spacing:0.02em;
+  }
+
+  .mandala-bg{
+    position:absolute;
+    top:50%; left:50%;
+    width:560px; height:560px;
+    transform:translate(-50%,-50%);
+    color:var(--gold);
+    opacity:0.10;
+    z-index:-1;
+    pointer-events:none;
+    animation:spin 240s linear infinite;
+  }
+  .mandala-bg svg{width:100%; height:100%;}
+  @keyframes spin{
+    from{transform:translate(-50%,-50%) rotate(0deg);}
+    to{transform:translate(-50%,-50%) rotate(360deg);}
+  }
+  .avatar-wrap{
+    display:grid;
+    place-items:center;
+    flex-shrink:0;
+    width:64px; height:64px;
+  }
+  .avatar-wrap > *{grid-area:1/1;}
+  .avatar-halo{
+    width:64px; height:64px;
+    color:var(--gold);
+    opacity:0.55;
+    animation:spin 50s linear infinite;
+  }
+  .avatar-halo svg{width:100%; height:100%;}
+
+  .video-card{
+    margin:0 16px 20px;
+    border-radius:20px;
+    overflow:hidden;
+    border:1px solid var(--gold);
+    position:relative;
+    background:#000;
+    box-shadow:var(--shadow-lg, 0 20px 55px rgba(0,0,0,0.35));
+  }
+  .video-card .poster-wrap{
+    position:relative;
+    width:100%;
+    aspect-ratio:9/16;
+    max-height:340px;
+    cursor:pointer;
+  }
+  .video-card .poster-wrap img{
+    width:100%; height:100%; object-fit:cover; display:block;
+  }
+  .video-card .play-overlay{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    background:linear-gradient(180deg, rgba(12,14,34,0.05), rgba(12,14,34,0.45));
+  }
+  .video-card .play-overlay img{
+    width:64px; height:64px;
+    filter:drop-shadow(0 4px 14px rgba(0,0,0,0.5));
+  }
+  .video-card video{
+    width:100%; height:100%;
+    display:block;
+    object-fit:cover;
+  }
+  .video-label{
+    padding:12px 16px 4px;
+    font-size:12px;
+    color:var(--text-muted);
+  }
+
+  /* locked sign buttons */
+  .sign-btn.locked{opacity:0.55;}
+  .sign-btn.locked::after{
+    content:"\1F512";
+    position:absolute;
+    font-size:9px;
+    margin-top:-30px;
+    margin-left:26px;
+  }
+  .sign-btn{position:relative;}
+
+  /* inline paywall block inside the reading panel */
+  .paywall-block{
+    text-align:center;
+    padding:18px 6px 4px;
+    border-top:1px solid var(--line);
+    margin-top:4px;
+  }
+  .paywall-block .lock-icon{font-size:22px; margin-bottom:8px;}
+  .paywall-block .paywall-text{
+    font-size:13.5px;
+    color:var(--text-muted);
+    line-height:1.5;
+    margin:0 0 14px;
+  }
+  .subscribe-btn{
+    border:none;
+    background:var(--gold);
+    color:#1A1424;
+    font-family:'Sora',sans-serif;
+    font-weight:600;
+    font-size:12.5px;
+    padding:11px 20px;
+    border-radius:24px;
+    cursor:pointer;
+    letter-spacing:0.02em;
+  }
+
+  /* full-screen subscribe modal */
+  .paywall-modal{
+    position:fixed; inset:0;
+    background:rgba(6,7,20,0.72);
+    display:flex; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease;
+    z-index:80;
+    padding:20px;
+  }
+  .paywall-modal.open{opacity:1; pointer-events:auto;}
+  .paywall-modal-card{
+    background:var(--bg-panel-2);
+    border:1px solid var(--gold);
+    border-radius:24px;
+    padding:34px 26px 26px;
+    max-width:320px;
+    width:100%;
+    text-align:center;
+    position:relative;
+  }
+  .paywall-close{
+    position:absolute; top:14px; right:16px;
+    background:none; border:none;
+    color:var(--text-muted);
+    font-size:15px;
+    cursor:pointer;
+  }
+  .paywall-modal-icon{
+    font-family:'Fraunces',serif;
+    font-size:30px;
+    color:var(--gold);
+    margin-bottom:10px;
+  }
+  .paywall-modal-card h3{
+    font-family:'Fraunces',serif;
+    font-weight:450;
+    font-size:19px;
+    margin:0 0 8px;
+  }
+  .paywall-modal-sub{
+    font-size:13px;
+    color:var(--text-muted);
+    line-height:1.5;
+    margin:0 0 20px;
+  }
+  .plan-tabs{margin:4px auto 16px; width:fit-content;}
+  .plan-save{
+    background:rgba(240,199,94,0.18);
+    color:var(--gold);
+    font-size:9.5px;
+    font-weight:700;
+    padding:1px 6px;
+    border-radius:10px;
+    margin-left:5px;
+  }
+  .tab-btn.active .plan-save{background:rgba(26,20,36,0.25); color:#1A1424;}
+  .plan-price{margin-bottom:20px;}
+  .plan-price .amount{
+    font-family:'Fraunces',serif;
+    font-size:34px;
+    color:var(--gold);
+  }
+  .plan-price .cycle{
+    font-size:13px;
+    color:var(--text-muted);
+  }
+  .subscribe-cta{
+    display:block;
+    background:var(--gold);
+    color:#1A1424;
+    font-family:'Sora',sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    padding:13px 20px;
+    border-radius:26px;
+    text-decoration:none;
+    margin-bottom:14px;
+  }
+  .paywall-fine{
+    font-size:11px;
+    color:var(--text-muted);
+    line-height:1.5;
+    margin:0;
+  }
+  .paywall-divider{
+    font-size:11px;
+    color:var(--text-muted);
+    text-align:center;
+    margin:18px 0 14px;
+  }
+
+  /* galerias de video/audio por signo */
+  .weekly-track-list{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding:0 16px 4px;
+    margin-top:2px;
+    scrollbar-width:none;
+  }
+  .weekly-track-list::-webkit-scrollbar{display:none;}
+  .weekly-track-pill{
+    flex:0 0 auto;
+    background:var(--bg-panel);
+    border:1px solid var(--gold-dim);
+    border-radius:20px;
+    padding:8px 14px;
+    font-family:'Sora',sans-serif;
+    font-size:11.5px;
+    color:var(--text-muted);
+    white-space:nowrap;
+    cursor:pointer;
+  }
+  .weekly-track-pill.active{border-color:var(--gold); color:var(--text-primary); background:var(--bg-panel-2);}
+  .weekly-track-title{margin:10px 16px 14px; font-size:12px; color:var(--text-muted);}
+  @keyframes bump{ 0%{transform:scale(1);} 50%{transform:scale(0.94);} 100%{transform:scale(1);} }
+  .playlist{display:flex; flex-direction:column; gap:8px; max-height:60vh; overflow-y:auto;}
+  .playlist-item{
+    background:var(--bg-panel);
+    border:1px solid var(--gold-dim);
+    border-radius:10px;
+    padding:12px 14px;
+    text-align:left;
+    font-family:inherit;
+    font-size:13px;
+    color:var(--text-primary);
+    cursor:pointer;
+  }
+  .playlist-item:hover{border-color:var(--gold);}
+  .playlist-empty{font-size:13px; color:var(--text-muted); text-align:center; padding:24px 10px;}
+  .playlist-back{
+    background:none; border:none; color:var(--gold); font-family:inherit;
+    font-size:12px; cursor:pointer; padding:0 0 10px; text-align:left;
+  }
+  .playlist-title{font-size:13px; color:var(--text-primary); margin:0 0 10px;}
+  .nav-item{cursor:pointer;}
+  .nav-item.bump{animation:bump .3s ease;}
+
+  /* carta natal */
+  .natal-form{padding:18px 22px 8px;}
+  .natal-field{margin-bottom:16px;}
+  .natal-field label{display:block; font-size:12px; color:var(--text-muted); margin-bottom:6px;}
+  .natal-field input, .natal-field select{
+    width:100%;
+    background:var(--bg-panel);
+    border:1px solid var(--gold);
+    border-radius:10px;
+    padding:11px 12px;
+    color:var(--text-primary);
+    font-family:'Sora',sans-serif;
+    font-size:14px;
+  }
+  .natal-submit{
+    width:100%;
+    border:none;
+    background:var(--gold);
+    color:#1A1424;
+    font-family:'Sora',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    padding:13px;
+    border-radius:24px;
+    cursor:pointer;
+    margin-top:4px;
+  }
+  .natal-note{font-size:11px; color:var(--text-muted); line-height:1.5; margin-top:14px;}
+  .natal-error{font-size:12px; color:#ff8a8a; margin-top:10px; display:none;}
+  .natal-result-card{
+    background:var(--bg-panel-2);
+    border:1px solid var(--gold);
+    border-radius:20px;
+    padding:22px 20px;
+    margin:0 16px 14px;
+  }
+  .natal-result-card .nr-head{display:flex; align-items:center; gap:12px; margin-bottom:12px;}
+  .natal-result-card .nr-head .sym{font-family:'Fraunces',serif; font-size:26px; color:var(--gold);}
+  .natal-result-card .nr-head .title{font-size:12px; color:var(--text-muted);}
+  .natal-result-card .nr-head .signname{font-family:'Fraunces',serif; font-size:18px; color:var(--text-primary);}
+  .natal-result-card p{font-size:14px; line-height:1.6; color:var(--text-primary); margin:0;}
+  .natal-edit{
+    display:block; text-align:center; margin:6px 16px 22px;
+    font-size:12.5px; color:var(--gold); cursor:pointer; text-decoration:underline;
+  }
+  .compat-link{
+    display:block; text-align:center; margin:14px 16px 22px;
+    font-size:12.5px; color:var(--gold); cursor:pointer; text-decoration:underline;
+  }
+  .compat-symbols{
+    display:flex; align-items:center; justify-content:center; gap:20px;
+    margin:24px 0 4px;
+  }
+  .compat-symbols .sym{font-family:'Fraunces',serif; font-size:46px; color:var(--gold);}
+  .compat-symbols .heart{font-size:22px; color:var(--text-muted);}
+  .compat-pct{
+    text-align:center; font-family:'Fraunces',serif; font-weight:600; font-size:52px;
+    color:var(--gold); margin:6px 0 2px;
+  }
+  .compat-pct span{font-size:24px; color:var(--text-muted); font-family:'Sora',sans-serif;}
+  .compat-names{text-align:center; font-size:13px; color:var(--text-muted); margin-bottom:20px;}
+
+  /* carta del dia (tarot) */
+  .tarot-wrap{padding:20px 22px 8px;}
+  .tarot-streak{
+    text-align:center;
+    font-size:13px;
+    color:var(--gold);
+    background:rgba(201,161,90,0.12);
+    border:1px solid var(--gold);
+    border-radius:var(--radius-pill, 999px);
+    padding:8px 14px;
+    margin:0 auto 22px;
+    width:fit-content;
+  }
+  .tarot-back{
+    width:180px; height:288px;
+    margin:0 auto;
+    border-radius:16px;
+    border:1px solid var(--gold);
+    background-image:url('assets/tarot/reverso.jpg');
+    background-size:cover;
+    background-position:center;
+    cursor:pointer;
+    box-shadow:0 20px 40px -20px rgba(0,0,0,0.6);
+    transition:transform .2s ease;
+  }
+  .tarot-back:hover{transform:translateY(-3px);}
+  .tarot-card-reveal{text-align:center;}
+  .tarot-img{
+    width:200px;
+    border-radius:16px;
+    margin:0 auto 16px;
+    border:1px solid var(--gold);
+    box-shadow:0 20px 40px -18px rgba(0,0,0,0.65);
+  }
+  .tarot-name{
+    font-family:'Fraunces',serif;
+    font-weight:450;
+    font-size:19px;
+    margin:0 0 14px;
+  }
+  .tarot-text{
+    font-size:14.5px;
+    line-height:1.65;
+    color:var(--text-primary);
+    margin:0 0 14px;
+    text-align:left;
+  }
+  .tarot-wrap .reflection{text-align:left; border-top:1px solid var(--line); padding-top:14px;}
+
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="mandala-bg"><svg viewBox="0 0 520 520" xmlns="http://www.w3.org/2000/svg"><circle cx="260" cy="260" r="240" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="260" cy="260" r="228" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="260" cy="260" r="160" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="260" cy="260" r="100" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="260" cy="260" r="55" fill="none" stroke="currentColor" stroke-width="1"/><line x1="490.0" y1="260.0" x2="500.0" y2="260.0" stroke="currentColor" stroke-width="1"/><line x1="482.2" y1="319.5" x2="491.8" y2="322.1" stroke="currentColor" stroke-width="1"/><line x1="459.2" y1="375.0" x2="467.8" y2="380.0" stroke="currentColor" stroke-width="1"/><line x1="422.6" y1="422.6" x2="429.7" y2="429.7" stroke="currentColor" stroke-width="1"/><line x1="375.0" y1="459.2" x2="380.0" y2="467.8" stroke="currentColor" stroke-width="1"/><line x1="319.5" y1="482.2" x2="322.1" y2="491.8" stroke="currentColor" stroke-width="1"/><line x1="260.0" y1="490.0" x2="260.0" y2="500.0" stroke="currentColor" stroke-width="1"/><line x1="200.5" y1="482.2" x2="197.9" y2="491.8" stroke="currentColor" stroke-width="1"/><line x1="145.0" y1="459.2" x2="140.0" y2="467.8" stroke="currentColor" stroke-width="1"/><line x1="97.4" y1="422.6" x2="90.3" y2="429.7" stroke="currentColor" stroke-width="1"/><line x1="60.8" y1="375.0" x2="52.2" y2="380.0" stroke="currentColor" stroke-width="1"/><line x1="37.8" y1="319.5" x2="28.2" y2="322.1" stroke="currentColor" stroke-width="1"/><line x1="30.0" y1="260.0" x2="20.0" y2="260.0" stroke="currentColor" stroke-width="1"/><line x1="37.8" y1="200.5" x2="28.2" y2="197.9" stroke="currentColor" stroke-width="1"/><line x1="60.8" y1="145.0" x2="52.2" y2="140.0" stroke="currentColor" stroke-width="1"/><line x1="97.4" y1="97.4" x2="90.3" y2="90.3" stroke="currentColor" stroke-width="1"/><line x1="145.0" y1="60.8" x2="140.0" y2="52.2" stroke="currentColor" stroke-width="1"/><line x1="200.5" y1="37.8" x2="197.9" y2="28.2" stroke="currentColor" stroke-width="1"/><line x1="260.0" y1="30.0" x2="260.0" y2="20.0" stroke="currentColor" stroke-width="1"/><line x1="319.5" y1="37.8" x2="322.1" y2="28.2" stroke="currentColor" stroke-width="1"/><line x1="375.0" y1="60.8" x2="380.0" y2="52.2" stroke="currentColor" stroke-width="1"/><line x1="422.6" y1="97.4" x2="429.7" y2="90.3" stroke="currentColor" stroke-width="1"/><line x1="459.2" y1="145.0" x2="467.8" y2="140.0" stroke="currentColor" stroke-width="1"/><line x1="482.2" y1="200.5" x2="491.8" y2="197.9" stroke="currentColor" stroke-width="1"/><text x="260.0" y="50.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♈</text><text x="365.0" y="78.1" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♉</text><text x="441.9" y="155.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♊</text><text x="470.0" y="260.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♋</text><text x="441.9" y="365.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♌</text><text x="365.0" y="441.9" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♍</text><text x="260.0" y="470.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♎</text><text x="155.0" y="441.9" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♏</text><text x="78.1" y="365.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♐</text><text x="50.0" y="260.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♑</text><text x="78.1" y="155.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♒</text><text x="155.0" y="78.1" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♓</text><line x1="260.0" y1="50.0" x2="260.0" y2="50.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="365.0" y1="78.1" x2="365.0" y2="441.9" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="441.9" y1="155.0" x2="78.1" y2="155.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="470.0" y1="260.0" x2="470.0" y2="260.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="441.9" y1="365.0" x2="78.1" y2="365.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="365.0" y1="441.9" x2="365.0" y2="78.1" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="260.0" y1="470.0" x2="260.0" y2="470.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="155.0" y1="441.9" x2="155.0" y2="78.1" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="78.1" y1="365.0" x2="441.9" y2="365.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="50.0" y1="260.0" x2="50.0" y2="260.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="78.1" y1="155.0" x2="441.9" y2="155.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="155.0" y1="78.1" x2="155.0" y2="441.9" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="260.0" y1="160.0" x2="260.0" y2="100.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="310.0" y1="173.4" x2="340.0" y2="121.4" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="346.6" y1="210.0" x2="398.6" y2="180.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="360.0" y1="260.0" x2="420.0" y2="260.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="346.6" y1="310.0" x2="398.6" y2="340.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="310.0" y1="346.6" x2="340.0" y2="398.6" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="260.0" y1="360.0" x2="260.0" y2="420.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="210.0" y1="346.6" x2="180.0" y2="398.6" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="173.4" y1="310.0" x2="121.4" y2="340.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="160.0" y1="260.0" x2="100.0" y2="260.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="173.4" y1="210.0" x2="121.4" y2="180.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="210.0" y1="173.4" x2="180.0" y2="121.4" stroke="currentColor" stroke-width="0.6" opacity="0.6"/></svg></div>
+
+  <div class="app-header">
+    <p class="wordmark">quantum <em>zodiac</em></p>
+    <p class="tagline">it doesn't predict. it reflects.</p>
+    <button class="saved-mark" onclick="showScreen('guardados')" aria-label="Saved">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h12a1 1 0 0 1 1 1v19l-7-4.2L5 22V3a1 1 0 0 1 1-1z"/></svg>
+    </button>
+    <div class="glyph-mark"><img src="assets/logo-icon.jpg" alt="Quantum Zodiac"></div>
+  </div>
+
+  <div id="screen-hoy">
+  <div class="grid-wrap">
+    <p class="grid-label">Choose your sign</p>
+    <div class="sign-grid" id="signGrid"></div>
+  </div>
+
+  <div class="panel" id="panel">
+    <div class="panel-empty">
+      <div class="big-sym">✦</div>
+      You haven't picked a sign yet.<br>
+      Tap one above — what you read next is a mirror, not a prediction.
+    </div>
+  </div>
+
+  <p class="grid-label" style="margin:0 16px 10px;">Video</p>
+  <div id="introVideoArea"></div>
+
+  <p class="grid-label" style="margin:20px 16px 10px;">This week's content</p>
+  <div class="tabs" style="margin:0 16px 14px; width:fit-content;">
+    <button class="tab-btn active" id="weeklyTabVideo" onclick="setWeeklyTab('video')">Videos</button>
+    <button class="tab-btn" id="weeklyTabAudio" onclick="setWeeklyTab('audio')">Audio</button>
+  </div>
+  <div id="weeklyPlayerArea"></div>
+  <audio id="weeklyAudioEl" style="display:none"></audio>
+
+  </div>
+
+  <div id="screen-carta" style="display:none"></div>
+
+  <div id="screen-compat" style="display:none"></div>
+
+  <div id="screen-patron" style="display:none"></div>
+
+  <div id="screen-frecuencias" style="display:none">
+    <p class="grid-label" style="margin:16px 16px 4px;">Frequencies</p>
+    <p style="margin:0 16px 16px; font-size:12px; line-height:1.5; color:var(--text-muted);">Instrumental sounds for meditating or sleeping. New tracks get added whenever — they all stay available here.</p>
+    <div id="frecuenciasBody" style="padding:0 16px 24px;"></div>
+  </div>
+
+  <div id="screen-guardados" style="display:none"></div>
+
+  <div id="screen-abundancia" style="display:none"></div>
+
+  <div class="bottom-nav">
+    <div class="nav-item active" id="navHoy" onclick="showScreen('hoy')">
+      <span class="nav-icon">✦</span>Horoscopes
+    </div>
+    <div class="nav-item" id="navCarta" onclick="showScreen('carta')">
+      <span class="nav-icon">⊕</span>Birth Chart
+    </div>
+    <div class="nav-item" id="navPatron" onclick="showScreen('patron')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="4" y="2" width="16" height="20" rx="2.6"/><path d="M12 8.3l1.05 2.5 2.7.2-2.05 1.85.65 2.65-2.35-1.45-2.35 1.45.65-2.65-2.05-1.85 2.7-.2z" fill="currentColor" stroke="none"/></svg>
+      Tarot
+    </div>
+    <div class="nav-item" id="navFrecuencias" onclick="handleFrecuenciasNav()">
+      <span class="nav-icon">≈</span>Frequencies
+    </div>
+    <div class="nav-item" id="navAbundancia" onclick="handleAbundanciaNav()">
+      <span class="nav-icon">∞</span>Abundance
+    </div>
+  </div>
+
+</div>
+
+<script>
+const DATA = {
+  aries:{sym:'♈', nm:'Aries', intro:'Attention Aries, ready to unleash your potential across every dimension. This quantum horoscope isn’t just what’s going to happen — it’s what you’re going to make happen. You’re a natural-born pioneer — get ready to leap into your best timeline. Hit play and manifest your destiny.',
+    daily:[{text:"Today your drive is strong, but not every impulse comes from your creative power — sometimes it comes from fear dressed up as action. Before you move, choose which one you're acting from.",q:"Is this rush my fire, or my anxiety?"},{text:"You want to start something new today, and that's fine — but notice if it's genuine enthusiasm or the need to escape something you don't want to feel.",q:"What am I running from by disguising it as a new project?"},{text:"Today's anger isn't the problem; it's information about a boundary you haven't spoken out loud. Before you explode, name the boundary that's missing.",q:"What boundary have I been putting off so I don't make things uncomfortable?"},{text:"Competing fires you up, but today the victory that truly counts is the one that needs no witnesses. No one has to see you win for it to be real.",q:"Who am I competing for today?"},{text:"Today's impatience isn't a flaw to fix, it's energy without a clear direction. Give it a concrete target before it turns into frustration.",q:"Where am I pointing this energy?"},{text:"When something doesn't move at your pace, your first instinct is to force it. Today try the opposite: let go of control for a second and see what resolves itself.",q:"What happens if I don't push today?"},{text:"Today's courage can be born from your power or from not wanting to feel weak in front of someone. Only you know which one is driving.",q:"Am I being brave, or am I avoiding looking vulnerable?"}],
+    weekly:[{text:"This week, everything that shows up in your health, your money, or your relationships is information about a belief you're holding without realizing it. If there's tension in the body, it's mental urgency turned into symptom. If money feels tight, check the phrase you repeat about it when no one's listening. And what you're looking for in someone else first has to exist in how you treat yourself.",ritual:"Every morning, 60 seconds before you touch your phone: feel — don't think — the version of you that's already living what you want."},{text:"This week your body is asking you to let go of urgency before it turns into physical tension — constant rushing is also a form of stress that builds up. In money matters, a fast decision could be sharp instinct or impatience in disguise; sleep on it before confirming it. In love, the passion you feel is real, but the person in front of you also needs your patience, not just your fire.",ritual:"Before you respond to something that upset you, count to ten while breathing deep — let the fire turn into clarity."},{text:"This week your body warns you with headaches or jaw tension how much you're holding back — fire that isn't expressed turns into internal pressure. In money, your instinct for starting projects is an asset, but without follow-through it stays potential that never pays off. In love, the independence you defend shouldn't be the excuse for never truly committing to anyone — including yourself.",ritual:"Finish one single thing this week that you started with enthusiasm and then left halfway done."},{text:"Your energy this week is looking for real movement, not just adrenaline — your body asks for it through restlessness if you sit still too long. In money, the risk you're considering could be courage or impulsiveness; the difference is whether you've actually researched it or just feel like it. In love, being the first to say what you feel doesn't make you weak, it makes you honest.",ritual:"Do intense physical exercise at least one day this week — your body needs to discharge before your mind can think clearly."}]},
+  tauro:{sym:'♉', nm:'Taurus', intro:'Attention Taurus, ready to unleash your potential across every dimension. This quantum horoscope isn’t just what’s going to happen — it’s what you’re going to make happen. You’re a builder of firm roots by nature — get ready to leap into your best timeline. Hit play and manifest your destiny.',
+    daily:[{text:"The stability you look for outside — in your bank account, your body, your partner — you have to hold first from within. Today's a good day to notice what inner ground you're building on.",q:"What am I calling \"security\" that's actually control?"},{text:"You cling to the familiar because change feels like losing your footing, but today notice if that ground still serves you or is just familiar.",q:"Am I still here by choice or by habit?"},{text:"Your body today asks for simple pleasure — good food, touch, stillness — not as a reward, but as a language. Give it what it asks without guilt.",q:"Since when does rest need to be \"earned\"?"},{text:"Today's stubbornness might be holding up something valuable, or just your fear of admitting you were wrong. Before you insist, check which one it is.",q:"Am I holding onto a value or my pride?"},{text:"You want everything to feel solid before you move, but some things only become solid after you take the step, not before.",q:"What am I waiting to feel safe about that I could already do now?"},{text:"Today money or material things can feel like the measure of your worth — they're not. Your worth doesn't fluctuate with your bank balance.",q:"What part of me believes it's worth what it owns?"},{text:"The patience you have with slow processes is a gift, but today notice if you use it to grow or to avoid uncomfortable decisions.",q:"Am I being patient or am I avoiding a decision?"}],
+    weekly:[{text:"This week your body asks for rhythm, not rigidity: health responds better to gentle consistency than to forced discipline. In money, your stubbornness can hold up a project or hold up a fear — notice which one. In love, the calm you're trying to find in someone else is the calm you still haven't given yourself.",ritual:"One moment a day without a screen, just feeling the body, without correcting anything — just noticing."},{text:"Your body this week appreciates routine, but watch out for confusing routine with stagnation — there's a difference between what supports you and what no longer lets you grow. In money, this week favors saving and planning over risk; trust that conservative instinct. In love, you deserve someone who values your consistency without asking you to sacrifice it for their urgency.",ritual:"Cook or eat something slowly, without a screen, paying real attention to every bite."},{text:"Your body this week can feel heavy if you've been forcing fast changes — give it permission to move at its own pace. In money, review a recurring expense that no longer gives you what it used to; loyalty to things expires too. In love, the possessiveness you sometimes feel doesn't protect the bond, it suffocates it — real security doesn't cling.",ritual:"Let go of or donate something material you've been keeping \"just in case.\""},{text:"Your body this week asks for contact with nature or with the physical — earth, plants, slow movement — to truly recharge. In money, it's a good week to invest in something lasting instead of spending on something fleeting. In love, your way of caring through concrete gestures (food, presence, consistency) is just as valid as the words you don't say.",ritual:"Spend at least 20 minutes outdoors, no phone, just being."}]},
+  geminis:{sym:'♊', nm:'Gemini', intro:'Attention Gemini, ready to unleash your potential across every dimension. This quantum horoscope isn’t just what’s going to happen — it’s what you’re going to make happen. You’re a multiple mind by nature — get ready to leap into your best timeline. Hit play and manifest your destiny.',
+    daily:[{text:"Not everything you think is yours; many of today's ideas are echoes of conversations you don't even remember. Consciously choose which thought you're going to repeat until it becomes belief.",q:"Whose idea is this that I'm defending as my own?"},{text:"Today your mind jumps from one topic to another looking for stimulation — but the answer you're looking for isn't in the next notification, it's in the idea you already have and haven't finished thinking through.",q:"What thought have I been avoiding going deeper into for days?"},{text:"You talk to process, and that's fine, but today notice if you're sharing or just filling the silence because it makes you uncomfortable.",q:"Does this silence bother me, or does it really need filling?"},{text:"Your curiosity today pulls you in a thousand directions — pick one and stay with it for more than five minutes, just to practice depth.",q:"What would happen if I stuck with just one idea today?"},{text:"Today's mental anxiety isn't solved by thinking faster, it's solved by stopping thinking for a moment. Your mind needs a pause, not an answer.",q:"Can I leave this question unresolved for today?"},{text:"You say yes to everything out of curiosity, but today check if your schedule reflects what you truly want or just what sounds interesting in the moment.",q:"How many things did I say yes to this week just out of curiosity?"},{text:"The information you consume today shapes you as much as what you eat. Notice what you're letting into your mind without a filter.",q:"Is what I'm reading or watching adding to me, or just distracting me?"}],
+    weekly:[{text:"This week your mind speeds up and that shows up in the body as scattered focus or mild insomnia. In money, watch out for deciding based on the last video you watched — come back to your own judgment. In love, the conversation you avoid having with yourself is the same one you keep repeating, unresolved, with everyone else.",ritual:"Write one single sentence every night: \"today I chose to believe that…\" — and check if you really chose it yourself."},{text:"Your body this week reflects mental overload as tiredness with no obvious reason — sometimes overthinking is more exhausting than physical work. In money, this is a week to compare options before deciding, your analytical mind is sharp. In love, the person in front of you doesn't need you to explain everything — sometimes they just need you to listen without correcting.",ritual:"Have a conversation this week where you only listen, without preparing your response while the other person talks."},{text:"This week your body asks for auditory silence — less noise, fewer screens, more stillness so your mind stops overloading. In money, watch out for impulsive purchases out of boredom; notice if you're buying to feel something new. In love, the variety you look for outside might be a sign you need more stimulation in your own life, not outside the relationship.",ritual:"One day this week without social media, and write down what thoughts appear when there's no distraction."},{text:"Your body this week needs you to stop postponing rest \"until you finish thinking about everything\" — you'll never finish, and the body can't wait that long. In money, share your ideas with someone you trust before deciding alone; a second perspective will help you. In love, being honest about what you truly feel is braver than being clever about what you avoid feeling.",ritual:"Share an idea you've been keeping to yourself out of fear it sounds silly, with one person."}]},
+  cancer:{sym:'♋', nm:'Cancer', intro:'Attention Cancer, ready to unleash your potential across every dimension. This quantum horoscope isn’t just what’s going to happen — it’s what you’re going to make happen. You’re a guardian of your inner world by nature — get ready to leap into your best timeline. Hit play and manifest your destiny.',
+    daily:[{text:"Your sensitivity isn't \"picking up\" what others feel — it's reflecting what you haven't processed yourself yet. Today, before caring for someone else, check what needs caring for in you.",q:"Is this emotion mine, or did I absorb it?"},{text:"You want everyone around you to be okay because that's what makes you feel safe, but today notice that their wellbeing isn't your full responsibility.",q:"What part of me needs everyone to be okay in order to feel calm?"},{text:"The memory visiting you today didn't arrive by chance — your mind brings it up because there's something there still asking for closure.",q:"What do I need to close from this thing I keep remembering?"},{text:"You withdraw when you feel vulnerable, and that's valid protection — but today notice if you're protecting yourself from a real danger or an old one that no longer exists.",q:"What am I protecting myself from today that isn't here anymore?"},{text:"Caring for others gives you purpose, but today ask yourself what you'd do with your time if nobody needed anything from you.",q:"Who would I be today with no one to take care of?"},{text:"Your home, your space, your people — today all of that is asking for more attention than you're giving it. Security starts with taking care of your own nest.",q:"What part of my space needs my attention today?"},{text:"The anger you swallow today so you don't make anyone uncomfortable doesn't disappear, it just turns into tiredness or quiet resentment.",q:"Who haven't I told what I truly feel?"}],
+    weekly:[{text:"This week the body holds what you didn't cry out; give yourself permission to feel without editing. In money, your protective instinct can become wise savings or scarcity disguised as caution — tell the difference. In love, caring isn't the same as holding up someone else so you don't feel alone.",ritual:"At the end of the day, ask yourself what emotion you carried that wasn't yours — and consciously let it go."},{text:"This week the body retains fluid or energy as a reflection of unexpressed emotions — the body carries what the heart doesn't release. In money, this week favors saving for home or family more than spending on something fleeting. In love, your fear of abandonment might make you cling more than is healthy — practice trusting without needing control.",ritual:"Call or message someone in your family just to connect, without asking for or resolving anything."},{text:"This week the body asks for water, literally and symbolically — hydrate, and also let emotions flow instead of holding them back. In money, watch out for spending on others to feel needed; your worth doesn't depend on how much you give. In love, real intimacy requires you to also let yourself be cared for, not just do the caring.",ritual:"Ask for help with something small this week, even if you could do it alone — practice receiving."},{text:"Your body this week reflects your mood more than usual — be mindful of who and where you spend time with, you absorb the environment easily. In money, an expense on your home or emotional wellbeing this week is worth it, it's not a luxury. In love, showing your vulnerable side doesn't make you less strong — it makes you real to the people who truly matter to you.",ritual:"Create a small space in your home that's just yours, without explaining it to anyone."}]},
+  leo:{sym:'♌', nm:'Leo', intro:'Attention Leo, ready to unleash your potential across every dimension. This quantum horoscope isn’t just what’s going to happen — it’s what you’re going to make happen. You’re a creator of your own light by nature — get ready to leap into your best timeline. Hit play and manifest your destiny.',
+    daily:[{text:"You want to shine, and that's fine — but today ask yourself who you're shining for. Awareness that shows up with its own purpose lights up differently than the kind that seeks applause.",q:"Am I creating, or performing for an audience?"},{text:"Today's generosity is genuine if it expects nothing in return — notice if inside you're expecting recognition even if you don't say it.",q:"What am I expecting in return for what I'm giving today?"},{text:"Feeling ignored today hurts more than you'd like to admit, but your worth doesn't depend on how many people are looking at you right now.",q:"Am I still me when no one's watching?"},{text:"The pride that stops you from apologizing or asking for help today doesn't protect you, it only isolates you from the connection you actually want.",q:"What's costing me more: my pride or my loneliness?"},{text:"Today's drama can be authentic expression or a way to make sure you keep getting attention. Only you know which one it is.",q:"Does this feeling need to be seen, or does it need to be felt privately?"},{text:"You want to be the center of attention today, and that's fine — but notice if you need to be the center of the whole room, or if it's enough to be the center for yourself.",q:"Who do I need to matter to today?"},{text:"Today's warmth lights up others, but remember to warm yourself first — you can't give light from an empty place.",q:"When was the last time I shined just for myself?"}],
+    weekly:[{text:"Your life force this week rises or falls depending on how seen you feel — but real validation starts with you. In money, your generosity is a power if it doesn't depend on being recognized for it. In love, stop auditioning to be chosen: you already are the choice.",ritual:"Do something this week that no one is going to see or applaud — just to prove to yourself you still shine the same."},{text:"The body this week (especially back and heart) reflects how much emotional weight you carry from keeping up an image — let go of it a little and breathe. In money, avoid spending on appearances this week; invest in something that makes you feel good even if no one sees it. In love, the right person will admire you without you having to perform to deserve it.",ritual:"Give someone a genuine compliment this week without expecting one back."},{text:"Your vitality this week depends on how much you allow yourself to rest without feeling like you're \"missing the show\" — rest is royalty too. In money, an expense on something creative or pleasurable this week is well justified, it feeds your fire. In love, being vulnerable in front of someone doesn't dim your shine, it makes it more real.",ritual:"Share with someone close something that scares or embarrasses you, without dramatizing or minimizing it."},{text:"The body this week asks for expressive movement — dance, exercise, anything that makes you feel alive in your own body. In money, your instinct to lead projects is strong this week; trust your vision without needing everyone's approval. In love, let someone take care of you for a moment instead of always being the one holding up the group's mood.",ritual:"Let someone do something for you this week without immediately returning the favor."}]},
+  virgo:{sym:'♍', nm:'Virgo', intro:'Attention Virgo, ready to unleash your potential across every dimension. This quantum horoscope isn’t just what’s going to happen — it’s what you’re going to make happen. You’re an artisan of detail by nature — get ready to leap into your best timeline. Hit play and manifest your destiny.',
+    daily:[{text:"The detail bothering you today isn't the problem; it's a mirror of something you feel is out of your control. Your power isn't in fixing everything outside, it's in letting go of the need to.",q:"What am I controlling outside because I don't trust the inside?"},{text:"Your inner critic today is harder on you than on anyone else — treat yourself with half the demand you give others.",q:"Would I talk to someone I love this way?"},{text:"You want everything perfect before showing it, but \"perfect\" is sometimes just the excuse to not expose yourself yet.",q:"What am I putting off with the excuse that it's not ready yet?"},{text:"You serve others today because it makes you feel useful, and that's fine — but notice if you also know how to receive help without feeling like you owe something.",q:"Can I receive without feeling like I have to make up for it?"},{text:"The order you need outside today reflects the chaos you feel inside — organizing the space can help, but it doesn't replace looking within.",q:"What am I organizing outside so I don't feel the disorder inside?"},{text:"You notice everything that's wrong before what's right — today practice seeing one thing that's actually working first.",q:"What's the one thing that went well today, even if small?"},{text:"Today's help is worth more when it comes from abundance than when it comes from guilt over not doing enough.",q:"Am I helping out of guilt or out of real desire?"}],
+    weekly:[{text:"This week the body somatizes the demand — health improves when you lower the impossible standard you set for yourself. In money, your order is an asset if it doesn't turn into anxiety over controlling every cent. In love, no one needs to be perfected to deserve your closeness — and neither do you.",ritual:"Deliberately choose one \"poorly done\" thing this week, and notice the world keeps turning."},{text:"The body this week asks for attention to digestion and the nervous system — a lot of tension built up from wanting to control everything. In money, this week is good for getting clear on numbers and organizing your finances, your analytical mind is on your side. In love, letting go of pointing out the other's details will bring you closer than correcting them.",ritual:"One day this week, don't check your to-do list outside of work hours."},{text:"Your body this week asks for genuine rest, not just \"productive\" rest — rest that also counts as an accomplishment. In money, watch out for spending on \"perfect\" solutions when a simple one would already work. In love, your way of loving through service is valid, but also say out loud what you feel, not just show it through actions.",ritual:"Tell someone out loud what you appreciate about them, without waiting for a special occasion."},{text:"The body this week reflects how hard it is for you to stop — tension headaches, clenched jaw, a mind that doesn't rest. In money, your analytical ability this week helps you catch an important detail others would miss. In love, let the other person see you imperfect — that's where trust is really built.",ritual:"Post, share, or show something without reviewing it twenty times first."}]},
+  libra:{sym:'♎', nm:'Libra', intro:'Attention Libra, ready to unleash your potential across every dimension. This quantum horoscope isn’t just what’s going to happen — it’s what you’re going to make happen. You’re a seeker of balance by nature — get ready to leap into your best timeline. Hit play and manifest your destiny.',
+    daily:[{text:"You look for balance between what you want and what's expected of you — but the real scale isn't out there. It's in how aligned you are with your own frequency today.",q:"Who am I pleasing instead of listening to?"},{text:"You avoid conflict today because it feels safer than the truth — but peace that costs you your voice isn't peace, it's a truce.",q:"What truth am I keeping quiet to stay calm?"},{text:"You want everyone to agree with you, but today not everyone has to for your decision to be right.",q:"Do I need consensus, or do I need confidence in myself?"},{text:"Your charm today opens doors, but notice if you also use it to avoid showing who you really are underneath it.",q:"What am I hiding behind being pleasant?"},{text:"Today's indecision isn't a lack of clarity, it's fear of disappointing someone with your choice.",q:"Who am I afraid of disappointing with this decision?"},{text:"You look for beauty and harmony around you today because your soul needs it — it's not superficial, it's a legitimate way of taking care of yourself.",q:"What beauty can I create today just for me?"},{text:"Today you compare your situation to others', and that steals your presence. Your path isn't measured by anyone else's ruler.",q:"Who am I comparing myself to, and why?"}],
+    weekly:[{text:"Your body this week asks for decisions, not more comparisons — indecision is exhausting too. In money, choose from clarity, not from fear of disappointing someone. In love, a harmonious relationship isn't the one that avoids conflict, it's the one built on shared truth.",ritual:"Make one small decision a day without asking for a second opinion — just to retrain your own \"yes.\""},{text:"The body this week reflects the toll of keeping the peace at your own expense — kidneys and lower back ask for real rest. In money, this week favors negotiating or asking for what you truly deserve, without fear of seeming demanding. In love, saying \"I don't agree\" out loud doesn't break the bond, it makes it more honest.",ritual:"Voice an unpopular opinion this week in a space where you'd normally stay quiet."},{text:"Your body this week seeks symmetry and physical balance — consider stretching or something that gives you a sense of equilibrium. In money, this week is good for partnerships or agreements, your diplomacy adds real value. In love, watch out for idealizing the other person so much that you stop seeing who they really are.",ritual:"Make a list of what you need in your relationship, not just what the other person needs."},{text:"The body this week asks for harmonious surroundings — tidy your space, mind the light, the music, what surrounds you affects you more than you think. In money, avoid deciding just to look good to someone else; ask yourself what's fair for you too. In love, you deserve someone who actively chooses to be with you, not just someone with whom there's \"no drama.\"",ritual:"Fix up or beautify a corner of your space this week, just for you."}]},
+  escorpio:{sym:'♏', nm:'Scorpio', intro:'Attention Scorpio, ready to unleash your potential across every dimension. This quantum horoscope isn’t just what’s going to happen — it’s what you’re going to make happen. You’re a transformer by nature — get ready to leap into your best timeline. Hit play and manifest your destiny.',
+    daily:[{text:"What feels intense today isn't happening to you: you're moving through it because your awareness decided to face it head-on. That's not fate, it's courage.",q:"What truth am I finally willing to see?"},{text:"Today you suspect someone's intentions — it could be your sharp intuition or your old fear of being betrayed again.",q:"Is this distrust information, or old history?"},{text:"You want to control how this ends, but some things only get resolved when you stop trying to control them.",q:"What happens if I let go of controlling this outcome?"},{text:"Today's intensity scares whoever isn't used to unfiltered truth — that doesn't make you too much, it makes them not ready yet.",q:"Should I tone myself down, or do I just need the right space to be this real?"},{text:"The secret you're keeping today weighs more than you admit. Not everything needs to come to light, but it does need to stop consuming you from within.",q:"Does this secret protect me, or is it isolating me?"},{text:"You feel something ending today, and instead of resisting it, ask yourself what new space opens up when you let it end.",q:"What is born when I let this die?"},{text:"Today's power isn't in controlling others, it's in the depth with which you know yourself.",q:"What part of me do I still not dare to face?"}],
+    weekly:[{text:"This week the body processes what the mind repressed — it's not weakness, it's transformation in progress. In money, your intensity can be sharp strategy if it doesn't turn into obsessive control. In love, the depth you're looking for starts with letting yourself be seen, not just seeing the other person.",ritual:"Name out loud (or in writing) a truth you've been avoiding telling yourself. Just naming it already changes its weight."},{text:"Your body this week asks to release built-up tension — sweat, cry, scream if you need to, any way of letting go of what's been repressed. In money, this week favors investigating before committing, your detective instinct is sharp. In love, the jealousy you feel says more about your fear of losing than about what the other person is actually doing.",ritual:"Do an intense physical activity this week to release what the body has been holding onto."},{text:"The body this week reflects cycles of renewal — don't be scared if you feel something old in you is dying, it's part of the process. In money, this week is good for cutting an expense or commitment that no longer serves you, even if it's hard to let go. In love, real intimacy requires lowering your guard, not just sharing the bed.",ritual:"End something you've known for a while isn't working anymore, even if you don't have the replacement ready."},{text:"Your body this week holds emotional memory in specific places — pay attention to where your body tenses up when something bothers you. In money, your ability to see what others don't gives you an edge this week, especially in negotiations. In love, forgiving doesn't mean forgetting, it means no longer carrying the weight of something that already happened.",ritual:"Write a letter (that you won't send) to someone you need to forgive, even if it's yourself."}]},
+  sagitario:{sym:'♐', nm:'Sagittarius', intro:'Attention Sagittarius, ready to unleash your potential across every dimension. This quantum horoscope isn’t just what’s going to happen — it’s what you’re going to make happen. You’re an explorer of horizons by nature — get ready to leap into your best timeline. Hit play and manifest your destiny.',
+    daily:[{text:"Your need to expand today is real, but expanding without direction is just movement. Before chasing the next horizon, ask yourself from which \"I am\" you're chasing it.",q:"Am I running away, or am I moving forward?"},{text:"Today you promise more than you know you'll deliver, because in the moment it feels true. Watch that gap between your enthusiasm and your word.",q:"Am I going to hold up what I'm promising tomorrow?"},{text:"Today's optimism is a real power, but watch out for using it to avoid looking at a problem that does need attention.",q:"What am I avoiding seeing behind my good attitude?"},{text:"You want freedom today, and you deserve it — but notice if you're confusing freedom with not committing to anything or anyone, not even yourself.",q:"What am I calling \"freedom\" that's actually avoidance?"},{text:"Today's bluntness can sound like wisdom or like a lack of tact — the difference is whether you considered who you're saying it to.",q:"Am I being honest, or just being blunt without care?"},{text:"Today you're looking for the next big plan, but real growth is sometimes in going deeper where you already are, not in starting something new.",q:"What would happen if I stayed a little longer where I am?"},{text:"Today's faith that everything's going to work out is a superpower — just make sure you're also doing your part, not just waiting.",q:"Am I trusting, or just waiting without acting?"}],
+    weekly:[{text:"The body this week needs real movement, not just plans to move. In money, your optimism is powerful when it comes with focus, not scattering. In love, the freedom you defend shouldn't be an elegant way of not committing to yourself.",ritual:"Pick a single horizon this week and stick with it, even if three more tempting ones show up."},{text:"Your body this week asks for open air and space — being cooped up for too long wears you out more than usual. In money, this week favors planning a trip, a course, or expansion, even if it's long-term. In love, the right person will want to grow with you, not tie you down to stay still.",ritual:"Step out of your usual routine at least once this week, even if it's a small change."},{text:"The body this week asks you to release tension in the hips and legs — literally the body that wants to move and hasn't been able to. In money, watch out for spending on the emotion of the moment without seeing the full picture. In love, your need for space is valid, but communicate it instead of just disappearing.",ritual:"Before saying yes to something big this week, ask yourself if you're saying it with your mind or just with enthusiasm."},{text:"Your energy this week is high and looking for a bigger purpose than the everyday — don't waste it on minor distractions. In money, it's a good week to learn something new that expands your future options. In love, telling your whole truth, even if it's not comfortable, builds more trust than deliberately keeping the relationship \"light.\"",ritual:"Learn something new this week, even if small — your mind needs constant expansion."}]},
+  capricornio:{sym:'♑', nm:'Capricorn', intro:'Attention Capricorn, ready to unleash your potential across every dimension. This quantum horoscope isn’t just what’s going to happen — it’s what you’re going to make happen. You’re a builder of empires by nature — get ready to leap into your best timeline. Hit play and manifest your destiny.',
+    daily:[{text:"The discipline you apply today can build an empire or reinforce a prison — it depends on whether it comes from purpose or from fear of not being enough.",q:"What am I pushing myself so hard for today?"},{text:"You measure your day in achievements, and today one of those invisible achievements is simply having rested without guilt.",q:"Can I count rest as a win today?"},{text:"Today's sense of responsibility is admirable, but notice if you're carrying something that isn't actually yours to carry.",q:"What responsibility that isn't mine am I holding as if it were?"},{text:"You want to get further today, and that's fine — but the destination you're chasing isn't going to fill the void you think it will.",q:"What do I think I'll feel when I finally get there?"},{text:"Today's self-control is a strength, but also check if it's costing you real connection with what you feel.",q:"What am I controlling instead of feeling?"},{text:"The respect you seek outside today — from your boss, your family, your colleagues — is first built in how you talk to yourself when you fail.",q:"How do I talk to myself when something goes wrong?"},{text:"Today's ambition is powerful when it comes from clear vision, and exhausting when it comes from constantly comparing yourself to others.",q:"Am I building my vision, or competing with someone else's?"}],
+    weekly:[{text:"The body this week asks for real rest, not productive rest — rest is also a decision of self-worth. In money, your ambition builds when it comes from vision, not comparison. In love, you deserve closeness without having to earn it through achievements.",ritual:"Stop for 10 minutes a day without producing anything — no guilt, just as a practice of self-worth."},{text:"Your body this week builds up tension in the knees, back, or bones — literally the weight of what you carry on your shoulders. In money, this week favors long-term planning, your strategic patience is at its best. In love, letting someone see you without your \"everything under control\" armor brings you closer than impressing them.",ritual:"Delegate or ask for help with something you normally insist on doing alone."},{text:"The body this week asks you to slow down before the body forces you to stop. In money, this week is good for reviewing long-term goals, not just the day-to-day urgent stuff. In love, your way of loving by building and holding things up is real, but also say the words, not just the actions.",ritual:"Tell someone close out loud something you appreciate about them, without a practical reason to."},{text:"Your body this week asks for a rest structure, not just a work structure — schedule rest the way you schedule an important meeting. In money, your discipline pays off this week if you've been consistent; keep going without doubting. In love, the success you're chasing shouldn't cost you the presence your people need from you right now.",ritual:"Schedule a block of time this week exclusively for someone important, no work involved."}]},
+  acuario:{sym:'♒', nm:'Aquarius', intro:'Attention Aquarius, ready to unleash your potential across every dimension. This quantum horoscope isn’t just what’s going to happen — it’s what you’re going to make happen. You’re a visionary by nature — get ready to leap into your best timeline. Hit play and manifest your destiny.',
+    daily:[{text:"Your way of seeing things differently from everyone else isn't strangeness, it's a frequency you decided to hold. Today you don't need anyone else's validation for it to be real.",q:"Since when do I need permission to think differently?"},{text:"You disconnect emotionally today to avoid feeling overwhelmed, but watch out for that distance becoming your permanent way of avoiding feeling.",q:"Am I protecting myself, or disconnecting?"},{text:"You want to change the world today, and that's beautiful — but change also starts in how you treat the person right in front of you.",q:"Am I so focused on the big picture that I neglect what's close?"},{text:"Your independence today is genuine when you choose to be alone, and a mask when you're actually afraid of needing someone.",q:"Am I alone by choice, or out of fear of depending on someone?"},{text:"Today's rebellion against the establishment makes sense when it comes from your vision — and becomes an empty reaction when it's just opposing for the sake of opposing.",q:"Am I rejecting this out of conviction, or out of habit?"},{text:"Today you belong to a group without stopping being yourself — that's real community, not the kind that demands you dissolve into it.",q:"Does this space ask me to be less myself to fit in?"},{text:"Today your mind sees the future with unusual clarity — trust that vision even if no one else understands it yet.",q:"What do I see that others don't yet?"}],
+    weekly:[{text:"The body this week asks for real connection, not just ideas about connection — get out of your head. In money, your out-of-the-box ideas are worth something if you ground them in concrete action. In love, independence shouldn't be used as a wall to keep you from needing anyone.",ritual:"Share one of your ideas with a single person, without over-explaining it — just to practice being seen."},{text:"Your body this week reflects what happens when you live too much in your mind and too little in your body — nervous system tension, mild insomnia. In money, this week favors innovative or tech projects, your forward-thinking vision adds value. In love, letting someone into your routine doesn't take away your freedom, it shares it.",ritual:"Do something with your hands this week — cooking, art, fixing something — to come back into the body."},{text:"The body this week asks for movement in circulation, ankles, the nervous system — be careful not to live only from the neck up. In money, this week is good for collaborating instead of working solo, your network opens doors. In love, friendship within the relationship is as important to you as passion — take care of it too.",ritual:"Reconnect this week with a friend or group you haven't talked to in a while."},{text:"Your body this week needs unconventional routines to feel good — the \"usual\" exercise or rest might not work for you the same way it does for others. In money, trust your instinct for spotting trends before others do this week. In love, being truly seen — not just admired for being different — is what you're really looking for deep down.",ritual:"Share with someone close a part of yourself you normally keep to yourself."}]},
+  piscis:{sym:'♓', nm:'Pisces', intro:'Attention Pisces, ready to unleash your potential across every dimension. This quantum horoscope isn’t just what’s going to happen — it’s what you’re going to make happen. You’re a conscious dreamer by nature — get ready to leap into your best timeline. Hit play and manifest your destiny.',
+    daily:[{text:"What you daydream about today isn't escape — it's information about what your awareness already knows is possible. The question is whether you're going to believe it.",q:"What part of my imagination am I treating as \"just fantasy\"?"},{text:"Today you absorb the mood of every place you're in — before feeling like \"something's wrong with you,\" check if it's yours or the environment's.",q:"Is what I'm feeling mine, or did I absorb it from the place?"},{text:"You want to escape something uncomfortable today — through a show, a story, a daydream. That's fine, just notice what you're avoiding feeling.",q:"What am I escaping with this distraction?"},{text:"Today's compassion is a gift when it has limits, and becomes self-abandonment when it doesn't.",q:"Where do I end and the other person begin?"},{text:"Today you idealize someone or something, seeing more potential than there actually is right now. That's fine in art, but be careful in real decisions.",q:"Am I seeing this person or situation as they are, or as they could be?"},{text:"Your intuition today is telling you something clearly — the question isn't whether you hear it, it's whether you dare act on what you already know.",q:"What do I already know that I still don't dare admit?"},{text:"Today you need more solitude than what's socially considered \"normal\" — it's not antisocial, it's how you recharge your sensitivity.",q:"Am I giving myself the alone time I truly need?"}],
+    weekly:[{text:"The body this week absorbs the surrounding environment — be mindful of where and with whom you spend your energy. In money, your intuition is a valid compass if you combine it with a concrete step, not just waiting. In love, letting go of idealizing the other person is what allows you to truly love them.",ritual:"Write down a dream or idea you dismissed as \"unrealistic\" — and ask yourself what would happen if you believed in it for one more day."},{text:"Your body this week asks for water and deep rest — feet and lymphatic system especially loaded with what you absorbed without realizing it. In money, watch out this week about lending money or resources out of not knowing how to say no; you can help with boundaries. In love, your way of loving unconditionally is beautiful, but you also deserve someone who takes care of you with the same devotion.",ritual:"Practice saying \"I can't\" to something this week, without long explanations or feeling guilty."},{text:"The body this week asks for art, music, or something that connects you with beauty — it's real nourishment for your sensitive nervous system. In money, trust your instinct about a person or deal this week, but verify the facts before fully committing. In love, the fantasy of \"what could be\" sometimes keeps you from seeing \"what really is\" right in front of you.",ritual:"Do something creative this week with no practical purpose, just for the pleasure of creating it."},{text:"Your body this week reflects how much you need to release control over things you can't control — anxiety as a way of trying to predict the unpredictable. In money, avoid decisions based only on \"how it feels\" this week; combine intuition with a concrete fact. In love, setting a clear boundary doesn't push away those who truly love you, it only pushes away those looking to take advantage.",ritual:"Set a clear boundary this week with someone, even if their reaction scares you."}]}
+};
+
+const ORDER = ['aries','tauro','geminis','cancer','leo','virgo','libra','escorpio','sagitario','capricornio','acuario','piscis'];
+
+// El horoscopo diario rota entre varias versiones ya escritas segun el dia del anio
+// (no es contenido nuevo generado por IA cada dia, es una rotacion de variantes).
+// Lo mismo para el semanal, pero rota por numero de semana del anio.
+function dayOfYear(d){
+  const start = new Date(d.getFullYear(), 0, 0);
+  return Math.floor((d - start) / 86400000);
+}
+function weekOfYear(d){
+  return Math.floor(dayOfYear(d) / 7);
+}
+function getDailyIndex(sign){
+  return dayOfYear(new Date()) % DATA[sign].daily.length;
+}
+function getWeeklyIndex(sign){
+  return weekOfYear(new Date()) % DATA[sign].weekly.length;
+}
+function getDailyEntry(sign){
+  return DATA[sign].daily[getDailyIndex(sign)];
+}
+function getWeeklyEntry(sign){
+  return DATA[sign].weekly[getWeeklyIndex(sign)];
+}
+
+const grid = document.getElementById('signGrid');
+const panel = document.getElementById('panel');
+let currentSign = null;
+let currentTab = 'daily';
+
+// --- Suscripcion (via Hotmart) ---
+// freeSign: el primer signo que el usuario elige queda gratis para siempre en este navegador.
+// isSubscribed: true cuando confirmamos con el puente de Hotmart que ese
+// correo tiene un pago activo. Ver backend/hotmart-bridge/README.md.
+const HOTMART_BRIDGE_URL = 'https://zodiaco-cuantico-hotmart.zodiacocuantico.workers.dev';
+let freeSign = localStorage.getItem('zc_freeSign') || null;
+let isSubscribed = localStorage.getItem('zc_subscribed') === 'true';
+let subscribedEmail = localStorage.getItem('zc_subscribed_email') || '';
+let saved = JSON.parse(localStorage.getItem('zc_saved') || '{}');
+let revealed = JSON.parse(localStorage.getItem('zc_revealed') || '{}');
+
+async function checkSubscriptionActive(email){
+  if(HOTMART_BRIDGE_URL.startsWith('REEMPLAZA_')) return null; // puente aun no conectado
+  try{
+    const res = await fetch(`${HOTMART_BRIDGE_URL}/check?email=${encodeURIComponent(email)}`);
+    if(!res.ok) return null;
+    const data = await res.json();
+    return !!data.active;
+  }catch(err){
+    return null;
+  }
+}
+
+function setSubscribed(active, email){
+  isSubscribed = active;
+  subscribedEmail = active ? email : '';
+  localStorage.setItem('zc_subscribed', active ? 'true' : 'false');
+  localStorage.setItem('zc_subscribed_email', subscribedEmail);
+  localStorage.setItem('zc_subscribed_checked', String(Date.now()));
+  renderGridLocks();
+  renderWeeklyButtons();
+  if(currentSign) renderPanel();
+}
+
+async function maybeRevalidateSubscription(){
+  if(!isSubscribed || !subscribedEmail) return;
+  const lastChecked = Number(localStorage.getItem('zc_subscribed_checked') || 0);
+  const ONE_DAY = 24 * 60 * 60 * 1000;
+  if(Date.now() - lastChecked < ONE_DAY) return;
+  const active = await checkSubscriptionActive(subscribedEmail);
+  if(active === null) return; // no se pudo verificar (sin internet, puente caido): no revocar
+  setSubscribed(active, subscribedEmail);
+}
+
+async function submitPaywallEmail(){
+  const input = document.getElementById('paywallEmail');
+  const errorEl = document.getElementById('paywallEmailError');
+  const btn = document.getElementById('paywallEmailBtn');
+  const email = (input.value || '').trim().toLowerCase();
+  errorEl.style.display = 'none';
+
+  if(!email || !email.includes('@')){
+    errorEl.textContent = 'Enter the email you used to purchase on Hotmart.';
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Verifying...';
+  const active = await checkSubscriptionActive(email);
+  btn.disabled = false;
+  btn.textContent = 'I already paid, unlock';
+
+  if(active === null){
+    errorEl.textContent = "We couldn't verify your email right now. Try again in a minute.";
+    errorEl.style.display = 'block';
+    return;
+  }
+  if(!active){
+    errorEl.textContent = "We couldn't find an active subscription with that email. If you just paid, wait 1-2 minutes and try again.";
+    errorEl.style.display = 'block';
+    return;
+  }
+
+  setSubscribed(true, email);
+  closePaywall();
+}
+
+function isSignLocked(signKey){
+  if(isSubscribed) return false;
+  return !!freeSign && signKey !== freeSign;
+}
+
+function isLocked(signKey, tab){
+  if(isSubscribed) return false;
+  if(tab === 'weekly') return true;
+  return isSignLocked(signKey);
+}
+
+function renderGridLocks(){
+  ORDER.forEach(key=>{
+    const btn = document.getElementById('btn-'+key);
+    if(!btn) return;
+    btn.classList.toggle('locked', isSignLocked(key));
+  });
+}
+
+// Video(s) de bienvenida al inicio de "Hoy" (gratis, visible para todos).
+// Para agregar otro, suma un objeto mas a la lista con su titulo y su link
+// de YouTube (o archivo .mp4); si hay mas de uno aparece una lista debajo
+// para elegir cual ver.
+const INTRO_VIDEOS = [
+  { title: 'Official Quantum Zodiac Video', url: 'https://www.youtube.com/embed/-hPjUAjlUB4' },
+];
+let introVideoIndex = 0;
+
+function renderIntroVideo(){
+  const area = document.getElementById('introVideoArea');
+  if(!area || !INTRO_VIDEOS.length) return;
+  if(introVideoIndex >= INTRO_VIDEOS.length) introVideoIndex = 0;
+  const current = INTRO_VIDEOS[introVideoIndex];
+  const ytMatch = current.url.match(/(?:youtube\.com\/(?:shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  let mediaHtml;
+  if(ytMatch){
+    mediaHtml = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" title="${current.title}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%;aspect-ratio:9/16;border:0;display:block;"></iframe>`;
+  } else {
+    mediaHtml = `<video src="${current.url}" controls playsinline style="width:100%;aspect-ratio:9/16;display:block;background:#000;"></video>`;
+  }
+  let listHtml = '';
+  if(INTRO_VIDEOS.length > 1){
+    listHtml = `<div class="weekly-track-list">${INTRO_VIDEOS.map((item, i)=>
+      `<button class="weekly-track-pill ${i === introVideoIndex ? 'active' : ''}" data-i="${i}">${item.title}</button>`
+    ).join('')}</div>`;
+  }
+  area.innerHTML = `<div class="video-card">${mediaHtml}</div>${listHtml}`;
+  area.querySelectorAll('.weekly-track-pill').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      introVideoIndex = Number(btn.dataset.i);
+      renderIntroVideo();
+    });
+  });
+}
+
+// Contenido semanal general (no por signo): un video y un audio nuevos cada
+// semana, para todos los suscriptores por igual. Para publicar uno nuevo,
+// agrega un objeto arriba de todo en la lista correspondiente (el mas
+// reciente queda primero) con un titulo y la URL del archivo (o un link de
+// YouTube). Ejemplo:
+//   { title: 'Semana del 30 de septiembre', url: 'assets/videos/2026-09-30.mp4' },
+const WEEKLY_VIDEOS = [
+  { title: 'Be The Evidence', url: 'assets/videos/semanal/se-la-evidencia-432hz.mp4' },
+  { title: 'Attention Aquarius', url: 'assets/videos/semanal/acuario-432hz.mp4' },
+  { title: 'Attention Leo', url: 'assets/videos/semanal/leo-432hz.mp4' },
+  { title: 'Attention Libra', url: 'assets/videos/semanal/libra-432hz.mp4' },
+  { title: 'Attention Pisces', url: 'assets/videos/semanal/piscis-432hz.mp4' },
+  { title: 'Attention Aries', url: 'assets/videos/semanal/aries-432hz.mp4' },
+  { title: 'Attention Cancer', url: 'assets/videos/semanal/cancer-432hz.mp4' },
+  { title: 'Attention Capricorn', url: 'assets/videos/semanal/capricornio-432hz.mp4' },
+  { title: 'Attention Gemini', url: 'assets/videos/semanal/geminis-432hz.mp4' },
+  { title: 'Attention Virgo', url: 'assets/videos/semanal/virgo-432hz.mp4' },
+  { title: 'Attention Taurus', url: 'assets/videos/semanal/tauro-432hz.mp4' },
+  { title: 'Attention Scorpio', url: 'assets/videos/semanal/escorpio-432hz.mp4' },
+  { title: 'Attention Sagittarius', url: 'assets/videos/semanal/sagitario-432hz.mp4' },
+];
+const WEEKLY_AUDIOS = [
+  { title: 'Be The Evidence', url: 'assets/audio/semanal/se-la-evidencia-432hz.mp3' },
+  { title: 'Attention Virgo', url: 'assets/audio/semanal/virgo-432hz.mp3' },
+  { title: 'Attention Gemini', url: 'assets/audio/semanal/geminis-432hz.mp3' },
+  { title: 'Attention Pisces', url: 'assets/audio/semanal/piscis-432hz.mp3' },
+  { title: 'Attention Aquarius', url: 'assets/audio/semanal/acuario-432hz.mp3' },
+  { title: 'Attention Sagittarius', url: 'assets/audio/semanal/sagitario-432hz.mp3' },
+  { title: 'Attention Scorpio', url: 'assets/audio/semanal/escorpio-432hz.mp3' },
+  { title: 'Attention Taurus', url: 'assets/audio/semanal/tauro-432hz.mp3' },
+  { title: 'Attention Aries', url: 'assets/audio/semanal/aries-432hz.mp3' },
+  { title: 'Attention Cancer', url: 'assets/audio/semanal/cancer-432hz.mp3' },
+  { title: 'Attention Capricorn', url: 'assets/audio/semanal/capricornio-432hz.mp3' },
+  { title: 'Attention Leo', url: 'assets/audio/semanal/leo-432hz.mp3' },
+  { title: 'Attention Libra', url: 'assets/audio/semanal/libra-432hz.mp3' },
+];
+
+let weeklyTab = 'video';
+const weeklyIndex = { video: 0, audio: 0 };
+
+function setWeeklyTab(tab){
+  weeklyTab = tab;
+  document.getElementById('weeklyTabVideo').classList.toggle('active', tab === 'video');
+  document.getElementById('weeklyTabAudio').classList.toggle('active', tab === 'audio');
+  renderWeeklyButtons();
+}
+
+function renderWeeklyButtons(){
+  const area = document.getElementById('weeklyPlayerArea');
+  const weeklyAudioEl = document.getElementById('weeklyAudioEl');
+  if(weeklyTab !== 'audio' && weeklyAudioEl) weeklyAudioEl.pause();
+
+  if(!isSubscribed){
+    const label = weeklyTab === 'video' ? 'The videos' : 'The audio';
+    area.innerHTML = `
+      <div class="paywall-block" style="border-top:none;">
+        <div class="lock-icon">&#128274;</div>
+        <p class="paywall-text">${label} for the week are for Quantum Zodiac members.</p>
+        <button class="subscribe-btn" onclick="openPaywall()">Unlock for $6.99/mo</button>
+      </div>`;
+    return;
+  }
+
+  const list = weeklyTab === 'video' ? WEEKLY_VIDEOS : WEEKLY_AUDIOS;
+  if(!list.length){
+    const label = weeklyTab === 'video' ? 'videos' : 'audio tracks';
+    area.innerHTML = `<p class="playlist-empty">No ${label} published this week yet. Check back soon.</p>`;
+    return;
+  }
+  if(weeklyIndex[weeklyTab] >= list.length) weeklyIndex[weeklyTab] = 0;
+  const current = list[weeklyIndex[weeklyTab]];
+
+  const listHtml = `<div class="weekly-track-list">${list.map((item, i)=>
+    `<button class="weekly-track-pill ${i === weeklyIndex[weeklyTab] ? 'active' : ''}" data-i="${i}">${item.title}</button>`
+  ).join('')}</div>`;
+
+  if(weeklyTab === 'video'){
+    area.innerHTML = renderWeeklyVideoCard(current) + listHtml;
+  } else {
+    area.innerHTML = renderWeeklyAudioCard(current) + listHtml;
+    wireWeeklyAudioCard(current);
+  }
+
+  area.querySelectorAll('.weekly-track-pill').forEach(btn=>{
+    btn.addEventListener('click', ()=> selectWeeklyIndex(Number(btn.dataset.i), true));
+  });
+}
+
+function renderWeeklyVideoCard(item){
+  const ytMatch = item.url.match(/(?:youtube\.com\/(?:shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  let mediaHtml;
+  if(ytMatch){
+    mediaHtml = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" title="${item.title}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%;aspect-ratio:9/16;border:0;display:block;"></iframe>`;
+  } else {
+    mediaHtml = `<video src="${item.url}" controls playsinline style="width:100%;aspect-ratio:9/16;display:block;background:#000;"></video>`;
+  }
+  return `<div class="video-card">${mediaHtml}</div><p class="weekly-track-title">${item.title}</p>`;
+}
+
+function renderWeeklyAudioCard(item){
+  return `
+    <div class="np-card">
+      <div class="np-art"><img src="assets/logo-icon.jpg" alt=""></div>
+      <p class="np-title">${item.title}</p>
+      <p class="np-sub">Audio de la semana</p>
+      <div class="np-progress-track" id="weeklyProgressTrack">
+        <div class="np-progress-fill" id="weeklyProgressFill"></div>
+        <div class="np-progress-dot" id="weeklyProgressDot"></div>
+      </div>
+      <div class="np-time-row"><span id="weeklyCurTime">0:00</span><span id="weeklyDurTime">0:00</span></div>
+      <div class="np-controls">
+        <button class="np-ctrl" onclick="weeklyStep(-1)" aria-label="Anterior">&#9198;</button>
+        <button class="np-play" id="weeklyPlayBtn">&#9654;</button>
+        <button class="np-ctrl" onclick="weeklyStep(1)" aria-label="Siguiente">&#9197;</button>
+      </div>
+    </div>`;
+}
+
+function wireWeeklyAudioCard(item){
+  const audioEl = document.getElementById('weeklyAudioEl');
+  const playBtn = document.getElementById('weeklyPlayBtn');
+  const fill = document.getElementById('weeklyProgressFill');
+  const dot = document.getElementById('weeklyProgressDot');
+  const track = document.getElementById('weeklyProgressTrack');
+  const curTime = document.getElementById('weeklyCurTime');
+  const durTime = document.getElementById('weeklyDurTime');
+
+  audioEl.src = item.url;
+  audioEl.currentTime = 0;
+
+  audioEl.onloadedmetadata = ()=>{ durTime.textContent = fmt(audioEl.duration); };
+  audioEl.ontimeupdate = ()=>{
+    const pct = (audioEl.currentTime/audioEl.duration)*100 || 0;
+    fill.style.width = pct+'%';
+    dot.style.left = pct+'%';
+    curTime.textContent = fmt(audioEl.currentTime);
+  };
+  audioEl.onended = ()=>{ weeklyStep(1); };
+  playBtn.onclick = ()=>{
+    if(audioEl.paused){ audioEl.play(); playBtn.innerHTML = '&#10073;&#10073;'; }
+    else { audioEl.pause(); playBtn.innerHTML = '&#9654;'; }
+  };
+  track.onclick = (e)=>{
+    const rect = track.getBoundingClientRect();
+    const pct = (e.clientX-rect.left)/rect.width;
+    audioEl.currentTime = pct*audioEl.duration;
+  };
+}
+
+function selectWeeklyIndex(i, autoplay){
+  const list = weeklyTab === 'video' ? WEEKLY_VIDEOS : WEEKLY_AUDIOS;
+  if(!list.length) return;
+  weeklyIndex[weeklyTab] = ((i % list.length) + list.length) % list.length;
+  renderWeeklyButtons();
+  if(autoplay && weeklyTab === 'audio'){
+    const audioEl = document.getElementById('weeklyAudioEl');
+    audioEl.play();
+    document.getElementById('weeklyPlayBtn').innerHTML = '&#10073;&#10073;';
+  }
+}
+function weeklyStep(dir){
+  selectWeeklyIndex(weeklyIndex[weeklyTab] + dir, true);
+}
+
+function renderPlaylist(type, list, body){
+  if(!list.length){
+    const label = type === 'video' ? 'videos' : 'audios';
+    body.innerHTML = `<p class="playlist-empty">Todav\u00eda no hay ${label} publicados esta semana. Vuelve pronto.</p>`;
+    return;
+  }
+  body.innerHTML = `<div class="playlist">${list.map((item, i)=>
+    `<button class="playlist-item" data-i="${i}">${item.title}</button>`
+  ).join('')}</div>`;
+  body.querySelectorAll('.playlist-item').forEach(btn=>{
+    btn.addEventListener('click', ()=> renderPlaylistPlayer(type, list[Number(btn.dataset.i)], list, body));
+  });
+}
+
+function renderPlaylistPlayer(type, item, list, body){
+  const ytMatch = item.url.match(/(?:youtube\.com\/(?:shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+  let mediaHtml;
+  if(ytMatch){
+    mediaHtml = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" title="${item.title}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%;aspect-ratio:9/16;border:0;border-radius:14px;display:block;"></iframe>`;
+  } else if(type === 'video'){
+    mediaHtml = `<video src="${item.url}" controls autoplay playsinline style="width:100%;border-radius:14px;display:block;"></video>`;
+  } else {
+    mediaHtml = `<audio src="${item.url}" controls autoplay style="width:100%;"></audio>`;
+  }
+  body.innerHTML = `<button class="playlist-back" id="playlistBack">&larr; Back to list</button><p class="playlist-title">${item.title}</p>${mediaHtml}`;
+  document.getElementById('playlistBack').addEventListener('click', ()=> renderPlaylist(type, list, body));
+}
+
+const PLANS = {
+  monthly: { amount: '$6.99', cycle: ' USD/mo', link: 'https://pay.hotmart.com/N107698037H' },
+  annual:  { amount: '$49.99', cycle: ' USD/yr', link: 'https://pay.hotmart.com/N107698037H' },
+};
+let selectedPlan = 'annual';
+
+function selectPlan(plan){
+  selectedPlan = plan;
+  renderPlanUI();
+}
+
+function renderPlanUI(){
+  const p = PLANS[selectedPlan];
+  document.getElementById('planTabMonthly').classList.toggle('active', selectedPlan === 'monthly');
+  document.getElementById('planTabAnnual').classList.toggle('active', selectedPlan === 'annual');
+  document.getElementById('planAmount').textContent = p.amount;
+  document.getElementById('planCycle').textContent = p.cycle;
+  document.getElementById('subscribeCta').href = p.link;
+}
+
+function openPaywall(){
+  renderPlanUI();
+  document.getElementById('paywallModal').classList.add('open');
+}
+function closePaywall(){
+  document.getElementById('paywallModal').classList.remove('open');
+}
+
+ORDER.forEach(key=>{
+  const d = DATA[key];
+  const btn = document.createElement('button');
+  btn.className = 'sign-btn';
+  btn.id = 'btn-'+key;
+  btn.innerHTML = `<span class="sym">${d.sym}</span><span class="nm">${d.nm}</span>`;
+  btn.addEventListener('click', ()=> selectSign(key));
+  grid.appendChild(btn);
+});
+renderGridLocks();
+renderIntroVideo();
+renderWeeklyButtons();
+maybeRevalidateSubscription();
+
+function selectSign(key){
+  if(currentSign) document.getElementById('btn-'+currentSign).classList.remove('active');
+  currentSign = key;
+  currentTab = 'daily';
+  document.getElementById('btn-'+key).classList.add('active');
+  if(!freeSign && !isSubscribed){
+    freeSign = key;
+    localStorage.setItem('zc_freeSign', freeSign);
+    renderGridLocks();
+    renderWeeklyButtons();
+  }
+  renderPanel();
+}
+
+function revealReading(){
+  revealed[currentSign] = true;
+  localStorage.setItem('zc_revealed', JSON.stringify(revealed));
+  renderPanel();
+}
+
+function currentSaveKey(){
+  const idx = currentTab === 'daily' ? getDailyIndex(currentSign) : getWeeklyIndex(currentSign);
+  return currentSign + '-' + currentTab + '-' + idx;
+}
+function toggleSave(){
+  const key = currentSaveKey();
+  if(saved[key]){
+    delete saved[key];
+  } else {
+    const entry = currentTab === 'daily' ? getDailyEntry(currentSign) : getWeeklyEntry(currentSign);
+    saved[key] = {
+      sign: currentSign,
+      tab: currentTab,
+      text: entry.text,
+      q: entry.q || '',
+      ritual: entry.ritual || '',
+      savedAt: Date.now()
+    };
+  }
+  localStorage.setItem('zc_saved', JSON.stringify(saved));
+  renderPanel();
+}
+function removeSaved(key){
+  delete saved[key];
+  localStorage.setItem('zc_saved', JSON.stringify(saved));
+  renderGuardadosScreen();
+}
+function renderGuardadosScreen(){
+  const el = document.getElementById('screen-guardados');
+  if(!el) return;
+  const entries = Object.entries(saved)
+    .filter(([key, v]) => v && typeof v === 'object' && DATA[v.sign])
+    .map(([key, v]) => ({ key, ...v }))
+    .sort((a, b) => b.savedAt - a.savedAt);
+
+  if(!entries.length){
+    el.innerHTML = `
+      <p class="grid-label" style="margin:16px 16px 4px;">Saved</p>
+      <p class="playlist-empty">You haven't saved any reflections yet. Tap "Save reflection" on any horoscope to see it here.</p>`;
+    return;
+  }
+
+  el.innerHTML = `
+    <p class="grid-label" style="margin:16px 16px 4px;">Saved</p>
+    <div style="padding:0 16px 24px; display:flex; flex-direction:column; gap:14px;">
+      ${entries.map(e => {
+        const d = DATA[e.sign];
+        const tabLabel = e.tab === 'daily' ? 'Today' : 'Week';
+        const date = new Date(e.savedAt).toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
+        return `
+        <div class="panel" style="margin:0;">
+          <div class="panel-head" style="margin-bottom:10px;">
+            <div class="panel-sign">
+              <span class="sym">${d.sym}</span>
+              <span class="nm">${d.nm} &middot; ${tabLabel}</span>
+            </div>
+            <button class="save-btn" onclick="removeSaved('${e.key}')" style="font-size:11px;">Remove</button>
+          </div>
+          <p class="reading-text">${e.text}</p>
+          ${e.q ? `<p class="reflection">${e.q}</p>` : ''}
+          ${e.ritual ? `<div class="ritual-line"><b>Ritual of the week &mdash;</b> ${e.ritual}</div>` : ''}
+          <p style="font-size:10px; color:var(--text-muted); margin-top:10px;">Guardado el ${date}</p>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+
+/* ================= Compartir como imagen =================
+   Genera una tarjeta PNG con el mismo estilo visual de la app (canvas, sin
+   backend) y la comparte con el selector nativo del celular (Instagram,
+   WhatsApp, etc.) o la descarga si el navegador no soporta compartir
+   archivos. */
+function roundRectPath(ctx, x, y, w, h, r){
+  ctx.beginPath();
+  ctx.moveTo(x+r, y);
+  ctx.arcTo(x+w, y, x+w, y+h, r);
+  ctx.arcTo(x+w, y+h, x, y+h, r);
+  ctx.arcTo(x, y+h, x, y, r);
+  ctx.arcTo(x, y, x+w, y, r);
+  ctx.closePath();
+}
+function wrapCanvasText(ctx, text, x, y, maxWidth, lineHeight){
+  const words = (text || '').split(' ');
+  let line = '';
+  for(let i = 0; i < words.length; i++){
+    const test = line + words[i] + ' ';
+    if(ctx.measureText(test).width > maxWidth && line !== ''){
+      ctx.fillText(line.trim(), x, y);
+      line = words[i] + ' ';
+      y += lineHeight;
+    } else {
+      line = test;
+    }
+  }
+  ctx.fillText(line.trim(), x, y);
+  return y + lineHeight;
+}
+function loadImageEl(src){
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = reject;
+    img.src = src;
+  });
+}
+async function buildShareCanvas({ symbol, symbol2, percent, cardImg, title, subtitle, body, reflection, lines }){
+  if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+  const W = 1080, H = 1920;
+  const canvas = document.createElement('canvas');
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext('2d');
+
+  const bg = ctx.createLinearGradient(0, 0, 0, H);
+  bg.addColorStop(0, '#1D2246');
+  bg.addColorStop(1, '#0C0E22');
+  ctx.fillStyle = bg;
+  ctx.fillRect(0, 0, W, H);
+
+  const glow = ctx.createRadialGradient(W/2, 420, 40, W/2, 420, 560);
+  glow.addColorStop(0, 'rgba(201,161,90,0.35)');
+  glow.addColorStop(1, 'rgba(201,161,90,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.textAlign = 'left';
+  ctx.font = '450 46px Fraunces';
+  const w1 = ctx.measureText('quantum ').width;
+  ctx.font = 'italic 450 46px Fraunces';
+  const w2 = ctx.measureText('zodiac').width;
+  const startX = W/2 - (w1 + w2)/2;
+  ctx.fillStyle = '#F3EEE3';
+  ctx.font = '450 46px Fraunces';
+  ctx.fillText('quantum ', startX, 130);
+  ctx.fillStyle = '#C9A15A';
+  ctx.font = 'italic 450 46px Fraunces';
+  ctx.fillText('zodiac', startX + w1, 130);
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#9497B8';
+  ctx.font = '400 26px Sora';
+  ctx.fillText("it doesn't predict. it reflects.", W/2, 172);
+
+  let afterImageY;
+  if(symbol2){
+    ctx.font = '180px Fraunces';
+    ctx.fillStyle = '#F3EEE3';
+    ctx.fillText(symbol, W/2 - 150, 540);
+    ctx.fillText(symbol2, W/2 + 150, 540);
+    ctx.fillStyle = '#C9A15A';
+    ctx.font = '80px Sora';
+    ctx.fillText('❤', W/2, 555);
+    if(percent !== undefined){
+      ctx.fillStyle = '#C9A15A';
+      ctx.font = '600 100px Fraunces';
+      ctx.fillText(String(percent) + '%', W/2, 700);
+    }
+    afterImageY = 780;
+  } else if(cardImg){
+    const imgW = 520;
+    const imgH = imgW * (cardImg.height / cardImg.width);
+    const rx = W/2 - imgW/2, ry = 260;
+    ctx.save();
+    roundRectPath(ctx, rx, ry, imgW, imgH, 24);
+    ctx.clip();
+    ctx.drawImage(cardImg, rx, ry, imgW, imgH);
+    ctx.restore();
+    ctx.strokeStyle = '#C9A15A';
+    ctx.lineWidth = 3;
+    roundRectPath(ctx, rx, ry, imgW, imgH, 24);
+    ctx.stroke();
+    afterImageY = ry + imgH + 90;
+  } else {
+    ctx.font = '260px Fraunces';
+    ctx.fillText(symbol, W/2, 620);
+    afterImageY = 700;
+  }
+
+  ctx.fillStyle = '#F3EEE3';
+  ctx.font = '600 58px Fraunces';
+  ctx.fillText(title, W/2, afterImageY);
+
+  let dividerY = afterImageY + 60;
+  if(subtitle){
+    ctx.fillStyle = '#9497B8';
+    ctx.font = '400 30px Sora';
+    ctx.fillText(subtitle, W/2, afterImageY + 46);
+    dividerY = afterImageY + 90;
+  }
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+  ctx.beginPath();
+  ctx.moveTo(W/2 - 140, dividerY);
+  ctx.lineTo(W/2 + 140, dividerY);
+  ctx.stroke();
+
+  if(lines && lines.length){
+    ctx.textAlign = 'center';
+    let ly = dividerY + 110;
+    lines.forEach((line, i) => {
+      ctx.fillStyle = i % 2 === 0 ? '#F3EEE3' : '#C9A15A';
+      ctx.font = (i % 2 === 0 ? '400 42px Sora' : 'italic 450 44px Fraunces');
+      ly = wrapCanvasText(ctx, line, W/2, ly, W - 200, 58);
+      ly += 26;
+    });
+  } else {
+    ctx.textAlign = 'left';
+    ctx.fillStyle = '#F3EEE3';
+    ctx.font = '400 38px Sora';
+    let y = wrapCanvasText(ctx, body, 110, dividerY + 70, W - 220, 56);
+
+    if(reflection){
+      y += 30;
+      ctx.fillStyle = '#C9A15A';
+      ctx.font = 'italic 400 36px Fraunces';
+      wrapCanvasText(ctx, reflection, 110, y, W - 220, 50);
+    }
+  }
+
+  ctx.textAlign = 'center';
+  ctx.fillStyle = '#9497B8';
+  ctx.font = '400 26px Sora';
+  ctx.fillText('quantum zodiac', W/2, H - 80);
+
+  return new Promise(resolve => canvas.toBlob(resolve, 'image/png', 0.95));
+}
+function isMobileDevice(){
+  return matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
+}
+async function shareImageBlob(blob, filename){
+  if(!blob) return;
+  // El panel nativo de "compartir" de Windows/Mac no tiene apps registradas
+  // para recibir imagenes y se queda en blanco/colgado. En computadora
+  // vamos directo a la descarga; navigator.share solo se usa en celular.
+  if(isMobileDevice()){
+    try{
+      const file = new File([blob], filename, { type: 'image/png' });
+      if(navigator.canShare && navigator.canShare({ files: [file] })){
+        await navigator.share({ files: [file], title: 'Quantum Zodiac' });
+        return;
+      }
+    }catch(err){
+      if(err && err.name === 'AbortError') return;
+    }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+async function shareHoroscope(){
+  const d = DATA[currentSign];
+  const entry = currentTab === 'daily' ? getDailyEntry(currentSign) : getWeeklyEntry(currentSign);
+  const blob = await buildShareCanvas({
+    symbol: d.sym,
+    title: d.nm.toUpperCase(),
+    subtitle: currentTab === 'daily' ? 'HOY' : 'SEMANA',
+    body: entry.text,
+    reflection: entry.q || (entry.ritual ? ('Ritual: ' + entry.ritual) : '')
+  });
+  shareImageBlob(blob, `quantum-zodiac-${currentSign}-${currentTab}.png`);
+}
+async function shareTarotCard(){
+  const state = loadTarotState();
+  const card = TAROT[state.lastCard];
+  if(!card) return;
+  let cardImg = null;
+  try{ cardImg = await loadImageEl(card.img); }catch(e){}
+  const blob = await buildShareCanvas({
+    cardImg,
+    symbol: '✦',
+    title: card.nm,
+    subtitle: 'CARD OF THE DAY',
+    body: card.text,
+    reflection: card.q
+  });
+  shareImageBlob(blob, `quantum-zodiac-tarot-${state.lastCard}.png`);
+}
+
+function renderPanel(){
+  const d = DATA[currentSign];
+  const isSaved = !!saved[currentSaveKey()];
+
+  const introBlock = `
+    <div class="intro-block">
+      <div class="avatar-wrap"><div class="avatar-halo"><svg viewBox="0 0 520 520" xmlns="http://www.w3.org/2000/svg"><circle cx="260" cy="260" r="240" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="260" cy="260" r="228" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="260" cy="260" r="160" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="260" cy="260" r="100" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="260" cy="260" r="55" fill="none" stroke="currentColor" stroke-width="1"/><line x1="490.0" y1="260.0" x2="500.0" y2="260.0" stroke="currentColor" stroke-width="1"/><line x1="482.2" y1="319.5" x2="491.8" y2="322.1" stroke="currentColor" stroke-width="1"/><line x1="459.2" y1="375.0" x2="467.8" y2="380.0" stroke="currentColor" stroke-width="1"/><line x1="422.6" y1="422.6" x2="429.7" y2="429.7" stroke="currentColor" stroke-width="1"/><line x1="375.0" y1="459.2" x2="380.0" y2="467.8" stroke="currentColor" stroke-width="1"/><line x1="319.5" y1="482.2" x2="322.1" y2="491.8" stroke="currentColor" stroke-width="1"/><line x1="260.0" y1="490.0" x2="260.0" y2="500.0" stroke="currentColor" stroke-width="1"/><line x1="200.5" y1="482.2" x2="197.9" y2="491.8" stroke="currentColor" stroke-width="1"/><line x1="145.0" y1="459.2" x2="140.0" y2="467.8" stroke="currentColor" stroke-width="1"/><line x1="97.4" y1="422.6" x2="90.3" y2="429.7" stroke="currentColor" stroke-width="1"/><line x1="60.8" y1="375.0" x2="52.2" y2="380.0" stroke="currentColor" stroke-width="1"/><line x1="37.8" y1="319.5" x2="28.2" y2="322.1" stroke="currentColor" stroke-width="1"/><line x1="30.0" y1="260.0" x2="20.0" y2="260.0" stroke="currentColor" stroke-width="1"/><line x1="37.8" y1="200.5" x2="28.2" y2="197.9" stroke="currentColor" stroke-width="1"/><line x1="60.8" y1="145.0" x2="52.2" y2="140.0" stroke="currentColor" stroke-width="1"/><line x1="97.4" y1="97.4" x2="90.3" y2="90.3" stroke="currentColor" stroke-width="1"/><line x1="145.0" y1="60.8" x2="140.0" y2="52.2" stroke="currentColor" stroke-width="1"/><line x1="200.5" y1="37.8" x2="197.9" y2="28.2" stroke="currentColor" stroke-width="1"/><line x1="260.0" y1="30.0" x2="260.0" y2="20.0" stroke="currentColor" stroke-width="1"/><line x1="319.5" y1="37.8" x2="322.1" y2="28.2" stroke="currentColor" stroke-width="1"/><line x1="375.0" y1="60.8" x2="380.0" y2="52.2" stroke="currentColor" stroke-width="1"/><line x1="422.6" y1="97.4" x2="429.7" y2="90.3" stroke="currentColor" stroke-width="1"/><line x1="459.2" y1="145.0" x2="467.8" y2="140.0" stroke="currentColor" stroke-width="1"/><line x1="482.2" y1="200.5" x2="491.8" y2="197.9" stroke="currentColor" stroke-width="1"/><text x="260.0" y="50.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♈</text><text x="365.0" y="78.1" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♉</text><text x="441.9" y="155.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♊</text><text x="470.0" y="260.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♋</text><text x="441.9" y="365.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♌</text><text x="365.0" y="441.9" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♍</text><text x="260.0" y="470.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♎</text><text x="155.0" y="441.9" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♏</text><text x="78.1" y="365.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♐</text><text x="50.0" y="260.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♑</text><text x="78.1" y="155.0" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♒</text><text x="155.0" y="78.1" font-size="20" text-anchor="middle" dominant-baseline="middle" fill="currentColor" font-family="Fraunces, serif">♓</text><line x1="260.0" y1="50.0" x2="260.0" y2="50.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="365.0" y1="78.1" x2="365.0" y2="441.9" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="441.9" y1="155.0" x2="78.1" y2="155.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="470.0" y1="260.0" x2="470.0" y2="260.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="441.9" y1="365.0" x2="78.1" y2="365.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="365.0" y1="441.9" x2="365.0" y2="78.1" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="260.0" y1="470.0" x2="260.0" y2="470.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="155.0" y1="441.9" x2="155.0" y2="78.1" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="78.1" y1="365.0" x2="441.9" y2="365.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="50.0" y1="260.0" x2="50.0" y2="260.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="78.1" y1="155.0" x2="441.9" y2="155.0" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="155.0" y1="78.1" x2="155.0" y2="441.9" stroke="currentColor" stroke-width="0.4" opacity="0.5"/><line x1="260.0" y1="160.0" x2="260.0" y2="100.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="310.0" y1="173.4" x2="340.0" y2="121.4" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="346.6" y1="210.0" x2="398.6" y2="180.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="360.0" y1="260.0" x2="420.0" y2="260.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="346.6" y1="310.0" x2="398.6" y2="340.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="310.0" y1="346.6" x2="340.0" y2="398.6" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="260.0" y1="360.0" x2="260.0" y2="420.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="210.0" y1="346.6" x2="180.0" y2="398.6" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="173.4" y1="310.0" x2="121.4" y2="340.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="160.0" y1="260.0" x2="100.0" y2="260.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="173.4" y1="210.0" x2="121.4" y2="180.0" stroke="currentColor" stroke-width="0.6" opacity="0.6"/><line x1="210.0" y1="173.4" x2="180.0" y2="121.4" stroke="currentColor" stroke-width="0.6" opacity="0.6"/></svg></div><div class="avatar">✦</div></div>
+      <p class="intro-text">${d.intro}</p>
+    </div>`;
+
+  if(!revealed[currentSign]){
+    panel.innerHTML = `
+      <div class="fade-in">
+        ${introBlock}
+        <div class="reveal-row">
+          <button class="reveal-btn" onclick="revealReading()">Reveal horoscope</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  const locked = isLocked(currentSign, currentTab);
+  let body = '';
+  if(locked){
+    body = `
+      <div class="paywall-block">
+        <div class="lock-icon">&#128274;</div>
+        <p class="paywall-text">This full reading is for Quantum Zodiac members.</p>
+        <button class="subscribe-btn" onclick="openPaywall()">Unlock for $6.99/mo</button>
+      </div>`;
+  } else if(currentTab === 'daily'){
+    const entry = getDailyEntry(currentSign);
+    body = `
+      <p class="reading-text">${entry.text}</p>
+      <p class="reflection">${entry.q}</p>`;
+  } else {
+    const entry = getWeeklyEntry(currentSign);
+    body = `
+      <p class="reading-text">${entry.text}</p>
+      <div class="ritual-line"><b>Ritual of the week —</b> ${entry.ritual}</div>`;
+  }
+
+  panel.innerHTML = `
+    <div class="fade-in">
+      ${introBlock}
+      <div class="panel-head">
+        <div class="panel-sign">
+          <span class="sym">${d.sym}</span>
+          <span class="nm">${d.nm}</span>
+        </div>
+        <div class="tabs">
+          <button class="tab-btn ${currentTab==='daily'?'active':''}" onclick="setTab('daily')">Today</button>
+          <button class="tab-btn ${currentTab==='weekly'?'active':''}" onclick="setTab('weekly')">Week</button>
+        </div>
+      </div>
+      ${body}
+      ${locked ? '' : `
+      <div class="save-row">
+        <button class="save-btn ${isSaved?'saved':''}" onclick="toggleSave()">${isSaved ? 'Saved ✓' : 'Save reflection'}</button>
+        <button class="save-btn" onclick="shareHoroscope()">Share &#10554;</button>
+      </div>`}
+    </div>`;
+}
+
+function setTab(tab){
+  currentTab = tab;
+  renderPanel();
+}
+
+function fmt(t){
+  if(!isFinite(t)) return '0:00';
+  const m = Math.floor(t/60);
+  const s = Math.floor(t%60).toString().padStart(2,'0');
+  return m+':'+s;
+}
+
+/* ================= Carta natal real (Sol + Luna + Ascendente) =================
+   Formulas de baja precision de Jean Meeus (Astronomical Algorithms), suficientes
+   para determinar el signo con seguridad (probadas contra cartas natales publicadas
+   de personas reales). No calculan casas ni el resto de los planetas (eso quedaria
+   para una v2 de "carta completa"). Todo corre en el navegador, sin backend. */
+
+function showScreen(name){
+  document.getElementById('screen-hoy').style.display = name === 'hoy' ? 'block' : 'none';
+  document.getElementById('screen-carta').style.display = name === 'carta' ? 'block' : 'none';
+  document.getElementById('screen-patron').style.display = name === 'patron' ? 'block' : 'none';
+  document.getElementById('screen-frecuencias').style.display = name === 'frecuencias' ? 'block' : 'none';
+  document.getElementById('screen-guardados').style.display = name === 'guardados' ? 'block' : 'none';
+  document.getElementById('screen-abundancia').style.display = name === 'abundancia' ? 'block' : 'none';
+  document.getElementById('screen-compat').style.display = name === 'compat' ? 'block' : 'none';
+  document.getElementById('navHoy').classList.toggle('active', name === 'hoy');
+  document.getElementById('navCarta').classList.toggle('active', name === 'carta');
+  document.getElementById('navPatron').classList.toggle('active', name === 'patron');
+  document.getElementById('navFrecuencias').classList.toggle('active', name === 'frecuencias');
+  document.getElementById('navAbundancia').classList.toggle('active', name === 'abundancia');
+  if(name === 'carta') renderCartaScreen();
+  if(name === 'patron') renderPatronScreen();
+  if(name === 'frecuencias') renderFrecuenciasScreen();
+  if(name === 'guardados') renderGuardadosScreen();
+  if(name === 'abundancia') renderAbundanciaScreen();
+  if(name === 'compat') renderCompatScreen();
+}
+
+// Pistas instrumentales para meditar/dormir (no cambian cada semana como las
+// de "Hoy"; se van acumulando). Para agregar una nueva, suma un objeto aqui
+// con un titulo y la URL del archivo (o un link de YouTube).
+const FREQUENCIES = [
+  { title: 'Prosperous Astrologer', url: 'assets/audio/frecuencias/prospero-astrologo-432hz.mp3' },
+];
+
+function handleFrecuenciasNav(){
+  if(!isSubscribed){
+    openPaywall();
+    return;
+  }
+  showScreen('frecuencias');
+}
+
+function renderFrecuenciasScreen(){
+  renderPlaylist('audio', FREQUENCIES, document.getElementById('frecuenciasBody'));
+}
+
+/* ================= Crear Abundancia (afirmaciones estilo Neville Goddard) =================
+   Una serie de afirmaciones distinta cada dia (rota igual que el horoscopo
+   diario). Contenido exclusivo para suscriptores. Para agregar mas series,
+   suma un objeto nuevo aqui con "lines": [linea1, linea2, ...]. */
+const ABUNDANCE = [
+  { lines: ["I am abundance now.", "I feel wealth as an accomplished fact.", "Nothing is missing. It's all already mine.", "My imagination has created this state.", "I live it, I feel it, and I accept it.", "So it is. And so it remains."] },
+  { lines: ["I live in the end.", "My life already overflows with prosperity.", "I feel it, I accept it, and I am it.", "I don't wait. I'm already there.", "Wealth surrounds me in this instant.", "This is my only true state."] },
+  { lines: ["I assume the state of the wealthy man.", "Money comes to me with ease.", "This is my present reality.", "I feel the freedom of already having it all.", "There's no effort. Only receiving.", "I am the one who already has."] },
+  { lines: ["I am the source of all wealth.", "My imagination has already created it.", "I feel gratitude because I already have it.", "The outer world only confirms the inner.", "I walk in the certainty of what's fulfilled.", "There's nothing new to look for. It already is."] },
+  { lines: ["I walk in the certainty of abundance.", "Everything I desire already belongs to me.", "So I feel it. So it is.", "My awareness admits no lack.", "I know only fullness.", "This is the state I live in now."] },
+  { lines: ["I am in a state of total fullness.", "Fortune seeks me out and finds me.", "I don't chase. I receive.", "I feel the constant flow of wealth.", "Everything comes to me because I already am that.", "Abundance is my nature."] },
+  { lines: ["I now feel the freedom of being wealthy.", "My outer world reflects what I already am.", "Prosperity is my only truth.", "There's no duality. Only this state.", "I fully embody it.", "And the world bends before it."] },
+  { lines: ["In silence I assume I already have it all.", "I see, I feel, and I am abundance.", "The desire has already been fulfilled.", "There's no tomorrow. Only this now.", "My feeling is the proof.", "So I created it. So it remains."] },
+  { lines: ["My awareness is one of infinite wealth.", "Nothing can deny what I already am.", "I am, and that is enough.", "I don't need outside evidence.", "The feeling is the evidence.", "I live in this state without doubting."] },
+  { lines: ["I now accept my divine inheritance.", "Wealth, peace, and freedom are mine.", "I feel it deeply. It's already done.", "I don't ask. I recognize what already is.", "I live from the fulfilled end.", "And life can only reflect it."] }
+];
+function getAbundanceSet(){
+  return ABUNDANCE[dayOfYear(new Date()) % ABUNDANCE.length];
+}
+function handleAbundanciaNav(){
+  if(!isSubscribed){
+    openPaywall();
+    return;
+  }
+  showScreen('abundancia');
+}
+function renderAbundanciaScreen(){
+  const el = document.getElementById('screen-abundancia');
+  if(!el) return;
+  const set = getAbundanceSet();
+  el.innerHTML = `
+    <p class="grid-label" style="text-align:center;margin:16px 0 4px;">Create Abundance</p>
+    <p style="text-align:center;font-size:12px;color:var(--text-muted);margin:0 30px 20px;">Read it out loud. Feel that it's already yours.</p>
+    <div class="abundance-card">
+      ${set.lines.map(l => `<p class="abundance-line">${l}</p>`).join('')}
+    </div>
+    <div class="save-row" style="justify-content:center;">
+      <button class="save-btn" onclick="shareAbundance()">Share &#10554;</button>
+    </div>`;
+}
+async function shareAbundance(){
+  const set = getAbundanceSet();
+  const blob = await buildShareCanvas({
+    symbol: '∞',
+    title: 'ABUNDANCE',
+    subtitle: 'AFFIRMATION OF THE DAY',
+    lines: set.lines
+  });
+  shareImageBlob(blob, `quantum-zodiac-abundance.png`);
+}
+
+/* ================= Carta del dia (juego de tarot + racha) =================
+   22 arcanos mayores. Cada dia el usuario puede revelar UNA carta al azar;
+   si vuelve al dia siguiente sin fallar un dia, la racha sube. Todo vive en
+   localStorage, sin backend ni cuentas. */
+const TAROT = {
+  "loco": {nm:"The Fool", img:"assets/tarot/mayores/00-loco.jpg", text:"The Fool doesn't announce chaos, it reflects the exact moment you decide to trust without having the full map. What you feel right now — a mix of fear and the urge to jump — is the sign you've already decided, your body just needs to catch up.", q:"What leap have I already taken inside, even if I can't see it outside yet?"},
+  "mago": {nm:"The Magician", img:"assets/tarot/mayores/01-mago.jpg", text:"The Magician shows up when you already have everything you need and the only question is whether you believe it. It's not about getting more tools, it's about acting as if the ones you already have are enough.", q:"What would I do today if I already knew I had everything I need?"},
+  "sacerdotisa": {nm:"The High Priestess", img:"assets/tarot/mayores/02-sacerdotisa.jpg", text:"The High Priestess isn't hiding a secret somewhere else — she reflects something you already know and haven't let yourself listen to yet. The answer isn't out there, it's in the silence you're avoiding.", q:"What have I known in silence for a while now?"},
+  "emperatriz": {nm:"The Empress", img:"assets/tarot/mayores/03-emperatriz.jpg", text:"The Empress isn't talking about abundance arriving from outside, she's talking about the abundance you're already growing inside without realizing it. What you feel growing today deserves space, not rushing.", q:"What am I letting grow without demanding results from it yet?"},
+  "emperador": {nm:"The Emperor", img:"assets/tarot/mayores/04-emperador.jpg", text:"The Emperor isn't an order coming from outside, he's the reminder that the structure you need you can already build yourself, decision by decision.", q:"What inner structure do I need to hold up before asking for order outside?"},
+  "sumo-sacerdote": {nm:"The Hierophant", img:"assets/tarot/mayores/05-sumo-sacerdote.jpg", text:"The Hierophant doesn't dictate a rule you must obey, he reflects how aligned you are between what you say you believe and what you actually live every day.", q:"Does today match what I say I value?"},
+  "enamorados": {nm:"The Lovers", img:"assets/tarot/mayores/06-enamorados.jpg", text:"The Lovers aren't about choosing between two people, they're about choosing between the version of you that acts from fear and the one that acts from what you truly want to feel.", q:"Am I making this decision from fear, or from real desire?"},
+  "carro": {nm:"The Chariot", img:"assets/tarot/mayores/07-carro.jpg", text:"The Chariot doesn't promise you'll win, it reflects that you already have control of the direction — the question is whether you're going to drive, or let fear take the wheel.", q:"Who's driving today: my intention or my anxiety?"},
+  "justicia": {nm:"Justice", img:"assets/tarot/mayores/08-justicia.jpg", text:"Justice doesn't judge from outside, it reflects the natural consequences of a decision you already made, consciously or not. There's no punishment here, only cause and effect that you can start to steer.", q:"What decision of mine is generating what I'm living today?"},
+  "ermitano": {nm:"The Hermit", img:"assets/tarot/mayores/09-ermitano.jpg", text:"The Hermit doesn't ask you to isolate from the world, he asks you to stop looking for the answer outside for a moment and listen for it in the one place it's always been: inside.", q:"What question have I stopped listening to by looking outward?"},
+  "rueda-fortuna": {nm:"The Wheel of Fortune", img:"assets/tarot/mayores/10-rueda-fortuna.jpg", text:"The Wheel doesn't spin by chance — it spins reflecting the cycles you yourself feed with what you repeat thinking and feeling every day. What's changing today started moving inside you a while ago.", q:"What have I been repeating inside that's now showing up outside?"},
+  "fuerza": {nm:"Strength", img:"assets/tarot/mayores/11-fuerza.jpg", text:"Strength isn't about taming the lion outside, it's the calm with which you treat the part of you that reacts from fear. The gentler you are with yourself, the less you need to fight anything.", q:"Which part of me needs to be treated more tenderly today?"},
+  "colgado": {nm:"The Hanged Man", img:"assets/tarot/mayores/12-colgado.jpg", text:"The Hanged Man isn't trapped, he's paused on purpose — seeing the same problem from an angle that only appears when you stop forcing a way out.", q:"What do I see differently if I stop trying to solve this right now?"},
+  "muerte": {nm:"Death", img:"assets/tarot/mayores/13-muerte.jpg", text:"Death doesn't announce a tragic ending, it reflects that you've already finished something inside and just need to let it go outside too. The new can't come in while you're still carrying what you've already closed.", q:"What have I already finished inside that I'm still carrying outside?"},
+  "templanza": {nm:"Temperance", img:"assets/tarot/mayores/14-templanza.jpg", text:"Temperance isn't about a perfect balance, it's about patiently blending what you feel, without rushing it to be perfect already. What you calmly combine today holds itself up on its own tomorrow.", q:"Where am I demanding an immediate result instead of a patient blend?"},
+  "diablo": {nm:"The Devil", img:"assets/tarot/mayores/15-diablo.jpg", text:"The Devil doesn't represent an external evil, he reflects the chain you yourself are holding, believing you can't let it go. Almost always, the door is already open — what weighs is the belief, not the chain.", q:"What chain am I still holding onto myself, believing I can't let it go?"},
+  "torre": {nm:"The Tower", img:"assets/tarot/mayores/16-torre.jpg", text:"The Tower doesn't punish, it brings down what was no longer held up by anything real — only by habit or fear of starting over. What falls today makes room for something built on truth.", q:"What was being held up only by habit, not by truth?"},
+  "estrella": {nm:"The Star", img:"assets/tarot/mayores/17-estrella.jpg", text:"The Star doesn't promise everything will be fine without you doing anything, it reflects the calm that appears when you start trusting your own direction again after a fall.", q:"In what part of me have I already started trusting again?"},
+  "luna": {nm:"The Moon", img:"assets/tarot/mayores/18-luna.jpg", text:"The Moon isn't talking about a hidden danger, it reflects the part of you that knows something long before you can explain it with words. Not everything needs logic yet.", q:"What do I know without being able to explain it yet?"},
+  "sol": {nm:"The Sun", img:"assets/tarot/mayores/19-sol.jpg", text:"The Sun isn't a joy arriving from outside, it reflects what you already are when you stop hiding behind doubt. What you feel today isn't luck, it's yours.", q:"What part of my light have I been hiding by doubting myself?"},
+  "juicio": {nm:"Judgement", img:"assets/tarot/mayores/20-juicio.jpg", text:"Judgement isn't an external sentence, it's the call you feel inside to stop postponing who you've already decided to be. You don't need anyone else's permission to answer that call.", q:"What inner call have I been postponing while waiting for a sign from outside?"},
+  "mundo": {nm:"The World", img:"assets/tarot/mayores/21-mundo.jpg", text:"The World isn't a distant goal to reach, it reflects that a cycle has already completed inside you, even if it doesn't fully show outside yet. You've already arrived somewhere — give yourself credit.", q:"What cycle have I already closed inside that I still haven't celebrated?"}
+};
+const TAROT_KEYS = Object.keys(TAROT);
+
+function todayStr(){
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function yesterdayStr(){
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function loadTarotState(){
+  try{
+    return JSON.parse(localStorage.getItem('zc_tarot') || 'null') || { streak: 0, lastDate: null, lastCard: null };
+  }catch(e){
+    return { streak: 0, lastDate: null, lastCard: null };
+  }
+}
+function saveTarotState(state){
+  localStorage.setItem('zc_tarot', JSON.stringify(state));
+}
+function drawTarotCard(){
+  const state = loadTarotState();
+  const today = todayStr();
+  if(state.lastDate === today) return state;
+  state.streak = (state.lastDate === yesterdayStr()) ? state.streak + 1 : 1;
+  state.lastDate = today;
+  state.lastCard = TAROT_KEYS[Math.floor(Math.random() * TAROT_KEYS.length)];
+  saveTarotState(state);
+  return state;
+}
+function revealTarotCard(){
+  drawTarotCard();
+  renderPatronScreen();
+}
+function renderPatronScreen(){
+  const el = document.getElementById('screen-patron');
+  if(!el) return;
+  const state = loadTarotState();
+  const today = todayStr();
+  const alreadyDrawn = state.lastDate === today;
+  const streakLabel = state.streak + (state.streak === 1 ? ' day' : ' days');
+
+  if(alreadyDrawn){
+    const card = TAROT[state.lastCard];
+    el.innerHTML = `
+      <div class="tarot-wrap">
+        <div class="tarot-streak">\u{1F525} Streak: ${streakLabel}</div>
+        <div class="tarot-card-reveal fade-in">
+          <img src="${card.img}" alt="${card.nm}" class="tarot-img">
+          <h3 class="tarot-name">${card.nm}</h3>
+          <p class="tarot-text">${card.text}</p>
+          <p class="reflection">${card.q}</p>
+        </div>
+        <div class="save-row" style="justify-content:center;">
+          <button class="save-btn" onclick="shareTarotCard()">Share &#10554;</button>
+        </div>
+        <p class="natal-note" style="text-align:center;">Come back tomorrow for your next card.</p>
+      </div>`;
+  } else {
+    el.innerHTML = `
+      <div class="tarot-wrap">
+        <div class="tarot-streak">\u{1F525} Streak: ${streakLabel}</div>
+        <p class="grid-label" style="text-align:center;margin:8px 0 20px;">Your card of the day awaits</p>
+        <div class="tarot-back" onclick="revealTarotCard()"></div>
+        <p class="natal-note" style="text-align:center;">Tap the card to reveal it.</p>
+      </div>`;
+  }
+}
+
+function normalizeDeg(d){ d = d % 360; if(d < 0) d += 360; return d; }
+function sinD(d){ return Math.sin(d * Math.PI / 180); }
+function cosD(d){ return Math.cos(d * Math.PI / 180); }
+function tanD(d){ return Math.tan(d * Math.PI / 180); }
+function atan2Deg(y, x){ return normalizeDeg(Math.atan2(y, x) * 180 / Math.PI); }
+
+function julianDay(year, month, day, hourUT){
+  const dayFrac = day + hourUT / 24;
+  let Y = year, M = month;
+  if(M <= 2){ Y -= 1; M += 12; }
+  const A = Math.floor(Y / 100);
+  const B = 2 - A + Math.floor(A / 4);
+  return Math.floor(365.25 * (Y + 4716)) + Math.floor(30.6001 * (M + 1)) + dayFrac + B - 1524.5;
+}
+function julianCenturies(jd){ return (jd - 2451545.0) / 36525.0; }
+
+function sunEclipticLongitude(T){
+  const L0 = normalizeDeg(280.46646 + 36000.76983 * T + 0.0003032 * T * T);
+  const M = normalizeDeg(357.52911 + 35999.05029 * T - 0.0001537 * T * T);
+  const C = (1.914602 - 0.004817 * T - 0.000014 * T * T) * sinD(M)
+          + (0.019993 - 0.000101 * T) * sinD(2 * M)
+          + 0.000289 * sinD(3 * M);
+  return normalizeDeg(L0 + C);
+}
+function moonEclipticLongitude(T){
+  const Lp = normalizeDeg(218.3164477 + 481267.88123421 * T - 0.0015786 * T * T);
+  const D  = normalizeDeg(297.8501921 + 445267.1114034 * T - 0.0018819 * T * T);
+  const Mp = normalizeDeg(134.9633964 + 477198.8675055 * T + 0.0087414 * T * T);
+  const lon = Lp
+    + 6.289 * sinD(Mp)
+    - 1.274 * sinD(Mp - 2 * D)
+    + 0.658 * sinD(2 * D)
+    - 0.214 * sinD(2 * Mp)
+    - 0.110 * sinD(D);
+  return normalizeDeg(lon);
+}
+function obliquity(T){
+  return 23.4392911 - 0.0130042 * T - 0.00000016 * T * T + 0.000000504 * T * T * T;
+}
+function gmstDeg(jd, T){
+  const gmst = 280.46061837 + 360.98564736629 * (jd - 2451545.0)
+             + 0.000387933 * T * T - (T * T * T) / 38710000;
+  return normalizeDeg(gmst);
+}
+function ascendantLongitude(ramcDeg, latDeg, oblDeg){
+  const y = cosD(ramcDeg);
+  const x = -(sinD(oblDeg) * tanD(latDeg) + cosD(oblDeg) * sinD(ramcDeg));
+  return atan2Deg(y, x);
+}
+function signFromLongitude(lon){
+  return ORDER[Math.floor(normalizeDeg(lon) / 30) % 12];
+}
+function computeNatalChart(year, month, day, hour, minute, utcOffset, latDeg, lonDeg){
+  const hourLocal = hour + minute / 60;
+  let hourUT = hourLocal - utcOffset;
+  let dayAdj = day;
+  if(hourUT < 0){ hourUT += 24; dayAdj -= 1; }
+  if(hourUT >= 24){ hourUT -= 24; dayAdj += 1; }
+
+  const jd = julianDay(year, month, dayAdj, hourUT);
+  const T = julianCenturies(jd);
+
+  const sunLon = sunEclipticLongitude(T);
+  const moonLon = moonEclipticLongitude(T);
+  const obl = obliquity(T);
+  const gmst = gmstDeg(jd, T);
+  const ramc = normalizeDeg(gmst + lonDeg);
+  const asc = ascendantLongitude(ramc, latDeg, obl);
+
+  return {
+    sun: { lon: sunLon, sign: signFromLongitude(sunLon) },
+    moon: { lon: moonLon, sign: signFromLongitude(moonLon) },
+    ascendant: { lon: asc, sign: signFromLongitude(asc) },
+  };
+}
+
+const CITIES = [
+  {n:"Mexico City",c:"Mexico",lat:19.4326,lon:-99.1332,utc:-6},
+  {n:"Guadalajara",c:"Mexico",lat:20.6597,lon:-103.3496,utc:-6},
+  {n:"Monterrey",c:"Mexico",lat:25.6866,lon:-100.3161,utc:-6},
+  {n:"Puebla",c:"Mexico",lat:19.0414,lon:-98.2063,utc:-6},
+  {n:"Toluca",c:"Mexico",lat:19.2926,lon:-99.6568,utc:-6},
+  {n:"Tijuana",c:"Mexico",lat:32.5149,lon:-117.0382,utc:-8},
+  {n:"León",c:"Mexico",lat:21.125,lon:-101.686,utc:-6},
+  {n:"Zapopan",c:"Mexico",lat:20.7214,lon:-103.3918,utc:-6},
+  {n:"Ciudad Juárez",c:"Mexico",lat:31.6904,lon:-106.4245,utc:-7},
+  {n:"Mérida",c:"Mexico",lat:20.9674,lon:-89.5926,utc:-6},
+  {n:"San Luis Potosí",c:"Mexico",lat:22.1565,lon:-100.9855,utc:-6},
+  {n:"Aguascalientes",c:"Mexico",lat:21.8853,lon:-102.2916,utc:-6},
+  {n:"Querétaro",c:"Mexico",lat:20.5888,lon:-100.3899,utc:-6},
+  {n:"Morelia",c:"Mexico",lat:19.7008,lon:-101.1844,utc:-6},
+  {n:"Chihuahua",c:"Mexico",lat:28.6353,lon:-106.0889,utc:-7},
+  {n:"Culiacán",c:"Mexico",lat:24.8091,lon:-107.394,utc:-7},
+  {n:"Hermosillo",c:"Mexico",lat:29.0729,lon:-110.9559,utc:-7},
+  {n:"Saltillo",c:"Mexico",lat:25.426,lon:-101.0053,utc:-6},
+  {n:"Mexicali",c:"Mexico",lat:32.6245,lon:-115.4523,utc:-8},
+  {n:"Cancún",c:"Mexico",lat:21.1619,lon:-86.8515,utc:-5},
+  {n:"Acapulco",c:"Mexico",lat:16.8531,lon:-99.8237,utc:-6},
+  {n:"Veracruz",c:"Mexico",lat:19.1738,lon:-96.1342,utc:-6},
+  {n:"Tampico",c:"Mexico",lat:22.2331,lon:-97.8611,utc:-6},
+  {n:"Oaxaca de Juárez",c:"Mexico",lat:17.0732,lon:-96.7266,utc:-6},
+  {n:"Tuxtla Gutiérrez",c:"Mexico",lat:16.7516,lon:-93.1029,utc:-6},
+  {n:"Villahermosa",c:"Mexico",lat:17.9895,lon:-92.9475,utc:-6},
+  {n:"Durango",c:"Mexico",lat:24.0277,lon:-104.6532,utc:-6},
+  {n:"Torreón",c:"Mexico",lat:25.5428,lon:-103.4068,utc:-6},
+  {n:"Reynosa",c:"Mexico",lat:26.0922,lon:-98.2778,utc:-6},
+  {n:"Cuernavaca",c:"Mexico",lat:18.9242,lon:-99.2216,utc:-6},
+  {n:"Pachuca",c:"Mexico",lat:20.1011,lon:-98.7591,utc:-6},
+  {n:"Tlaxcala",c:"Mexico",lat:19.3182,lon:-98.2375,utc:-6},
+  {n:"Colima",c:"Mexico",lat:19.2433,lon:-103.7247,utc:-6},
+  {n:"Campeche",c:"Mexico",lat:19.8301,lon:-90.5349,utc:-6},
+  {n:"Chetumal",c:"Mexico",lat:18.5001,lon:-88.296,utc:-5},
+  {n:"La Paz (BCS)",c:"Mexico",lat:24.1426,lon:-110.3128,utc:-7},
+  {n:"Los Cabos",c:"Mexico",lat:22.8905,lon:-109.9167,utc:-7},
+  {n:"Ensenada",c:"Mexico",lat:31.8667,lon:-116.5964,utc:-8},
+  {n:"Nuevo Laredo",c:"Mexico",lat:27.4864,lon:-99.5075,utc:-6},
+  {n:"Matamoros",c:"Mexico",lat:25.8697,lon:-97.5044,utc:-6},
+  {n:"Zacatecas",c:"Mexico",lat:22.7709,lon:-102.5832,utc:-6},
+  {n:"Tepic",c:"Mexico",lat:21.5041,lon:-104.8942,utc:-6},
+  {n:"Ciudad Obregón",c:"Mexico",lat:27.4864,lon:-109.9306,utc:-7},
+  {n:"Mazatlán",c:"Mexico",lat:23.2494,lon:-106.4111,utc:-7},
+  {n:"Irapuato",c:"Mexico",lat:20.6767,lon:-101.3549,utc:-6},
+  {n:"Celaya",c:"Mexico",lat:20.5236,lon:-100.8151,utc:-6},
+  {n:"Ciudad Victoria",c:"Mexico",lat:23.7369,lon:-99.1411,utc:-6},
+  {n:"Ciudad de Guatemala",c:"Guatemala",lat:14.6349,lon:-90.5069,utc:-6},
+  {n:"San Salvador",c:"El Salvador",lat:13.6929,lon:-89.2182,utc:-6},
+  {n:"Tegucigalpa",c:"Honduras",lat:14.0723,lon:-87.1921,utc:-6},
+  {n:"San Pedro Sula",c:"Honduras",lat:15.5041,lon:-88.025,utc:-6},
+  {n:"Managua",c:"Nicaragua",lat:12.1364,lon:-86.2514,utc:-6},
+  {n:"San José",c:"Costa Rica",lat:9.9281,lon:-84.0907,utc:-6},
+  {n:"Panama City",c:"Panama",lat:8.9824,lon:-79.5199,utc:-5},
+  {n:"Belmopán",c:"Belize",lat:17.251,lon:-88.759,utc:-6},
+  {n:"La Habana",c:"Cuba",lat:23.1136,lon:-82.3666,utc:-5},
+  {n:"Santo Domingo",c:"Dominican Republic",lat:18.4861,lon:-69.9312,utc:-4},
+  {n:"San Juan",c:"Puerto Rico",lat:18.4655,lon:-66.1057,utc:-4},
+  {n:"Bogotá",c:"Colombia",lat:4.711,lon:-74.0721,utc:-5},
+  {n:"Medellín",c:"Colombia",lat:6.2442,lon:-75.5812,utc:-5},
+  {n:"Cali",c:"Colombia",lat:3.4516,lon:-76.532,utc:-5},
+  {n:"Barranquilla",c:"Colombia",lat:10.9639,lon:-74.7964,utc:-5},
+  {n:"Cartagena",c:"Colombia",lat:10.391,lon:-75.4794,utc:-5},
+  {n:"Caracas",c:"Venezuela",lat:10.4806,lon:-66.9036,utc:-4},
+  {n:"Maracaibo",c:"Venezuela",lat:10.6427,lon:-71.6125,utc:-4},
+  {n:"Valencia",c:"Venezuela",lat:10.1621,lon:-68.0077,utc:-4},
+  {n:"Quito",c:"Ecuador",lat:-0.1807,lon:-78.4678,utc:-5},
+  {n:"Guayaquil",c:"Ecuador",lat:-2.1894,lon:-79.8891,utc:-5},
+  {n:"Cuenca",c:"Ecuador",lat:-2.9006,lon:-79.0045,utc:-5},
+  {n:"Lima",c:"Peru",lat:-12.0464,lon:-77.0428,utc:-5},
+  {n:"Arequipa",c:"Peru",lat:-16.409,lon:-71.5375,utc:-5},
+  {n:"Trujillo",c:"Peru",lat:-8.1116,lon:-79.029,utc:-5},
+  {n:"La Paz",c:"Bolivia",lat:-16.5,lon:-68.15,utc:-4},
+  {n:"Santa Cruz de la Sierra",c:"Bolivia",lat:-17.7833,lon:-63.1821,utc:-4},
+  {n:"Cochabamba",c:"Bolivia",lat:-17.3895,lon:-66.1568,utc:-4},
+  {n:"Asunción",c:"Paraguay",lat:-25.2637,lon:-57.5759,utc:-4},
+  {n:"Montevideo",c:"Uruguay",lat:-34.9011,lon:-56.1645,utc:-3},
+  {n:"Buenos Aires",c:"Argentina",lat:-34.6037,lon:-58.3816,utc:-3},
+  {n:"Córdoba",c:"Argentina",lat:-31.4201,lon:-64.1888,utc:-3},
+  {n:"Rosario",c:"Argentina",lat:-32.9468,lon:-60.6393,utc:-3},
+  {n:"Mendoza",c:"Argentina",lat:-32.8895,lon:-68.8458,utc:-3},
+  {n:"La Plata",c:"Argentina",lat:-34.9215,lon:-57.9545,utc:-3},
+  {n:"Santiago",c:"Chile",lat:-33.4489,lon:-70.6693,utc:-4},
+  {n:"Valparaíso",c:"Chile",lat:-33.0472,lon:-71.6127,utc:-4},
+  {n:"Concepción",c:"Chile",lat:-36.8201,lon:-73.0444,utc:-4},
+  {n:"São Paulo",c:"Brazil",lat:-23.5505,lon:-46.6333,utc:-3},
+  {n:"Río de Janeiro",c:"Brazil",lat:-22.9068,lon:-43.1729,utc:-3},
+  {n:"Brasilia",c:"Brazil",lat:-15.7939,lon:-47.8828,utc:-3},
+  {n:"Salvador de Bahía",c:"Brazil",lat:-12.9718,lon:-38.5011,utc:-3},
+  {n:"Belo Horizonte",c:"Brazil",lat:-19.9167,lon:-43.9345,utc:-3},
+  {n:"Manaos",c:"Brazil",lat:-3.119,lon:-60.0217,utc:-4},
+  {n:"Fortaleza",c:"Brazil",lat:-3.7319,lon:-38.5267,utc:-3},
+  {n:"Recife",c:"Brazil",lat:-8.0476,lon:-34.877,utc:-3},
+  {n:"Porto Alegre",c:"Brazil",lat:-30.0346,lon:-51.2177,utc:-3},
+  {n:"Curitiba",c:"Brazil",lat:-25.4284,lon:-49.2733,utc:-3},
+  {n:"Madrid",c:"Spain",lat:40.4168,lon:-3.7038,utc:1},
+  {n:"Barcelona",c:"Spain",lat:41.3874,lon:2.1686,utc:1},
+  {n:"New York",c:"United States",lat:40.7128,lon:-74.006,utc:-5},
+  {n:"Philadelphia",c:"United States",lat:39.9526,lon:-75.1652,utc:-5},
+  {n:"Boston",c:"United States",lat:42.3601,lon:-71.0589,utc:-5},
+  {n:"Washington, D.C.",c:"United States",lat:38.9072,lon:-77.0369,utc:-5},
+  {n:"Atlanta",c:"United States",lat:33.749,lon:-84.388,utc:-5},
+  {n:"Miami",c:"United States",lat:25.7617,lon:-80.1918,utc:-5},
+  {n:"Orlando",c:"United States",lat:28.5384,lon:-81.3789,utc:-5},
+  {n:"Tampa",c:"United States",lat:27.9506,lon:-82.4572,utc:-5},
+  {n:"Jacksonville",c:"United States",lat:30.3322,lon:-81.6557,utc:-5},
+  {n:"Charlotte",c:"United States",lat:35.2271,lon:-80.8431,utc:-5},
+  {n:"Raleigh",c:"United States",lat:35.7796,lon:-78.6382,utc:-5},
+  {n:"Richmond",c:"United States",lat:37.5407,lon:-77.436,utc:-5},
+  {n:"Baltimore",c:"United States",lat:39.2904,lon:-76.6122,utc:-5},
+  {n:"Pittsburgh",c:"United States",lat:40.4406,lon:-79.9959,utc:-5},
+  {n:"Cleveland",c:"United States",lat:41.4993,lon:-81.6944,utc:-5},
+  {n:"Columbus",c:"United States",lat:39.9612,lon:-82.9988,utc:-5},
+  {n:"Cincinnati",c:"United States",lat:39.1031,lon:-84.512,utc:-5},
+  {n:"Indianapolis",c:"United States",lat:39.7684,lon:-86.1581,utc:-5},
+  {n:"Detroit",c:"United States",lat:42.3314,lon:-83.0458,utc:-5},
+  {n:"Louisville",c:"United States",lat:38.2527,lon:-85.7585,utc:-5},
+  {n:"Buffalo",c:"United States",lat:42.8864,lon:-78.8784,utc:-5},
+  {n:"Chicago",c:"United States",lat:41.8781,lon:-87.6298,utc:-6},
+  {n:"Houston",c:"United States",lat:29.7604,lon:-95.3698,utc:-6},
+  {n:"Dallas",c:"United States",lat:32.7767,lon:-96.797,utc:-6},
+  {n:"Fort Worth",c:"United States",lat:32.7555,lon:-97.3308,utc:-6},
+  {n:"San Antonio",c:"United States",lat:29.4241,lon:-98.4936,utc:-6},
+  {n:"Austin",c:"United States",lat:30.2672,lon:-97.7431,utc:-6},
+  {n:"Nashville",c:"United States",lat:36.1627,lon:-86.7816,utc:-6},
+  {n:"Memphis",c:"United States",lat:35.1495,lon:-90.049,utc:-6},
+  {n:"New Orleans",c:"United States",lat:29.9511,lon:-90.0715,utc:-6},
+  {n:"Oklahoma City",c:"United States",lat:35.4676,lon:-97.5164,utc:-6},
+  {n:"Tulsa",c:"United States",lat:36.154,lon:-95.9928,utc:-6},
+  {n:"Kansas City",c:"United States",lat:39.0997,lon:-94.5786,utc:-6},
+  {n:"St. Louis",c:"United States",lat:38.627,lon:-90.1994,utc:-6},
+  {n:"Minneapolis",c:"United States",lat:44.9778,lon:-93.265,utc:-6},
+  {n:"Milwaukee",c:"United States",lat:43.0389,lon:-87.9065,utc:-6},
+  {n:"Omaha",c:"United States",lat:41.2565,lon:-95.9345,utc:-6},
+  {n:"Wichita",c:"United States",lat:37.6872,lon:-97.3301,utc:-6},
+  {n:"Denver",c:"United States",lat:39.7392,lon:-104.9903,utc:-7},
+  {n:"Colorado Springs",c:"United States",lat:38.8339,lon:-104.8214,utc:-7},
+  {n:"Phoenix",c:"United States",lat:33.4484,lon:-112.074,utc:-7},
+  {n:"Tucson",c:"United States",lat:32.2226,lon:-110.9747,utc:-7},
+  {n:"Albuquerque",c:"United States",lat:35.0844,lon:-106.6504,utc:-7},
+  {n:"El Paso",c:"United States",lat:31.7619,lon:-106.485,utc:-7},
+  {n:"Salt Lake City",c:"United States",lat:40.7608,lon:-111.891,utc:-7},
+  {n:"Boise",c:"United States",lat:43.615,lon:-116.2023,utc:-7},
+  {n:"Los Angeles",c:"United States",lat:34.0522,lon:-118.2437,utc:-8},
+  {n:"San Diego",c:"United States",lat:32.7157,lon:-117.1611,utc:-8},
+  {n:"San Francisco",c:"United States",lat:37.7749,lon:-122.4194,utc:-8},
+  {n:"San Jose",c:"United States",lat:37.3382,lon:-121.8863,utc:-8},
+  {n:"Oakland",c:"United States",lat:37.8044,lon:-122.2712,utc:-8},
+  {n:"Sacramento",c:"United States",lat:38.5816,lon:-121.4944,utc:-8},
+  {n:"Fresno",c:"United States",lat:36.7378,lon:-119.7871,utc:-8},
+  {n:"Long Beach",c:"United States",lat:33.7701,lon:-118.1937,utc:-8},
+  {n:"Las Vegas",c:"United States",lat:36.1699,lon:-115.1398,utc:-8},
+  {n:"Seattle",c:"United States",lat:47.6062,lon:-122.3321,utc:-8},
+  {n:"Portland",c:"United States",lat:45.5152,lon:-122.6784,utc:-8},
+  {n:"Anchorage",c:"United States",lat:61.2181,lon:-149.9003,utc:-9},
+  {n:"Honolulu",c:"United States",lat:21.3069,lon:-157.8583,utc:-10}
+];
+
+const SUN_DESC = {
+  "aries":"Your Sun in Aries is pure initiative: you were born to start, not to wait for permission. Your challenge isn't having less fire, it's aiming it with patience before you act.",
+  "tauro":"Your Sun in Taurus builds from calm: you need to see tangible results to feel like you exist. Your challenge is letting go of control when life asks for flexibility, not resistance.",
+  "geminis":"Your Sun in Gemini lives on curiosity and words: you process the world by talking and connecting ideas. Your challenge is choosing depth over constant scattering.",
+  "cancer":"Your Sun in Cancer is defined by care and emotional memory: your identity is built by protecting what you love. Your challenge is caring for yourself with the same devotion you give others.",
+  "leo":"Your Sun in Leo needs to express itself and be seen to feel alive: your identity shines when you create from the heart. Your challenge is shining for your own purpose, not for someone else's applause.",
+  "virgo":"Your Sun in Virgo is defined by improving and serving: you feel like yourself when you're useful and precise. Your challenge is directing that demand toward growth, not self-criticism.",
+  "libra":"Your Sun in Libra seeks balance and connection: you recognize yourself through others and the beauty you create. Your challenge is deciding from your own judgment, not just to keep the peace.",
+  "escorpio":"Your Sun in Scorpio is defined by depth and transformation: you don't settle for the surface of anything. Your challenge is trusting without needing to control the outcome.",
+  "sagitario":"Your Sun in Sagittarius needs a horizon and meaning: you feel like yourself when moving toward something bigger. Your challenge is committing to a single path long enough to reap it.",
+  "capricornio":"Your Sun in Capricorn is defined by discipline and purposeful achievement: you build your identity step by step. Your challenge is measuring your worth without depending only on what you achieve.",
+  "acuario":"Your Sun in Aquarius needs to think differently and belong without losing its individuality: your identity is your own vision of the world. Your challenge is letting yourself feel, not just analyze.",
+  "piscis":"Your Sun in Pisces is defined by sensitivity and imagination: you perceive what others don't see. Your challenge is setting clear boundaries without losing your compassion."
+};
+const MOON_DESC = {
+  "aries":"Your Moon in Aries feels fast and reacts fast: emotional calm comes to you through action, not repression. Learn to tell impulse apart from real anger.",
+  "tauro":"Your Moon in Taurus needs stability and physical contact to feel safe: you find calm through routine, food, the body. Watch out for confusing comfort with emotional stagnation.",
+  "geminis":"Your Moon in Gemini processes emotions by talking and thinking: you need to name what you feel to understand it. Uncomfortable silence is also valid information.",
+  "cancer":"Your Moon in Cancer feels everything deeply and remembers every emotional detail: your home and your people are your anchor. Learn to let go of what's no longer yours to carry.",
+  "leo":"Your Moon in Leo needs to feel seen and emotionally valued: you're nourished by genuine recognition. Your challenge is validating yourself first, before looking for it outside.",
+  "virgo":"Your Moon in Virgo finds calm in order and in being useful: solving problems settles you. Practice feeling without needing to fix everything right away.",
+  "libra":"Your Moon in Libra needs harmony and connection to feel at peace: conflict destabilizes you. Learn that saying your truth doesn't break the bond, it strengthens it.",
+  "escorpio":"Your Moon in Scorpio feels with an intensity few understand: you don't do anything halfway emotionally. Your challenge is trusting and showing yourself vulnerable without feeling like you're losing power.",
+  "sagitario":"Your Moon in Sagittarius needs freedom and a wide perspective to feel good: emotional routine suffocates you. Learn that commitment isn't the same as being trapped.",
+  "capricornio":"Your Moon in Capricorn holds its emotions in and seeks security through control: you feel like you have to always be strong. Give yourself permission to need support without feeling it as weakness.",
+  "acuario":"Your Moon in Aquarius processes emotions from a distance and through logic: you need space to feel without pressure. Learn that connecting closely doesn't threaten your independence.",
+  "piscis":"Your Moon in Pisces absorbs the emotional atmosphere of everything around you: you feel your own and others' emotions blended together. Learn to tell which emotion is really yours."
+};
+const ASC_DESC = {
+  "aries":"Your Ascendant in Aries makes others perceive you as direct, confident, and always ready to act, even though inside you doubt more than you show.",
+  "tauro":"Your Ascendant in Taurus projects calm and solidity: people perceive you as reliable and patient from the very first moment, even though you feel urgency inside.",
+  "geminis":"Your Ascendant in Gemini makes you seem curious, quick, and sociable right away: people expect conversation and fresh ideas from you from the first minute.",
+  "cancer":"Your Ascendant in Cancer projects warmth and closeness: people feel you're approachable and protective from the start, even though you need time to truly trust.",
+  "leo":"Your Ascendant in Leo makes you walk into any room with presence: people perceive you as confident and magnetic, even though inside you're also seeking validation.",
+  "virgo":"Your Ascendant in Virgo projects order and attention to detail: people trust your judgment right away, even if you yourself doubt you're doing it right.",
+  "libra":"Your Ascendant in Libra makes you seem charming and diplomatic from the first encounter: people find you easy to deal with, even though deciding in private costs you more.",
+  "escorpio":"Your Ascendant in Scorpio projects intensity and mystery: people feel you're magnetic but hard to fully read, even when you feel open.",
+  "sagitario":"Your Ascendant in Sagittarius makes you seem optimistic and adventurous right away: people expect energy and blunt honesty from you from the first contact.",
+  "capricornio":"Your Ascendant in Capricorn projects seriousness and control from the very first moment: people perceive you as capable and reliable, even though inside you demand more of yourself than you should.",
+  "acuario":"Your Ascendant in Aquarius makes you seem different and interesting right away: people perceive you as someone out of the ordinary, even though you're just being yourself.",
+  "piscis":"Your Ascendant in Pisces projects sensitivity and a diffuse warmth: people perceive you as dreamy and kind from the start, even though inside you process more than you show."
+};
+
+function loadNatal(){
+  try{ return JSON.parse(localStorage.getItem('zc_natal') || 'null'); }catch(e){ return null; }
+}
+function saveNatal(data){ localStorage.setItem('zc_natal', JSON.stringify(data)); }
+function resetNatal(){
+  localStorage.removeItem('zc_natal');
+  renderCartaScreen();
+}
+
+function renderCartaScreen(){
+  const el = document.getElementById('screen-carta');
+  const natal = loadNatal();
+  if(!natal){
+    el.innerHTML = natalFormHTML() + compatLinkHTML();
+    populateCitySelect();
+  } else {
+    el.innerHTML = natalResultHTML(natal) + compatLinkHTML();
+  }
+}
+
+function compatLinkHTML(){
+  return `<span class="compat-link" onclick="showScreen('compat')">&#128149; See sign compatibility</span>`;
+}
+
+function natalFormHTML(){
+  return `
+    <div class="natal-form">
+      <p class="grid-label" style="margin:0 0 6px;">Your real birth chart</p>
+      <p class="natal-note" style="margin-top:0;">With your birth date, time, and place we calculate your real Sun, Moon, and Ascendant — not just your sun sign.</p>
+      <div class="natal-field">
+        <label>Date of birth</label>
+        <input type="date" id="natalDate">
+      </div>
+      <div class="natal-field">
+        <label>Time of birth (as exact as possible)</label>
+        <input type="time" id="natalTime">
+      </div>
+      <div class="natal-field">
+        <label>City of birth</label>
+        <select id="natalCity"></select>
+      </div>
+      <button class="natal-submit" onclick="submitNatal()">Calculate my chart</button>
+      <p class="natal-error" id="natalError"></p>
+      <p class="natal-note">Approximate astronomical calculation (doesn't adjust for each city's historical daylight-saving changes). Your data is saved only in this browser.</p>
+    </div>`;
+}
+
+function populateCitySelect(){
+  const sel = document.getElementById('natalCity');
+  if(!sel) return;
+  const byCountry = {};
+  CITIES.forEach((city, idx)=>{
+    if(!byCountry[city.c]) byCountry[city.c] = [];
+    byCountry[city.c].push(idx);
+  });
+  let html = '<option value="">Select your city</option>';
+  Object.keys(byCountry).forEach(country=>{
+    html += `<optgroup label="${country}">`;
+    byCountry[country].forEach(idx=>{
+      html += `<option value="${idx}">${CITIES[idx].n}</option>`;
+    });
+    html += '</optgroup>';
+  });
+  sel.innerHTML = html;
+}
+
+function submitNatal(){
+  const dateVal = document.getElementById('natalDate').value;
+  const timeVal = document.getElementById('natalTime').value;
+  const cityVal = document.getElementById('natalCity').value;
+  const errorEl = document.getElementById('natalError');
+  if(!dateVal || !timeVal || cityVal === ''){
+    errorEl.textContent = 'Fill in date, time, and city to calculate your chart.';
+    errorEl.style.display = 'block';
+    return;
+  }
+  errorEl.style.display = 'none';
+  const city = CITIES[Number(cityVal)];
+  const [y, m, d] = dateVal.split('-').map(Number);
+  const [hh, mi] = timeVal.split(':').map(Number);
+  const chart = computeNatalChart(y, m, d, hh, mi, city.utc, city.lat, city.lon);
+  saveNatal({ date: dateVal, time: timeVal, city: city.n, country: city.c, chart: chart });
+  renderCartaScreen();
+}
+
+function natalResultHTML(natal){
+  const s = natal.chart.sun.sign, mo = natal.chart.moon.sign, a = natal.chart.ascendant.sign;
+  return `
+    <p class="grid-label" style="margin:18px 0 4px 16px;">Your Big Three</p>
+    <div class="natal-result-card">
+      <div class="nr-head"><span class="sym">${DATA[s].sym}</span><div><div class="title">Sun</div><div class="signname">${DATA[s].nm}</div></div></div>
+      <p>${SUN_DESC[s]}</p>
+    </div>
+    <div class="natal-result-card">
+      <div class="nr-head"><span class="sym">${DATA[mo].sym}</span><div><div class="title">Moon</div><div class="signname">${DATA[mo].nm}</div></div></div>
+      <p>${MOON_DESC[mo]}</p>
+    </div>
+    <div class="natal-result-card">
+      <div class="nr-head"><span class="sym">${DATA[a].sym}</span><div><div class="title">Ascendant</div><div class="signname">${DATA[a].nm}</div></div></div>
+      <p>${ASC_DESC[a]}</p>
+    </div>
+    <span class="natal-edit" onclick="resetNatal()">Edit my birth details</span>
+  `;
+}
+
+/* ================= Compatibilidad de signos =================
+   Compatibilidad basada en los 4 elementos astrologicos (fuego, tierra,
+   aire, agua). El porcentaje varia un poco segun la pareja exacta de
+   signos (usando sus nombres como semilla) para que no se sienta
+   identico entre distintos pares del mismo elemento. Es gratis y
+   pensada para compartirse. */
+const SIGN_ELEMENT = {
+  aries:'fire', leo:'fire', sagitario:'fire',
+  tauro:'earth', virgo:'earth', capricornio:'earth',
+  geminis:'air', libra:'air', acuario:'air',
+  cancer:'water', escorpio:'water', piscis:'water'
+};
+const ELEMENT_BASE_PCT = {
+  'fire-fire':82, 'earth-earth':80, 'air-air':78, 'water-water':83,
+  'air-fire':88, 'earth-water':85,
+  'earth-fire':55, 'fire-water':45, 'air-earth':50, 'air-water':48
+};
+const ELEMENT_TEXT = {
+  'fire-fire':'Two fires together are pure passion: fast, intense, unfiltered. The spark never fades — the challenge is not burning out competing for the spotlight.',
+  'earth-earth':'Here love is built with actions, not words. Stability, loyalty, and long-term plans. The risk is falling into routine if neither of you proposes anything new.',
+  'air-air':'Instant mental connection — you speak the same language and never get bored. Emotional depth is sometimes missing: watch out for staying only in theory.',
+  'water-water':'A deep, almost telepathic emotional connection. You understand each other without words. The challenge is not drowning together in the same wave of sensitivity.',
+  'air-fire':'Air feeds fire: one of the most magnetic combinations in the zodiac. One inspires, the other ignites. Dynamic, fun, and hard to put out.',
+  'earth-water':'Earth holds water and water nourishes earth — a natural balance. Tenderness, mutual care, and a real sense of home.',
+  'earth-fire':'Fire wants to move, earth wants to stay still. It can work if both learn to adapt their pace — patience is the key here.',
+  'fire-water':'Fire evaporates water, water puts out fire. Intense but volatile attraction: when it works it transforms, when it doesn’t it exhausts you both.',
+  'air-earth':'Earth needs firmness, air needs freedom — they clash in pace. With honest communication they can complement each other more than it seems.',
+  'air-water':'Water feels, air thinks — they speak different emotional languages. With patience, air brings clarity and water brings depth.'
+};
+function elementKey(a, b){
+  return [SIGN_ELEMENT[a], SIGN_ELEMENT[b]].sort().join('-');
+}
+function getCompatibility(a, b){
+  const key = elementKey(a, b);
+  const base = ELEMENT_BASE_PCT[key];
+  const seed = [a, b].sort().join('-');
+  let hash = 0;
+  for(let i = 0; i < seed.length; i++) hash = (hash * 31 + seed.charCodeAt(i)) % 1000;
+  const pct = Math.max(38, Math.min(97, base + (hash % 9) - 4));
+  return { pct, text: ELEMENT_TEXT[key] };
+}
+function signSelectOptions(selected){
+  return ORDER.map(s => `<option value="${s}" ${s === selected ? 'selected' : ''}>${DATA[s].sym} ${DATA[s].nm}</option>`).join('');
+}
+function renderCompatScreen(){
+  const el = document.getElementById('screen-compat');
+  if(!el) return;
+  el.innerHTML = `
+    <div class="natal-form">
+      <p class="grid-label" style="margin:0 0 6px;">Sign compatibility</p>
+      <p class="natal-note" style="margin-top:0;">Pick two signs and see how well the energy flows between you.</p>
+      <div class="natal-field">
+        <label>Your sign</label>
+        <select id="compatA">${signSelectOptions(currentSign || 'aries')}</select>
+      </div>
+      <div class="natal-field">
+        <label>The other sign</label>
+        <select id="compatB">${signSelectOptions('leo')}</select>
+      </div>
+      <button class="natal-submit" onclick="submitCompat()">See compatibility</button>
+    </div>
+    <div id="compatResult"></div>
+  `;
+}
+function submitCompat(){
+  const a = document.getElementById('compatA').value;
+  const b = document.getElementById('compatB').value;
+  const { pct, text } = getCompatibility(a, b);
+  document.getElementById('compatResult').innerHTML = `
+    <div class="compat-symbols">
+      <span class="sym">${DATA[a].sym}</span>
+      <span class="heart">&#10084;</span>
+      <span class="sym">${DATA[b].sym}</span>
+    </div>
+    <div class="compat-pct">${pct}<span>%</span></div>
+    <p class="compat-names">${DATA[a].nm} + ${DATA[b].nm}</p>
+    <div class="natal-result-card"><p>${text}</p></div>
+    <div class="save-row" style="justify-content:center;">
+      <button class="save-btn" onclick="shareCompat('${a}','${b}')">Share &#10554;</button>
+    </div>
+  `;
+}
+async function shareCompat(a, b){
+  const { pct, text } = getCompatibility(a, b);
+  const blob = await buildShareCanvas({
+    symbol: DATA[a].sym,
+    symbol2: DATA[b].sym,
+    percent: pct,
+    title: (DATA[a].nm + ' + ' + DATA[b].nm).toUpperCase(),
+    subtitle: 'COMPATIBILITY',
+    body: text
+  });
+  shareImageBlob(blob, `quantum-zodiac-compatibility-${a}-${b}.png`);
+}
+</script>
+
+<div class="paywall-modal" id="paywallModal">
+  <div class="paywall-modal-card">
+    <button class="paywall-close" onclick="closePaywall()">&#10005;</button>
+    <div class="paywall-modal-icon">&#10022;</div>
+    <h3>Unlock your full Quantum Zodiac</h3>
+    <p class="paywall-modal-sub">Access to all 12 signs, weekly readings, and guided rituals every week.</p>
+
+    <div class="tabs plan-tabs">
+      <button class="tab-btn" id="planTabMonthly" onclick="selectPlan('monthly')">Monthly</button>
+      <button class="tab-btn" id="planTabAnnual" onclick="selectPlan('annual')">Annual <span class="plan-save">-40%</span></button>
+    </div>
+
+    <div class="plan-price"><span class="amount" id="planAmount">$6.99</span><span class="cycle" id="planCycle">&nbsp;USD/mo</span></div>
+    <a class="subscribe-cta" id="subscribeCta" href="https://pay.hotmart.com/N107698037H" target="_blank" rel="noopener">Subscribe now</a>
+    <p class="paywall-fine">Cancel anytime. Secure payment processed by Hotmart.</p>
+
+    <p class="paywall-divider">&mdash; already paid &mdash;</p>
+    <div class="natal-field" style="text-align:left;">
+      <label for="paywallEmail">Email you purchased with</label>
+      <input type="email" id="paywallEmail" placeholder="youremail@example.com" autocomplete="email">
+    </div>
+    <button class="natal-submit" id="paywallEmailBtn" onclick="submitPaywallEmail()">I already paid, unlock</button>
+    <p class="natal-error" id="paywallEmailError"></p>
+  </div>
+</div>
+
+</body>
+</html>
