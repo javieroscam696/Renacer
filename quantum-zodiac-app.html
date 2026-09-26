@@ -759,7 +759,7 @@
     margin:0 auto;
     border-radius:16px;
     border:1px solid var(--gold);
-    background-image:url('assets/tarot/reverso.jpg');
+    background-image:url('assets/tarot/reverso-en.jpg');
     background-size:cover;
     background-position:center;
     cursor:pointer;
@@ -1131,7 +1131,7 @@ function renderWeeklyButtons(){
       <div class="paywall-block" style="border-top:none;">
         <div class="lock-icon">&#128274;</div>
         <p class="paywall-text">${label} for the week are for Quantum Zodiac members.</p>
-        <button class="subscribe-btn" onclick="openPaywall()">Unlock for $6.99/mo</button>
+        <button class="subscribe-btn" onclick="openPaywall()">Unlock for $9.99/mo</button>
       </div>`;
     return;
   }
@@ -1266,8 +1266,8 @@ function renderPlaylistPlayer(type, item, list, body){
 }
 
 const PLANS = {
-  monthly: { amount: '$6.99', cycle: ' USD/mo', link: 'https://pay.hotmart.com/N107698037H' },
-  annual:  { amount: '$49.99', cycle: ' USD/yr', link: 'https://pay.hotmart.com/N107698037H' },
+  monthly: { amount: '$9.99', cycle: ' USD/mo', link: 'https://pay.hotmart.com/N107698037H' },
+  annual:  { amount: '$69.99', cycle: ' USD/yr', link: 'https://pay.hotmart.com/N107698037H' },
 };
 let selectedPlan = 'annual';
 
@@ -1636,7 +1636,7 @@ function renderPanel(){
       <div class="paywall-block">
         <div class="lock-icon">&#128274;</div>
         <p class="paywall-text">This full reading is for Quantum Zodiac members.</p>
-        <button class="subscribe-btn" onclick="openPaywall()">Unlock for $6.99/mo</button>
+        <button class="subscribe-btn" onclick="openPaywall()">Unlock for $9.99/mo</button>
       </div>`;
   } else if(currentTab === 'daily'){
     const entry = getDailyEntry(currentSign);
@@ -2370,7 +2370,7 @@ async function shareCompat(a, b){
       <button class="tab-btn" id="planTabAnnual" onclick="selectPlan('annual')">Annual <span class="plan-save">-40%</span></button>
     </div>
 
-    <div class="plan-price"><span class="amount" id="planAmount">$6.99</span><span class="cycle" id="planCycle">&nbsp;USD/mo</span></div>
+    <div class="plan-price"><span class="amount" id="planAmount">$9.99</span><span class="cycle" id="planCycle">&nbsp;USD/mo</span></div>
     <a class="subscribe-cta" id="subscribeCta" href="https://pay.hotmart.com/N107698037H" target="_blank" rel="noopener">Subscribe now</a>
     <p class="paywall-fine">Cancel anytime. Secure payment processed by Hotmart.</p>
 
