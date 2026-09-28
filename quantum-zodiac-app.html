@@ -496,6 +496,14 @@
     display:block;
     object-fit:cover;
   }
+  /* In fullscreen, ignore the fixed vertical ratio (9:16) so the video
+     doesn't stretch off-screen and appear cropped. */
+  video:fullscreen, video:-webkit-full-screen, video:-moz-full-screen{
+    width:100% !important;
+    height:100% !important;
+    aspect-ratio:auto !important;
+    object-fit:contain !important;
+  }
   .video-label{
     padding:12px 16px 4px;
     font-size:12px;
@@ -871,6 +879,59 @@
 </div>
 
 <script>
+// Don't let video and audio play at once: starting any video or audio
+// pauses anything else that was already playing (including the embedded
+// YouTube video, which is controlled separately via its API).
+let introYtPlayer = null;
+function pauseAllNativeMedia(exceptEl){
+  document.querySelectorAll('video, audio').forEach(function(el){
+    if(el !== exceptEl && !el.paused) el.pause();
+  });
+}
+function pauseIntroYouTube(){
+  if(introYtPlayer && typeof introYtPlayer.pauseVideo === 'function'){
+    try{
+      if(introYtPlayer.getPlayerState && introYtPlayer.getPlayerState() === 1) introYtPlayer.pauseVideo();
+    }catch(e){}
+  }
+}
+document.addEventListener('play', function(e){
+  const playing = e.target;
+  if(playing.tagName !== 'VIDEO' && playing.tagName !== 'AUDIO') return;
+  pauseAllNativeMedia(playing);
+  pauseIntroYouTube();
+}, true);
+
+function loadYouTubeIframeApi(){
+  if(window.YT && window.YT.Player) return Promise.resolve();
+  if(window.__ytApiPromise) return window.__ytApiPromise;
+  window.__ytApiPromise = new Promise(function(resolve){
+    const prevCb = window.onYouTubeIframeAPIReady;
+    window.onYouTubeIframeAPIReady = function(){
+      if(prevCb) prevCb();
+      resolve();
+    };
+    const tag = document.createElement('script');
+    tag.src = 'https://www.youtube.com/iframe_api';
+    document.head.appendChild(tag);
+  });
+  return window.__ytApiPromise;
+}
+
+function wireIntroYouTubePlayer(){
+  loadYouTubeIframeApi().then(function(){
+    const el = document.getElementById('introYtFrame');
+    if(!el) return;
+    introYtPlayer = new YT.Player('introYtFrame', {
+      events: {
+        onStateChange: function(ev){
+          if(ev.data === YT.PlayerState.PLAYING) pauseAllNativeMedia(null);
+        }
+      }
+    });
+  });
+}
+
 const DATA = {
   aries:{sym:'♈', nm:'Aries', intro:'Attention Aries, ready to unleash your potential across every dimension. This quantum horoscope isn’t just what’s going to happen — it’s what you’re going to make happen. You’re a natural-born pioneer — get ready to leap into your best timeline. Hit play and manifest your destiny.',
     daily:[{text:"Today your drive is strong, but not every impulse comes from your creative power — sometimes it comes from fear dressed up as action. Before you move, choose which one you're acting from.",q:"Is this rush my fire, or my anxiety?"},{text:"You want to start something new today, and that's fine — but notice if it's genuine enthusiasm or the need to escape something you don't want to feel.",q:"What am I running from by disguising it as a new project?"},{text:"Today's anger isn't the problem; it's information about a boundary you haven't spoken out loud. Before you explode, name the boundary that's missing.",q:"What boundary have I been putting off so I don't make things uncomfortable?"},{text:"Competing fires you up, but today the victory that truly counts is the one that needs no witnesses. No one has to see you win for it to be real.",q:"Who am I competing for today?"},{text:"Today's impatience isn't a flaw to fix, it's energy without a clear direction. Give it a concrete target before it turns into frustration.",q:"Where am I pointing this energy?"},{text:"When something doesn't move at your pace, your first instinct is to force it. Today try the opposite: let go of control for a second and see what resolves itself.",q:"What happens if I don't push today?"},{text:"Today's courage can be born from your power or from not wanting to feel weak in front of someone. Only you know which one is driving.",q:"Am I being brave, or am I avoiding looking vulnerable?"}],
@@ -1053,8 +1114,10 @@ function renderIntroVideo(){
   const current = INTRO_VIDEOS[introVideoIndex];
   const ytMatch = current.url.match(/(?:youtube\.com\/(?:shorts\/|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   let mediaHtml;
+  introYtPlayer = null;
   if(ytMatch){
-    mediaHtml = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" title="${current.title}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%;aspect-ratio:9/16;border:0;display:block;"></iframe>`;
+    const origin = encodeURIComponent(window.location.origin);
+    mediaHtml = `<iframe id="introYtFrame" src="https://www.youtube.com/embed/${ytMatch[1]}?enablejsapi=1&origin=${origin}" title="${current.title}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%;aspect-ratio:9/16;border:0;display:block;"></iframe>`;
   } else {
     mediaHtml = `<video src="${current.url}" controls playsinline style="width:100%;aspect-ratio:9/16;display:block;background:#000;"></video>`;
   }
@@ -1065,6 +1128,7 @@ function renderIntroVideo(){
     ).join('')}</div>`;
   }
   area.innerHTML = `<div class="video-card">${mediaHtml}</div>${listHtml}`;
+  if(ytMatch) wireIntroYouTubePlayer();
   area.querySelectorAll('.weekly-track-pill').forEach(btn=>{
     btn.addEventListener('click', ()=>{
       introVideoIndex = Number(btn.dataset.i);
@@ -1211,9 +1275,11 @@ function wireWeeklyAudioCard(item){
     curTime.textContent = fmt(audioEl.currentTime);
   };
   audioEl.onended = ()=>{ weeklyStep(1); };
+  audioEl.onplay = ()=>{ playBtn.innerHTML = '&#10073;&#10073;'; };
+  audioEl.onpause = ()=>{ playBtn.innerHTML = '&#9654;'; };
   playBtn.onclick = ()=>{
-    if(audioEl.paused){ audioEl.play(); playBtn.innerHTML = '&#10073;&#10073;'; }
-    else { audioEl.pause(); playBtn.innerHTML = '&#9654;'; }
+    if(audioEl.paused){ audioEl.play(); }
+    else { audioEl.pause(); }
   };
   track.onclick = (e)=>{
     const rect = track.getBoundingClientRect();
