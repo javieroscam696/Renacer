@@ -871,6 +871,16 @@
 </div>
 
 <script>
+// Que no suenen video y audio al mismo tiempo: al reproducir cualquier
+// video o audio, pausa cualquier otro que ya estuviera sonando.
+document.addEventListener('play', function(e){
+  const playing = e.target;
+  if(playing.tagName !== 'VIDEO' && playing.tagName !== 'AUDIO') return;
+  document.querySelectorAll('video, audio').forEach(function(el){
+    if(el !== playing && !el.paused) el.pause();
+  });
+}, true);
+
 const DATA = {
   aries:{sym:'♈', nm:'Aries', intro:'Atención Aries, listo para desatar tu potencial en todas las dimensiones. Este horóscopo cuántico no es solo lo que va a pasar, es lo que tú vas a hacer que pase. Eres un pionero por naturaleza — prepárate para saltar a tu mejor línea temporal. Dale play y manifiesta tu destino.',
     daily:[{text:"Hoy tu impulso es fuerte, pero no todo impulso viene de tu poder creador — a veces viene del miedo disfrazado de acción. Antes de moverte, elige desde cuál de los dos estás actuando.",q:"¿Esta prisa es mi fuego, o es mi ansiedad?"},{text:"Quieres empezar algo nuevo hoy, y eso está bien — pero fíjate si es entusiasmo genuino o la necesidad de escapar de algo que no quieres sentir.",q:"¿De qué estoy huyendo disfrazándolo de proyecto nuevo?"},{text:"Tu enojo de hoy no es el problema; es información sobre un límite que no has puesto en voz alta. Antes de explotar, nombra qué límite falta.",q:"¿Qué límite llevo posponiendo por no incomodar?"},{text:"Competir te activa, pero hoy la victoria que de verdad cuenta es la que no necesita testigos. Nadie tiene que verte ganar para que haya sido real.",q:"¿Para quién estoy compitiendo hoy?"},{text:"La impaciencia de hoy no es un defecto que corregir, es energía sin dirección clara. Dale un blanco concreto antes de que se convierta en frustración.",q:"¿Hacia dónde estoy apuntando esta energía?"},{text:"Cuando algo no sale a tu ritmo, tu primer impulso es forzarlo. Hoy prueba lo contrario: suelta el control un segundo y mira qué se resuelve solo.",q:"¿Qué pasa si hoy no empujo?"},{text:"Tu valentía de hoy puede nacer de tu poder o de no querer sentirte débil frente a alguien. Solo tú sabes cuál de las dos está manejando el volante.",q:"¿Estoy siendo valiente o estoy evitando verme vulnerable?"}],
@@ -1213,9 +1223,11 @@ function wireWeeklyAudioCard(item){
     curTime.textContent = fmt(audioEl.currentTime);
   };
   audioEl.onended = ()=>{ weeklyStep(1); };
+  audioEl.onplay = ()=>{ playBtn.innerHTML = '&#10073;&#10073;'; };
+  audioEl.onpause = ()=>{ playBtn.innerHTML = '&#9654;'; };
   playBtn.onclick = ()=>{
-    if(audioEl.paused){ audioEl.play(); playBtn.innerHTML = '&#10073;&#10073;'; }
-    else { audioEl.pause(); playBtn.innerHTML = '&#9654;'; }
+    if(audioEl.paused){ audioEl.play(); }
+    else { audioEl.pause(); }
   };
   track.onclick = (e)=>{
     const rect = track.getBoundingClientRect();
