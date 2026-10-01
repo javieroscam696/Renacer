@@ -1371,6 +1371,15 @@ function renderPlanUI(){
   document.getElementById('subscribeCta').href = p.link;
 }
 
+document.addEventListener('click', (e)=>{
+  if(e.target && e.target.id === 'subscribeCta'){
+    const p = PLANS[selectedPlan];
+    if(typeof fbq === 'function'){
+      fbq('track', 'InitiateCheckout', { value: parseFloat(p.amount.replace('$','')), currency: 'USD', content_name: selectedPlan });
+    }
+  }
+});
+
 function openPaywall(){
   renderPlanUI();
   document.getElementById('paywallModal').classList.add('open');
