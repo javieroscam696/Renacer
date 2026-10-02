@@ -1413,12 +1413,20 @@ function renderPlaylistPlayer(type, item, list, body){
   if(ytMatch){
     mediaHtml = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" title="${item.title}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%;aspect-ratio:9/16;border:0;border-radius:14px;display:block;"></iframe>`;
   } else if(type === 'video'){
-    mediaHtml = `<video src="${item.url}" controls autoplay playsinline style="width:100%;border-radius:14px;display:block;"></video>`;
+    mediaHtml = `<video id="playlistMediaEl" src="${item.url}" controls autoplay playsinline style="width:100%;border-radius:14px;display:block;"></video>`;
   } else {
-    mediaHtml = `<audio src="${item.url}" controls autoplay style="width:100%;"></audio>`;
+    mediaHtml = `<audio id="playlistMediaEl" src="${item.url}" controls autoplay style="width:100%;"></audio>`;
   }
   body.innerHTML = `<button class="playlist-back" id="playlistBack">&larr; Back to list</button><p class="playlist-title">${item.title}</p>${mediaHtml}`;
   document.getElementById('playlistBack').addEventListener('click', ()=> renderPlaylist(type, list, body));
+  const mediaEl = document.getElementById('playlistMediaEl');
+  if(mediaEl){
+    mediaEl.addEventListener('ended', ()=>{
+      const idx = list.indexOf(item);
+      const next = list[(idx + 1) % list.length];
+      renderPlaylistPlayer(type, next, list, body);
+    });
+  }
 }
 
 const PLANS = {
