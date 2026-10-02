@@ -1001,14 +1001,65 @@ function dayOfYear(d){
 function weekOfYear(d){
   return Math.floor(dayOfYear(d) / 7);
 }
+// Banco compartido de ley de asuncion: entra en juego cuando se agota el
+// pool propio de un signo, para que tarde mucho mas en repetirse. Cada
+// signo arranca en un punto distinto de este banco (via su posicion en
+// ORDER) para que dos signos no vean lo mismo el mismo dia.
+const SHARED_DAILY = [
+  {text:"Lo que repites en silencio cuando nadie te escucha es más poderoso que lo que dices en voz alta. Esa es la oración que de verdad se cumple.",q:"¿Qué me digo cuando creo que no cuenta?"},
+  {text:"No esperas a que cambien las pruebas para sentirte distinto: cambias el sentimiento y las pruebas se reacomodan después.",q:"¿Estoy esperando evidencia, o ya elegí el sentimiento?"},
+  {text:"La gratitud de hoy no es por lo que ya tienes: es la prueba de que ya diste algo por hecho antes de verlo.",q:"¿Por qué podría agradecer hoy como si ya fuera mío?"},
+  {text:"El mundo no te está probando: te está devolviendo exactamente la frecuencia que sostienes cuando no estás mirando.",q:"¿Qué frecuencia sostengo cuando creo que nadie mide?"},
+  {text:"No se trata de pensar en positivo: se trata de sentir desde el final, aunque el presente diga lo contrario.",q:"¿Estoy pensando bien, o sintiendo desde el final?"},
+  {text:"Cada vez que explicas por qué algo no se puede, le das más realidad a la imposibilidad que a tu deseo.",q:"¿A quién le estoy dando más atención: a la duda o al deseo?"},
+  {text:"Dormir repitiendo una escena ya cumplida programa tu noche distinto a dormir repasando lo que salió mal.",q:"¿Con qué escena me voy a dormir hoy?"},
+  {text:"No necesitas convencer a nadie de tu cambio. Solo necesitas dejar de necesitar que lo note alguien más.",q:"¿Para quién estoy cambiando, en el fondo?"},
+  {text:"La paciencia real no es esperar el resultado: es dejar de dudar mientras el resultado llega.",q:"¿Estoy esperando con fe o esperando con miedo?"},
+  {text:"Cuando algo se siente inevitable por dentro, deja de importar cuánto tarde en aparecer por fuera.",q:"¿Qué se siente inevitable en mí hoy?"},
+  {text:"La queja repetida no es desahogo: es una asunción diaria que sigues regando sin darte cuenta.",q:"¿Qué estoy regando sin querer con mis palabras?"},
+  {text:"No hace falta que el mundo entero cambie de opinión sobre ti. Hace falta que tú dejes de pedirle permiso.",q:"¿A quién le sigo pidiendo permiso para ser quien ya soy?"},
+  {text:"Un deseo cumplido no se persigue, se habita. La persecución es la forma en que la mente confiesa que todavía no cree.",q:"¿Estoy persiguiendo o habitando lo que quiero?"},
+  {text:"El \"todavía no\" que repites cada día no describe tu realidad: la está construyendo.",q:"¿Qué \"todavía no\" repito sin darme cuenta?"},
+  {text:"Nadie tiene que confirmar tu valor antes de que tú lo sientas. Esperar esa señal es posponer indefinidamente.",q:"¿Qué señal externa estoy esperando que ya podría darme yo?"},
+  {text:"Cambiar de opinión sobre ti mismo a mitad del día deshace lo que empezaste a construir en la mañana.",q:"¿Sostuve hoy la misma versión de mí todo el día?"},
+  {text:"El detalle que te irrita del mundo de afuera casi siempre es un espejo de algo que no te perdonas por dentro.",q:"¿Qué me irrita afuera que en realidad es mío?"},
+  {text:"No es que el universo tarde: es que seguimos revisando si ya llegó, y cada revisión reinicia la espera.",q:"¿Cuántas veces reviso hoy si \"ya pasó\"?"},
+  {text:"Una idea sostenida sin ansiedad se mueve más rápido que una idea perseguida con desesperación.",q:"¿Sostengo esto con calma o con urgencia?"},
+  {text:"El cuerpo también asume: la postura que mantienes hoy le está diciendo a tu mente qué tan cierto es lo que piensas.",q:"¿Mi cuerpo hoy confirma o contradice lo que digo creer?"},
+  {text:"No hay una versión \"realista\" de ti esperando afuera. Hay la versión que decides sostener hasta que se vuelve la única que ves.",q:"¿Cuál versión mía estoy sosteniendo hoy?"},
+  {text:"Agradecer antes de tiempo no es ingenuidad: es la forma más directa de dejar de pedir y empezar a recibir.",q:"¿Qué podría agradecer hoy sin que aún se vea?"},
+  {text:"El miedo a \"ilusionarme\" es solo otra forma de seguir sosteniendo la carencia por si acaso.",q:"¿Qué estoy protegiendo al no permitirme creer del todo?"},
+  {text:"No tienes que convencer a tu mente de golpe. Basta con que hoy no discutas tanto con lo que quieres sentir.",q:"¿Con qué parte de mi deseo discuto hoy?"},
+  {text:"La prueba que pides para creer es la misma prueba que tu duda usa para no dejarte creer antes.",q:"¿Qué prueba estoy pidiendo que en realidad es una excusa?"},
+  {text:"Cuando algo bueno llega, la mente entrenada en falta busca el \"pero\". Hoy practica dejar que sea simplemente bueno.",q:"¿Dónde le busco el \"pero\" a algo que ya está bien?"},
+  {text:"Nadie te quita lo que ya asumiste como tuyo. Solo tú puedes soltarlo dudando en voz baja.",q:"¿Qué estoy a punto de soltar solo por dudar?"},
+  {text:"La diferencia entre desear y asumir es que el deseo todavía mira hacia afuera buscando permiso.",q:"¿Estoy deseando esto o ya lo asumí?"},
+  {text:"No necesitas sentirte listo para merecerlo. El merecimiento no se gana, se decide.",q:"¿Qué estoy posponiendo hasta \"sentirme listo\"?"},
+  {text:"Repetir una afirmación sin sentirla es como tocar una puerta cerrada: hace ruido, pero no abre nada.",q:"¿Siento lo que digo, o solo lo repito?"},
+  {text:"El silencio antes de dormir es el momento más honesto del día: ahí se revela qué asumes de verdad.",q:"¿Qué pienso justo antes de dormir, sin querer?"},
+  {text:"No se trata de forzar que el mundo coincida con tu deseo. Se trata de dejar de forzar que tu deseo coincida con el mundo.",q:"¿A cuál de los dos le estoy pidiendo que ceda?"},
+  {text:"Una asunción sostenida en calma cambia más que mil intentos hechos desde la urgencia.",q:"¿Desde dónde estoy sosteniendo esto hoy: calma o urgencia?"},
+  {text:"El \"cómo\" no es tu trabajo. Tu trabajo es sentir que ya es, y dejar que el cómo se resuelva solo.",q:"¿Cuánto tiempo paso hoy resolviendo el \"cómo\" en vez de sintiendo el \"ya es\"?"},
+  {text:"La envidia que sientes hoy es información: te señala exactamente qué estado todavía no te has permitido asumir.",q:"¿Qué me señala la envidia de hoy?"},
+  {text:"No hay una fecha límite para empezar a sentirte distinto. Cada minuto es una nueva oportunidad de elegir el estado.",q:"¿Qué estado elijo a partir de este minuto?"},
+  {text:"El pasado solo pesa si sigues dándole el presente para que se repita.",q:"¿Qué parte de ayer le estoy prestando a hoy?"},
+  {text:"No necesitas que la gente cambie para sentirte en paz. Necesitas dejar de medir tu paz con su comportamiento.",q:"¿De quién depende hoy mi tranquilidad?"},
+  {text:"Una sola noche sintiendo el deseo cumplido pesa más que un mes de pensarlo con ansiedad.",q:"¿Cuánto tiempo hoy voy a dedicarle a sentir, no solo a pensar?"},
+  {text:"El universo no mide tu fe por lo que dices creer, sino por cómo actúas cuando nadie corrige tu duda.",q:"¿Cómo actúo cuando nadie me está viendo dudar?"}
+];
 function getDailyIndex(sign){
-  return dayOfYear(new Date()) % DATA[sign].daily.length;
+  const ownLen = DATA[sign].daily.length;
+  const totalLen = ownLen + SHARED_DAILY.length;
+  const signOffset = ORDER.indexOf(sign) * 7;
+  return (dayOfYear(new Date()) + signOffset) % totalLen;
 }
 function getWeeklyIndex(sign){
   return weekOfYear(new Date()) % DATA[sign].weekly.length;
 }
 function getDailyEntry(sign){
-  return DATA[sign].daily[getDailyIndex(sign)];
+  const idx = getDailyIndex(sign);
+  const ownLen = DATA[sign].daily.length;
+  return idx < ownLen ? DATA[sign].daily[idx] : SHARED_DAILY[idx - ownLen];
 }
 function getWeeklyEntry(sign){
   return DATA[sign].weekly[getWeeklyIndex(sign)];
