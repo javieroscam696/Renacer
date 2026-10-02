@@ -1220,10 +1220,17 @@ function renderIntroVideo(){
 
 // Contenido semanal general (no por signo): un video y un audio nuevos cada
 // semana, para todos los suscriptores por igual. Para publicar uno nuevo,
-// agrega un objeto arriba de todo en la lista correspondiente (el mas
-// reciente queda primero) con un titulo y la URL del archivo (o un link de
-// YouTube). Ejemplo:
-//   { title: 'Semana del 30 de septiembre', url: 'assets/videos/2026-09-30.mp4' },
+// agrega un objeto a la lista correspondiente con un titulo, la URL del
+// archivo (o un link de YouTube) y opcionalmente "release": 'YYYY-MM-DD'
+// (el lunes en que debe desbloquearse). Un objeto sin "release" ya se
+// muestra desde ahora; uno con fecha futura queda oculto hasta ese dia,
+// sin que haya que tocar nada mas. El orden en el arreglo no importa.
+// Ejemplo:
+//   { title: 'Semana del 30 de septiembre', url: 'assets/videos/2026-09-30.mp4', release: '2026-09-30' },
+function filterReleased(list){
+  const today = todayStr();
+  return list.filter(item => !item.release || item.release <= today);
+}
 const WEEKLY_VIDEOS = [
   { title: 'I Am Abundance', url: 'assets/videos/semanal-en/soy-abundancia-432hz.mp4' },
   { title: 'Be The Evidence', url: 'assets/videos/semanal-en/se-la-evidencia-432hz.mp4' },
@@ -1283,7 +1290,7 @@ function renderWeeklyButtons(){
     return;
   }
 
-  const list = weeklyTab === 'video' ? WEEKLY_VIDEOS : WEEKLY_AUDIOS;
+  const list = filterReleased(weeklyTab === 'video' ? WEEKLY_VIDEOS : WEEKLY_AUDIOS);
   if(!list.length){
     const label = weeklyTab === 'video' ? 'videos' : 'audio tracks';
     area.innerHTML = `<p class="playlist-empty">No ${label} published this week yet. Check back soon.</p>`;
@@ -1372,7 +1379,7 @@ function wireWeeklyAudioCard(item){
 }
 
 function selectWeeklyIndex(i, autoplay){
-  const list = weeklyTab === 'video' ? WEEKLY_VIDEOS : WEEKLY_AUDIOS;
+  const list = filterReleased(weeklyTab === 'video' ? WEEKLY_VIDEOS : WEEKLY_AUDIOS);
   if(!list.length) return;
   weeklyIndex[weeklyTab] = ((i % list.length) + list.length) % list.length;
   renderWeeklyButtons();
@@ -1890,7 +1897,7 @@ function handleFrecuenciasNav(){
 }
 
 function renderFrecuenciasScreen(){
-  renderPlaylist('audio', FREQUENCIES, document.getElementById('frecuenciasBody'));
+  renderPlaylist('audio', filterReleased(FREQUENCIES), document.getElementById('frecuenciasBody'));
 }
 
 /* ================= Crear Abundancia (afirmaciones estilo Neville Goddard) =================
