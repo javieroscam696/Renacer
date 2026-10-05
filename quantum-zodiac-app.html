@@ -2438,12 +2438,20 @@ function natalFormHTML(){
       <p class="grid-label" style="margin:0 0 6px;">Your real birth chart</p>
       <p class="natal-note" style="margin-top:0;">With your birth date, time, and place we calculate your real Sun, Moon, and Ascendant — not just your sun sign.</p>
       <div class="natal-field">
-        <label>Date of birth (tap to pick it)</label>
-        <input type="date" id="natalDate">
+        <label>Date of birth</label>
+        <div style="display:flex;gap:8px;">
+          <input type="number" id="natalDay" placeholder="Day" min="1" max="31" inputmode="numeric" style="flex:1;">
+          <input type="number" id="natalMonth" placeholder="Month" min="1" max="12" inputmode="numeric" style="flex:1;">
+          <input type="number" id="natalYear" placeholder="Year" min="1900" max="2026" inputmode="numeric" style="flex:1.3;">
+        </div>
       </div>
       <div class="natal-field">
         <label>Time of birth (as exact as possible)</label>
-        <input type="time" id="natalTime">
+        <div style="display:flex;gap:8px;align-items:center;">
+          <input type="number" id="natalHour" placeholder="Hour" min="0" max="23" inputmode="numeric" style="flex:1;">
+          <span style="color:var(--text-muted);">:</span>
+          <input type="number" id="natalMinute" placeholder="Min" min="0" max="59" inputmode="numeric" style="flex:1;">
+        </div>
       </div>
       <div class="natal-field">
         <label>City of birth</label>
@@ -2475,19 +2483,26 @@ function populateCitySelect(){
 }
 
 function submitNatal(){
-  const dateVal = document.getElementById('natalDate').value;
-  const timeVal = document.getElementById('natalTime').value;
+  const dayVal = document.getElementById('natalDay').value;
+  const monthVal = document.getElementById('natalMonth').value;
+  const yearVal = document.getElementById('natalYear').value;
+  const hourVal = document.getElementById('natalHour').value;
+  const minuteVal = document.getElementById('natalMinute').value;
   const cityVal = document.getElementById('natalCity').value;
   const errorEl = document.getElementById('natalError');
-  if(!dateVal || !timeVal || cityVal === ''){
-    errorEl.textContent = 'Fill in date, time, and city to calculate your chart.';
+  const d = Number(dayVal), m = Number(monthVal), y = Number(yearVal);
+  const hh = Number(hourVal), mi = Number(minuteVal);
+  const validDate = dayVal && monthVal && yearVal && d >= 1 && d <= 31 && m >= 1 && m <= 12 && y >= 1900 && y <= 2026;
+  const validTime = hourVal !== '' && minuteVal !== '' && hh >= 0 && hh <= 23 && mi >= 0 && mi <= 59;
+  if(!validDate || !validTime || cityVal === ''){
+    errorEl.textContent = 'Fill in a valid date (day, month, year), time, and city to calculate your chart.';
     errorEl.style.display = 'block';
     return;
   }
   errorEl.style.display = 'none';
   const city = CITIES[Number(cityVal)];
-  const [y, m, d] = dateVal.split('-').map(Number);
-  const [hh, mi] = timeVal.split(':').map(Number);
+  const dateVal = `${yearVal}-${String(monthVal).padStart(2,'0')}-${String(dayVal).padStart(2,'0')}`;
+  const timeVal = `${String(hourVal).padStart(2,'0')}:${String(minuteVal).padStart(2,'0')}`;
   const chart = computeNatalChart(y, m, d, hh, mi, city.utc, city.lat, city.lon);
   saveNatal({ date: dateVal, time: timeVal, city: city.n, country: city.c, chart: chart });
   renderCartaScreen();
