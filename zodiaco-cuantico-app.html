@@ -1114,18 +1114,6 @@ let subscribedEmail = localStorage.getItem('zc_subscribed_email') || '';
 let saved = JSON.parse(localStorage.getItem('zc_saved') || '{}');
 let revealed = JSON.parse(localStorage.getItem('zc_revealed') || '{}');
 
-// Carta astral y compatibilidad son gratis solo los primeros 7 dias desde
-// la primera visita en este navegador; despues quedan detras del paywall.
-const TRIAL_DAYS = 7;
-let trialStart = Number(localStorage.getItem('zc_trialStart') || 0);
-if(!trialStart){
-  trialStart = Date.now();
-  localStorage.setItem('zc_trialStart', String(trialStart));
-}
-function isInTrial(){
-  return (Date.now() - trialStart) < TRIAL_DAYS * 24 * 60 * 60 * 1000;
-}
-
 async function checkSubscriptionActive(email){
   if(HOTMART_BRIDGE_URL.startsWith('REEMPLAZA_')) return null; // puente aun no conectado
   try{
@@ -1479,8 +1467,8 @@ function renderPlaylistPlayer(type, item, list, body){
 }
 
 const PLANS = {
-  monthly: { amount: '$6.99', cycle: ' USD/mes', link: 'https://pay.hotmart.com/N107698037H' },
-  annual:  { amount: '$49.99', cycle: ' USD/año', link: 'https://pay.hotmart.com/N107698037H' },
+  monthly: { amount: '$6.99', cycle: ' USD/mes', link: 'https://pay.hotmart.com/N107698037H?off=eq64x0v5' },
+  annual:  { amount: '$49.99', cycle: ' USD/año', link: 'https://pay.hotmart.com/N107698037H?off=up3xp4o0' },
 };
 let selectedPlan = 'annual';
 
@@ -1934,7 +1922,7 @@ function fmt(t){
    para una v2 de "carta completa"). Todo corre en el navegador, sin backend. */
 
 function showScreen(name){
-  if((name === 'carta' || name === 'compat') && !isSubscribed && !isInTrial()){
+  if((name === 'carta' || name === 'compat') && !isSubscribed){
     openPaywall();
     return;
   }
@@ -2634,7 +2622,7 @@ async function shareCompat(a, b){
     </div>
 
     <div class="plan-price"><span class="amount" id="planAmount">$6.99</span><span class="cycle" id="planCycle">&nbsp;USD/mes</span></div>
-    <a class="subscribe-cta" id="subscribeCta" href="https://pay.hotmart.com/N107698037H" target="_blank" rel="noopener">Suscribirme ahora</a>
+    <a class="subscribe-cta" id="subscribeCta" href="https://pay.hotmart.com/N107698037H?off=eq64x0v5" target="_blank" rel="noopener">Suscribirme ahora</a>
     <p class="paywall-fine">Cancelas cuando quieras. Pago seguro procesado por Hotmart.</p>
 
     <p class="paywall-divider">&mdash; ya pagu&eacute; &mdash;</p>
