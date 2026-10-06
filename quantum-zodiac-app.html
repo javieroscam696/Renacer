@@ -1114,18 +1114,6 @@ let subscribedEmail = localStorage.getItem('zc_subscribed_email') || '';
 let saved = JSON.parse(localStorage.getItem('zc_saved') || '{}');
 let revealed = JSON.parse(localStorage.getItem('zc_revealed') || '{}');
 
-// Birth chart and compatibility are free only for the first 7 days since the
-// first visit on this browser; after that they go behind the paywall too.
-const TRIAL_DAYS = 7;
-let trialStart = Number(localStorage.getItem('zc_trialStart') || 0);
-if(!trialStart){
-  trialStart = Date.now();
-  localStorage.setItem('zc_trialStart', String(trialStart));
-}
-function isInTrial(){
-  return (Date.now() - trialStart) < TRIAL_DAYS * 24 * 60 * 60 * 1000;
-}
-
 async function checkSubscriptionActive(email){
   if(HOTMART_BRIDGE_URL.startsWith('REEMPLAZA_')) return null; // puente aun no conectado
   try{
@@ -1933,7 +1921,7 @@ function fmt(t){
    para una v2 de "carta completa"). Todo corre en el navegador, sin backend. */
 
 function showScreen(name){
-  if((name === 'carta' || name === 'compat') && !isSubscribed && !isInTrial()){
+  if((name === 'carta' || name === 'compat') && !isSubscribed){
     openPaywall();
     return;
   }
