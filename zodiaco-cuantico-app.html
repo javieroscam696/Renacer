@@ -1340,6 +1340,9 @@ function renderWeeklyButtons(){
   area.querySelectorAll('.weekly-track-pill').forEach(btn=>{
     btn.addEventListener('click', ()=> selectWeeklyIndex(Number(btn.dataset.i), true));
   });
+
+  const activePill = area.querySelector('.weekly-track-pill.active');
+  if(activePill) activePill.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
 }
 
 function renderWeeklyVideoCard(item){
