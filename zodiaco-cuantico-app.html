@@ -1819,6 +1819,7 @@ async function shareImageBlob(blob, filename){
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 async function shareHoroscope(){
+  const shareWin = isMobileDevice() ? window.open('', '_blank') : null;
   const d = DATA[currentSign];
   const entry = currentTab === 'daily' ? getDailyEntry(currentSign) : getWeeklyEntry(currentSign);
   const blob = await buildShareCanvas({
@@ -1828,12 +1829,13 @@ async function shareHoroscope(){
     body: entry.text,
     reflection: entry.q || (entry.ritual ? ('Ritual: ' + entry.ritual) : '')
   });
-  shareImageBlob(blob, `zodiaco-cuantico-${currentSign}-${currentTab}.png`);
+  shareImageBlob(blob, `zodiaco-cuantico-${currentSign}-${currentTab}.png`, shareWin);
 }
 async function shareTarotCard(){
+  const shareWin = isMobileDevice() ? window.open('', '_blank') : null;
   const state = loadTarotState();
   const card = TAROT[state.lastCard];
-  if(!card) return;
+  if(!card){ if(shareWin) shareWin.close(); return; }
   let cardImg = null;
   try{ cardImg = await loadImageEl(card.img); }catch(e){}
   const blob = await buildShareCanvas({
@@ -1844,7 +1846,7 @@ async function shareTarotCard(){
     body: card.text,
     reflection: card.q
   });
-  shareImageBlob(blob, `zodiaco-cuantico-tarot-${state.lastCard}.png`);
+  shareImageBlob(blob, `zodiaco-cuantico-tarot-${state.lastCard}.png`, shareWin);
 }
 
 function renderPanel(){
@@ -2056,6 +2058,7 @@ function renderAbundanciaScreen(){
     </div>`;
 }
 async function shareAbundance(){
+  const shareWin = isMobileDevice() ? window.open('', '_blank') : null;
   const set = getAbundanceSet();
   const blob = await buildShareCanvas({
     symbol: '∞',
@@ -2063,7 +2066,7 @@ async function shareAbundance(){
     subtitle: 'AFIRMACIÓN DEL DÍA',
     lines: set.lines
   });
-  shareImageBlob(blob, `zodiaco-cuantico-abundancia.png`);
+  shareImageBlob(blob, `zodiaco-cuantico-abundancia.png`, shareWin);
 }
 
 /* ================= Carta del dia (juego de tarot + racha) =================
@@ -2598,6 +2601,7 @@ function submitCompat(){
   `;
 }
 async function shareCompat(a, b){
+  const shareWin = isMobileDevice() ? window.open('', '_blank') : null;
   const { pct, text } = getCompatibility(a, b);
   const blob = await buildShareCanvas({
     symbol: DATA[a].sym,
@@ -2607,7 +2611,7 @@ async function shareCompat(a, b){
     subtitle: 'COMPATIBILIDAD',
     body: text
   });
-  shareImageBlob(blob, `zodiaco-cuantico-compatibilidad-${a}-${b}.png`);
+  shareImageBlob(blob, `zodiaco-cuantico-compatibilidad-${a}-${b}.png`, shareWin);
 }
 </script>
 
