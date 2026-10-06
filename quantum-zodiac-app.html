@@ -1776,6 +1776,9 @@ async function buildShareCanvas({ symbol, symbol2, percent, cardImg, title, subt
 function isMobileDevice(){
   return matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 }
+function shareButtonLabel(){
+  return isMobileDevice() ? 'Share &#10554;' : 'Download &#10554;';
+}
 function openShareImageModal(blob){
   const url = URL.createObjectURL(blob);
   document.getElementById('shareImageImg').src = url;
@@ -1906,7 +1909,7 @@ function renderPanel(){
       ${locked ? '' : `
       <div class="save-row">
         <button class="save-btn ${isSaved?'saved':''}" onclick="toggleSave()">${isSaved ? 'Saved ✓' : 'Save reflection'}</button>
-        <button class="save-btn" onclick="shareHoroscope()">Share &#10554;</button>
+        <button class="save-btn" onclick="shareHoroscope()">${shareButtonLabel()}</button>
       </div>`}
     </div>`;
 }
@@ -2052,7 +2055,7 @@ function renderAbundanciaScreen(){
       ${set.lines.map(l => `<p class="abundance-line">${l}</p>`).join('')}
     </div>
     <div class="save-row" style="justify-content:center;">
-      <button class="save-btn" onclick="shareAbundance()">Share &#10554;</button>
+      <button class="save-btn" onclick="shareAbundance()">${shareButtonLabel()}</button>
     </div>`;
 }
 async function shareAbundance(){
@@ -2156,7 +2159,7 @@ function renderPatronScreen(){
           <p class="reflection">${card.q}</p>
         </div>
         <div class="save-row" style="justify-content:center;">
-          <button class="save-btn" onclick="shareTarotCard()">Share &#10554;</button>
+          <button class="save-btn" onclick="shareTarotCard()">${shareButtonLabel()}</button>
         </div>
         <p class="natal-note" style="text-align:center;">Come back tomorrow for your next card.</p>
       </div>`;
@@ -2647,7 +2650,7 @@ function submitCompat(){
     <p class="compat-names">${DATA[a].nm} + ${DATA[b].nm}</p>
     <div class="natal-result-card"><p>${text}</p></div>
     <div class="save-row" style="justify-content:center;">
-      <button class="save-btn" onclick="shareCompat('${a}','${b}')">Share &#10554;</button>
+      <button class="save-btn" onclick="shareCompat('${a}','${b}')">${shareButtonLabel()}</button>
     </div>
   `;
 }
