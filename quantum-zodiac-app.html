@@ -570,13 +570,14 @@
   }
   .paywall-modal.open{opacity:1; pointer-events:auto;}
   .share-image-modal{
-    position:fixed; inset:0;
+    position:fixed; top:0; left:0; right:0; bottom:0; width:100%; height:100%;
     background:rgba(6,7,20,0.9);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     opacity:0; pointer-events:none;
     transition:opacity .25s ease;
     z-index:90;
     padding:20px;
+    box-sizing:border-box;
   }
   .share-image-modal.open{opacity:1; pointer-events:auto;}
   .share-image-modal img{max-width:100%; max-height:70vh; border-radius:14px;}
