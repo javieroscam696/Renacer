@@ -569,6 +569,24 @@
     padding:20px;
   }
   .paywall-modal.open{opacity:1; pointer-events:auto;}
+  .share-image-modal{
+    position:fixed; inset:0;
+    background:rgba(6,7,20,0.9);
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    opacity:0; pointer-events:none;
+    transition:opacity .25s ease;
+    z-index:90;
+    padding:20px;
+  }
+  .share-image-modal.open{opacity:1; pointer-events:auto;}
+  .share-image-modal img{max-width:100%; max-height:70vh; border-radius:14px;}
+  .share-image-modal p{color:var(--text-primary); text-align:center; font-size:13px; margin:16px 0 20px; max-width:280px;}
+  .share-image-close{
+    background:var(--gold); color:#1a1200; border:none;
+    border-radius:20px; padding:10px 24px;
+    font-family:'Sora',sans-serif; font-size:13px; font-weight:600;
+    cursor:pointer;
+  }
   .paywall-modal-card{
     background:var(--bg-panel-2);
     border:1px solid var(--gold);
@@ -1757,8 +1775,19 @@ async function buildShareCanvas({ symbol, symbol2, percent, cardImg, title, subt
 function isMobileDevice(){
   return matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 }
-async function shareImageBlob(blob, filename, shareWin){
-  if(!blob){ if(shareWin) shareWin.close(); return; }
+function openShareImageModal(blob){
+  const url = URL.createObjectURL(blob);
+  document.getElementById('shareImageImg').src = url;
+  document.getElementById('shareImageModal').classList.add('open');
+}
+function closeShareImageModal(){
+  const img = document.getElementById('shareImageImg');
+  document.getElementById('shareImageModal').classList.remove('open');
+  if(img.src) URL.revokeObjectURL(img.src);
+  img.src = '';
+}
+async function shareImageBlob(blob, filename){
+  if(!blob) return;
   // Windows/Mac's native share panel has no apps registered to receive
   // images and just hangs blank. On desktop we go straight to download;
   // navigator.share is only used on mobile.
@@ -1767,22 +1796,16 @@ async function shareImageBlob(blob, filename, shareWin){
       const file = new File([blob], filename, { type: 'image/png' });
       if(navigator.canShare && navigator.canShare({ files: [file] })){
         await navigator.share({ files: [file], title: 'Quantum Zodiac' });
-        if(shareWin) shareWin.close();
         return;
       }
     }catch(err){
-      if(err && err.name === 'AbortError'){ if(shareWin) shareWin.close(); return; }
+      if(err && err.name === 'AbortError') return;
     }
-    // Mobile fallback: a programmatic download isn't reliable on mobile
-    // browsers (especially iPhone), so we show the image in a tab (opened
-    // from the original tap) so it can be saved by pressing and holding.
-    const url = URL.createObjectURL(blob);
-    const win = (shareWin && !shareWin.closed) ? shareWin : window.open(url, '_blank');
-    if(win && win === shareWin){
-      win.document.write(`<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Quantum Zodiac</title><style>body{margin:0;background:#0C0E22;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;}img{max-width:100%;border-radius:12px;}p{color:#F3EEE3;text-align:center;padding:16px;font-size:14px;}</style></head><body><img src="${url}"><p>Press and hold the image to save it</p></body></html>`);
-      win.document.close();
-    }
-    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    // Mobile fallback: neither a programmatic download nor opening a new
+    // tab is reliable (especially inside in-app browsers like Messenger or
+    // Instagram, which block both). Show the image on the same screen so
+    // it can be saved by pressing and holding it.
+    openShareImageModal(blob);
     return;
   }
   const url = URL.createObjectURL(blob);
@@ -1795,7 +1818,6 @@ async function shareImageBlob(blob, filename, shareWin){
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 async function shareHoroscope(){
-  const shareWin = isMobileDevice() ? window.open('', '_blank') : null;
   const d = DATA[currentSign];
   const entry = currentTab === 'daily' ? getDailyEntry(currentSign) : getWeeklyEntry(currentSign);
   const blob = await buildShareCanvas({
@@ -1805,13 +1827,12 @@ async function shareHoroscope(){
     body: entry.text,
     reflection: entry.q || (entry.ritual ? ('Ritual: ' + entry.ritual) : '')
   });
-  shareImageBlob(blob, `quantum-zodiac-${currentSign}-${currentTab}.png`, shareWin);
+  shareImageBlob(blob, `quantum-zodiac-${currentSign}-${currentTab}.png`);
 }
 async function shareTarotCard(){
-  const shareWin = isMobileDevice() ? window.open('', '_blank') : null;
   const state = loadTarotState();
   const card = TAROT[state.lastCard];
-  if(!card){ if(shareWin) shareWin.close(); return; }
+  if(!card) return;
   let cardImg = null;
   try{ cardImg = await loadImageEl(card.img); }catch(e){}
   const blob = await buildShareCanvas({
@@ -1822,7 +1843,7 @@ async function shareTarotCard(){
     body: card.text,
     reflection: card.q
   });
-  shareImageBlob(blob, `quantum-zodiac-tarot-${state.lastCard}.png`, shareWin);
+  shareImageBlob(blob, `quantum-zodiac-tarot-${state.lastCard}.png`);
 }
 
 function renderPanel(){
@@ -2034,7 +2055,6 @@ function renderAbundanciaScreen(){
     </div>`;
 }
 async function shareAbundance(){
-  const shareWin = isMobileDevice() ? window.open('', '_blank') : null;
   const set = getAbundanceSet();
   const blob = await buildShareCanvas({
     symbol: '∞',
@@ -2042,7 +2062,7 @@ async function shareAbundance(){
     subtitle: 'AFFIRMATION OF THE DAY',
     lines: set.lines
   });
-  shareImageBlob(blob, `quantum-zodiac-abundance.png`, shareWin);
+  shareImageBlob(blob, `quantum-zodiac-abundance.png`);
 }
 
 /* ================= Carta del dia (juego de tarot + racha) =================
@@ -2631,7 +2651,6 @@ function submitCompat(){
   `;
 }
 async function shareCompat(a, b){
-  const shareWin = isMobileDevice() ? window.open('', '_blank') : null;
   const { pct, text } = getCompatibility(a, b);
   const blob = await buildShareCanvas({
     symbol: DATA[a].sym,
@@ -2641,9 +2660,15 @@ async function shareCompat(a, b){
     subtitle: 'COMPATIBILITY',
     body: text
   });
-  shareImageBlob(blob, `quantum-zodiac-compatibility-${a}-${b}.png`, shareWin);
+  shareImageBlob(blob, `quantum-zodiac-compatibility-${a}-${b}.png`);
 }
 </script>
+
+<div class="share-image-modal" id="shareImageModal">
+  <img id="shareImageImg" src="" alt="">
+  <p>Press and hold the image to save or share it</p>
+  <button class="share-image-close" onclick="closeShareImageModal()">Close</button>
+</div>
 
 <div class="paywall-modal" id="paywallModal">
   <div class="paywall-modal-card">
