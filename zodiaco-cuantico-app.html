@@ -1757,8 +1757,8 @@ async function buildShareCanvas({ symbol, symbol2, percent, cardImg, title, subt
 function isMobileDevice(){
   return matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoints > 0;
 }
-async function shareImageBlob(blob, filename){
-  if(!blob) return;
+async function shareImageBlob(blob, filename, shareWin){
+  if(!blob){ if(shareWin) shareWin.close(); return; }
   // El panel nativo de "compartir" de Windows/Mac no tiene apps registradas
   // para recibir imagenes y se queda en blanco/colgado. En computadora
   // vamos directo a la descarga; navigator.share solo se usa en celular.
@@ -1767,11 +1767,24 @@ async function shareImageBlob(blob, filename){
       const file = new File([blob], filename, { type: 'image/png' });
       if(navigator.canShare && navigator.canShare({ files: [file] })){
         await navigator.share({ files: [file], title: 'Zodiaco Cuántico' });
+        if(shareWin) shareWin.close();
         return;
       }
     }catch(err){
-      if(err && err.name === 'AbortError') return;
+      if(err && err.name === 'AbortError'){ if(shareWin) shareWin.close(); return; }
     }
+    // Respaldo en celular: la descarga automática no es confiable en
+    // navegadores móviles (sobre todo iPhone), así que mostramos la
+    // imagen en una pestaña (abierta desde el toque original) para que
+    // la guarden manualmente manteniendo el dedo presionado sobre ella.
+    const url = URL.createObjectURL(blob);
+    const win = (shareWin && !shareWin.closed) ? shareWin : window.open(url, '_blank');
+    if(win && win === shareWin){
+      win.document.write(`<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Zodiaco Cuántico</title><style>body{margin:0;background:#0C0E22;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;}img{max-width:100%;border-radius:12px;}p{color:#F3EEE3;text-align:center;padding:16px;font-size:14px;}</style></head><body><img src="${url}"><p>Mantén presionada la imagen para guardarla</p></body></html>`);
+      win.document.close();
+    }
+    setTimeout(() => URL.revokeObjectURL(url), 60000);
+    return;
   }
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -1783,6 +1796,7 @@ async function shareImageBlob(blob, filename){
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
 async function shareHoroscope(){
+  const shareWin = isMobileDevice() ? window.open('', '_blank') : null;
   const d = DATA[currentSign];
   const entry = currentTab === 'daily' ? getDailyEntry(currentSign) : getWeeklyEntry(currentSign);
   const blob = await buildShareCanvas({
@@ -1792,12 +1806,13 @@ async function shareHoroscope(){
     body: entry.text,
     reflection: entry.q || (entry.ritual ? ('Ritual: ' + entry.ritual) : '')
   });
-  shareImageBlob(blob, `zodiaco-cuantico-${currentSign}-${currentTab}.png`);
+  shareImageBlob(blob, `zodiaco-cuantico-${currentSign}-${currentTab}.png`, shareWin);
 }
 async function shareTarotCard(){
+  const shareWin = isMobileDevice() ? window.open('', '_blank') : null;
   const state = loadTarotState();
   const card = TAROT[state.lastCard];
-  if(!card) return;
+  if(!card){ if(shareWin) shareWin.close(); return; }
   let cardImg = null;
   try{ cardImg = await loadImageEl(card.img); }catch(e){}
   const blob = await buildShareCanvas({
@@ -1808,7 +1823,7 @@ async function shareTarotCard(){
     body: card.text,
     reflection: card.q
   });
-  shareImageBlob(blob, `zodiaco-cuantico-tarot-${state.lastCard}.png`);
+  shareImageBlob(blob, `zodiaco-cuantico-tarot-${state.lastCard}.png`, shareWin);
 }
 
 function renderPanel(){
@@ -2020,6 +2035,7 @@ function renderAbundanciaScreen(){
     </div>`;
 }
 async function shareAbundance(){
+  const shareWin = isMobileDevice() ? window.open('', '_blank') : null;
   const set = getAbundanceSet();
   const blob = await buildShareCanvas({
     symbol: '∞',
@@ -2027,7 +2043,7 @@ async function shareAbundance(){
     subtitle: 'AFIRMACIÓN DEL DÍA',
     lines: set.lines
   });
-  shareImageBlob(blob, `zodiaco-cuantico-abundancia.png`);
+  shareImageBlob(blob, `zodiaco-cuantico-abundancia.png`, shareWin);
 }
 
 /* ================= Carta del dia (juego de tarot + racha) =================
@@ -2562,6 +2578,7 @@ function submitCompat(){
   `;
 }
 async function shareCompat(a, b){
+  const shareWin = isMobileDevice() ? window.open('', '_blank') : null;
   const { pct, text } = getCompatibility(a, b);
   const blob = await buildShareCanvas({
     symbol: DATA[a].sym,
@@ -2571,7 +2588,7 @@ async function shareCompat(a, b){
     subtitle: 'COMPATIBILIDAD',
     body: text
   });
-  shareImageBlob(blob, `zodiaco-cuantico-compatibilidad-${a}-${b}.png`);
+  shareImageBlob(blob, `zodiaco-cuantico-compatibilidad-${a}-${b}.png`, shareWin);
 }
 </script>
 
