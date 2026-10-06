@@ -1330,6 +1330,8 @@ function renderWeeklyButtons(){
 
   if(weeklyTab === 'video'){
     area.innerHTML = renderWeeklyVideoCard(current) + listHtml;
+    const videoEl = document.getElementById('weeklyVideoEl');
+    if(videoEl) videoEl.addEventListener('ended', ()=> weeklyStep(1));
   } else {
     area.innerHTML = renderWeeklyAudioCard(current) + listHtml;
     wireWeeklyAudioCard(current);
@@ -1346,7 +1348,7 @@ function renderWeeklyVideoCard(item){
   if(ytMatch){
     mediaHtml = `<iframe src="https://www.youtube.com/embed/${ytMatch[1]}" title="${item.title}" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen style="width:100%;aspect-ratio:9/16;border:0;display:block;"></iframe>`;
   } else {
-    mediaHtml = `<video src="${item.url}" controls controlsList="nodownload" playsinline style="width:100%;aspect-ratio:9/16;display:block;background:#000;"></video>`;
+    mediaHtml = `<video id="weeklyVideoEl" src="${item.url}" controls controlsList="nodownload" autoplay playsinline style="width:100%;aspect-ratio:9/16;display:block;background:#000;"></video>`;
   }
   return `<div class="video-card">${mediaHtml}</div><p class="weekly-track-title">${item.title}</p>`;
 }
