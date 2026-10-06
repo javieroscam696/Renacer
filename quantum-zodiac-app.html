@@ -1317,7 +1317,7 @@ function renderWeeklyButtons(){
       <div class="paywall-block" style="border-top:none;">
         <div class="lock-icon">&#128274;</div>
         <p class="paywall-text">${label} for the week are for Quantum Zodiac members.</p>
-        <button class="subscribe-btn" onclick="openPaywall()">Unlock for $9.99/mo</button>
+        <button class="subscribe-btn" onclick="openPaywall()">Try free for 7 days</button>
       </div>`;
     return;
   }
@@ -1866,7 +1866,7 @@ function renderPanel(){
       <div class="paywall-block">
         <div class="lock-icon">&#128274;</div>
         <p class="paywall-text">This full reading is for Quantum Zodiac members.</p>
-        <button class="subscribe-btn" onclick="openPaywall()">Unlock for $9.99/mo</button>
+        <button class="subscribe-btn" onclick="openPaywall()">Try free for 7 days</button>
       </div>`;
   } else if(currentTab === 'daily'){
     const entry = getDailyEntry(currentSign);
@@ -2667,7 +2667,7 @@ async function shareCompat(a, b){
     <button class="paywall-close" onclick="closePaywall()">&#10005;</button>
     <div class="paywall-modal-icon">&#10022;</div>
     <h3>Unlock your full Quantum Zodiac</h3>
-    <p class="paywall-modal-sub">Access to all 12 signs, weekly readings, and guided rituals every week.</p>
+    <p class="paywall-modal-sub">Access to all 12 signs, weekly readings, and guided rituals every week. First 7 days free.</p>
 
     <div class="tabs plan-tabs">
       <button class="tab-btn" id="planTabMonthly" onclick="selectPlan('monthly')">Monthly</button>
@@ -2675,8 +2675,8 @@ async function shareCompat(a, b){
     </div>
 
     <div class="plan-price"><span class="amount" id="planAmount">$9.99</span><span class="cycle" id="planCycle">&nbsp;USD/mo</span></div>
-    <a class="subscribe-cta" id="subscribeCta" href="https://pay.hotmart.com/F107774268S?off=i1y86uch" target="_blank" rel="noopener">Subscribe now</a>
-    <p class="paywall-fine">Cancel anytime. Secure payment processed by Hotmart.</p>
+    <a class="subscribe-cta" id="subscribeCta" href="https://pay.hotmart.com/F107774268S?off=i1y86uch" target="_blank" rel="noopener">Start your free 7-day trial</a>
+    <p class="paywall-fine">First 7 days free, cancel before it ends and you won't be charged. Secure payment processed by Hotmart.</p>
 
     <p class="paywall-divider">&mdash; already paid &mdash;</p>
     <div class="natal-field" style="text-align:left;">

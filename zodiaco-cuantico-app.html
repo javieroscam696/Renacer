@@ -1317,7 +1317,7 @@ function renderWeeklyButtons(){
       <div class="paywall-block" style="border-top:none;">
         <div class="lock-icon">&#128274;</div>
         <p class="paywall-text">${label} de la semana son para miembros de Zodiaco Cuántico.</p>
-        <button class="subscribe-btn" onclick="openPaywall()">Desbloquear por $6.99/mes</button>
+        <button class="subscribe-btn" onclick="openPaywall()">Prueba 7 días gratis</button>
       </div>`;
     return;
   }
@@ -1867,7 +1867,7 @@ function renderPanel(){
       <div class="paywall-block">
         <div class="lock-icon">&#128274;</div>
         <p class="paywall-text">Esta lectura completa es para miembros de Zodiaco Cu&aacute;ntico.</p>
-        <button class="subscribe-btn" onclick="openPaywall()">Desbloquear por $6.99/mes</button>
+        <button class="subscribe-btn" onclick="openPaywall()">Prueba 7 días gratis</button>
       </div>`;
   } else if(currentTab === 'daily'){
     const entry = getDailyEntry(currentSign);
@@ -2614,7 +2614,7 @@ async function shareCompat(a, b){
     <button class="paywall-close" onclick="closePaywall()">&#10005;</button>
     <div class="paywall-modal-icon">&#10022;</div>
     <h3>Desbloquea tu Zodiaco Cu&aacute;ntico completo</h3>
-    <p class="paywall-modal-sub">Acceso a los 12 signos, lecturas semanales y rituales guiados cada semana.</p>
+    <p class="paywall-modal-sub">Acceso a los 12 signos, lecturas semanales y rituales guiados cada semana. Primeros 7 d&iacute;as gratis.</p>
 
     <div class="tabs plan-tabs">
       <button class="tab-btn" id="planTabMonthly" onclick="selectPlan('monthly')">Mensual</button>
@@ -2622,8 +2622,8 @@ async function shareCompat(a, b){
     </div>
 
     <div class="plan-price"><span class="amount" id="planAmount">$6.99</span><span class="cycle" id="planCycle">&nbsp;USD/mes</span></div>
-    <a class="subscribe-cta" id="subscribeCta" href="https://pay.hotmart.com/N107698037H?off=eq64x0v5" target="_blank" rel="noopener">Suscribirme ahora</a>
-    <p class="paywall-fine">Cancelas cuando quieras. Pago seguro procesado por Hotmart.</p>
+    <a class="subscribe-cta" id="subscribeCta" href="https://pay.hotmart.com/N107698037H?off=eq64x0v5" target="_blank" rel="noopener">Empezar prueba gratis de 7 d&iacute;as</a>
+    <p class="paywall-fine">Primeros 7 d&iacute;as gratis, cancela antes y no se te cobra. Pago seguro procesado por Hotmart.</p>
 
     <p class="paywall-divider">&mdash; ya pagu&eacute; &mdash;</p>
     <div class="natal-field" style="text-align:left;">
