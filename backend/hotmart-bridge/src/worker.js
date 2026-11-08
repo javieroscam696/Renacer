@@ -8,7 +8,11 @@
 //    tiene una suscripcion activa, y desbloquea el contenido si es asi.
 //
 // El KV namespace se llama SUBS (ver wrangler.toml). La clave es el correo
-// en minusculas, el valor es un JSON: { active, event, updatedAt }.
+// en minusculas, el valor es un JSON: { active, event, updatedAt, subscribedAt }.
+// subscribedAt se guarda UNA SOLA VEZ (la primera vez que ese correo se
+// activa) y nunca se vuelve a tocar, ni si cancela y se vuelve a suscribir
+// despues: asi el contador de "dias desde que es miembro" sigue corriendo
+// desde su suscripcion original, no se reinicia.
 
 const ACTIVE_EVENTS = new Set([
   'PURCHASE_APPROVED',
@@ -74,9 +78,22 @@ async function handleWebhook(request, env) {
     return new Response('Ignored event: ' + event, { status: 200 });
   }
 
+  let subscribedAt = null;
+  const existingRaw = await env.SUBS.get(email);
+  if (existingRaw) {
+    try {
+      subscribedAt = JSON.parse(existingRaw).subscribedAt || null;
+    } catch (err) {
+      subscribedAt = null;
+    }
+  }
+  if (active && !subscribedAt) {
+    subscribedAt = Date.now();
+  }
+
   await env.SUBS.put(
     email,
-    JSON.stringify({ active, event, updatedAt: Date.now() })
+    JSON.stringify({ active, event, updatedAt: Date.now(), subscribedAt })
   );
 
   return new Response('OK', { status: 200 });
@@ -102,7 +119,7 @@ async function handleCheck(request, env) {
     return json({ active: false });
   }
 
-  return json({ active: !!data.active });
+  return json({ active: !!data.active, subscribedAt: data.subscribedAt || null });
 }
 
 function extractEmail(payload) {

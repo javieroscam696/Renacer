@@ -1120,18 +1120,23 @@ async function checkSubscriptionActive(email){
     const res = await fetch(`${HOTMART_BRIDGE_URL}/check?email=${encodeURIComponent(email)}`);
     if(!res.ok) return null;
     const data = await res.json();
-    return !!data.active;
+    return { active: !!data.active, subscribedAt: data.subscribedAt || null };
   }catch(err){
     return null;
   }
 }
 
-function setSubscribed(active, email){
+function setSubscribed(active, email, subscribedAt){
   isSubscribed = active;
   subscribedEmail = active ? email : '';
   localStorage.setItem('zc_subscribed', active ? 'true' : 'false');
   localStorage.setItem('zc_subscribed_email', subscribedEmail);
   localStorage.setItem('zc_subscribed_checked', String(Date.now()));
+  if(active && subscribedAt){
+    localStorage.setItem('zc_subscribed_since', String(subscribedAt));
+  } else if(!active){
+    localStorage.removeItem('zc_subscribed_since');
+  }
   renderGridLocks();
   renderWeeklyButtons();
   if(currentSign) renderPanel();
@@ -1142,9 +1147,9 @@ async function maybeRevalidateSubscription(){
   const lastChecked = Number(localStorage.getItem('zc_subscribed_checked') || 0);
   const ONE_DAY = 24 * 60 * 60 * 1000;
   if(Date.now() - lastChecked < ONE_DAY) return;
-  const active = await checkSubscriptionActive(subscribedEmail);
-  if(active === null) return; // no se pudo verificar (sin internet, puente caido): no revocar
-  setSubscribed(active, subscribedEmail);
+  const result = await checkSubscriptionActive(subscribedEmail);
+  if(result === null) return; // no se pudo verificar (sin internet, puente caido): no revocar
+  setSubscribed(result.active, subscribedEmail, result.subscribedAt);
 }
 
 async function submitPaywallEmail(){
@@ -1162,22 +1167,22 @@ async function submitPaywallEmail(){
 
   btn.disabled = true;
   btn.textContent = 'Verifying...';
-  const active = await checkSubscriptionActive(email);
+  const result = await checkSubscriptionActive(email);
   btn.disabled = false;
   btn.textContent = 'I already paid, unlock';
 
-  if(active === null){
+  if(result === null){
     errorEl.textContent = "We couldn't verify your email right now. Try again in a minute.";
     errorEl.style.display = 'block';
     return;
   }
-  if(!active){
+  if(!result.active){
     errorEl.textContent = "We couldn't find an active subscription with that email. If you just paid, wait 1-2 minutes and try again.";
     errorEl.style.display = 'block';
     return;
   }
 
-  setSubscribed(true, email);
+  setSubscribed(true, email, result.subscribedAt);
   closePaywall();
 }
 
@@ -1250,21 +1255,35 @@ function renderIntroVideo(){
 //   { title: 'Semana del 30 de septiembre', url: 'assets/videos/2026-09-30.mp4', release: '2026-09-30' },
 function filterReleased(list){
   const today = todayStr();
-  return list.filter(item => !item.release || item.release <= today);
+  return list.filter(item => {
+    if(item.queueWeek) return isQueueUnlocked(item.queueWeek);
+    return !item.release || item.release <= today;
+  });
+}
+
+// Queue content: instead of one fixed calendar date for everyone, each
+// subscriber sees queueWeek=1 starting 7 days after THEIR OWN subscription
+// date (zc_subscribed_since), queueWeek=2 at 14 days, etc.
+function isQueueUnlocked(queueWeek){
+  const since = Number(localStorage.getItem('zc_subscribed_since') || 0);
+  if(!since) return false;
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  const daysElapsed = Math.floor((Date.now() - since) / DAY_MS);
+  return daysElapsed >= queueWeek * 7;
 }
 const WEEKLY_VIDEOS = [
-  { title: 'Tip: Abundance', url: 'assets/videos/semanal-en/consejo-abundancia-432hz.mp4', release: '2026-10-05' },
-  { title: 'Tip: Birth Chart', url: 'assets/videos/semanal-en/consejo-carta-astral-432hz.mp4', release: '2026-10-12' },
-  { title: 'Tip: Compatibility', url: 'assets/videos/semanal-en/consejo-compatibilidad-432hz.mp4', release: '2026-10-19' },
-  { title: 'Tip: Frequencies', url: 'assets/videos/semanal-en/consejo-frecuencias-432hz.mp4', release: '2026-10-26' },
-  { title: 'Tip: Horoscope', url: 'assets/videos/semanal-en/consejo-horoscopo-432hz.mp4', release: '2026-11-02' },
-  { title: 'Tip: Tarot', url: 'assets/videos/semanal-en/consejo-tarot-432hz.mp4', release: '2026-11-09' },
-  { title: 'I Really Am Abundant', url: 'assets/videos/semanal-en/i-really-am-abundant-432hz.mp4', release: '2026-11-16' },
-  { title: 'I Am an Astrological Chart', url: 'assets/videos/semanal-en/i-am-an-astrological-chart-432hz.mp4', release: '2026-11-23' },
-  { title: 'I Am Compatibility', url: 'assets/videos/semanal-en/i-am-compatibility-432hz.mp4', release: '2026-11-30' },
-  { title: 'I Am Frequency', url: 'assets/videos/semanal-en/i-am-frequency-432hz.mp4', release: '2026-12-07' },
-  { title: 'I Am Horoscope', url: 'assets/videos/semanal-en/i-am-horoscope-432hz.mp4', release: '2026-12-14' },
-  { title: 'I Am Tarot', url: 'assets/videos/semanal-en/i-am-tarot-432hz.mp4', release: '2026-12-21' },
+  { title: 'Tip: Abundance', url: 'assets/videos/semanal-en/consejo-abundancia-432hz.mp4' },
+  { title: 'Tip: Birth Chart', url: 'assets/videos/semanal-en/consejo-carta-astral-432hz.mp4', queueWeek: 1 },
+  { title: 'Tip: Compatibility', url: 'assets/videos/semanal-en/consejo-compatibilidad-432hz.mp4', queueWeek: 2 },
+  { title: 'Tip: Frequencies', url: 'assets/videos/semanal-en/consejo-frecuencias-432hz.mp4', queueWeek: 3 },
+  { title: 'Tip: Horoscope', url: 'assets/videos/semanal-en/consejo-horoscopo-432hz.mp4', queueWeek: 4 },
+  { title: 'Tip: Tarot', url: 'assets/videos/semanal-en/consejo-tarot-432hz.mp4', queueWeek: 5 },
+  { title: 'I Really Am Abundant', url: 'assets/videos/semanal-en/i-really-am-abundant-432hz.mp4', queueWeek: 6 },
+  { title: 'I Am an Astrological Chart', url: 'assets/videos/semanal-en/i-am-an-astrological-chart-432hz.mp4', queueWeek: 7 },
+  { title: 'I Am Compatibility', url: 'assets/videos/semanal-en/i-am-compatibility-432hz.mp4', queueWeek: 8 },
+  { title: 'I Am Frequency', url: 'assets/videos/semanal-en/i-am-frequency-432hz.mp4', queueWeek: 9 },
+  { title: 'I Am Horoscope', url: 'assets/videos/semanal-en/i-am-horoscope-432hz.mp4', queueWeek: 10 },
+  { title: 'I Am Tarot', url: 'assets/videos/semanal-en/i-am-tarot-432hz.mp4', queueWeek: 11 },
   { title: 'I Am Abundance', url: 'assets/videos/semanal-en/soy-abundancia-432hz.mp4' },
   { title: 'I Am the Source', url: 'assets/videos/semanal-en/i-am-the-source-432hz.mp4' },
   { title: 'Attention Aquarius', url: 'assets/videos/semanal-en/acuario-432hz.mp4' },
@@ -1281,15 +1300,15 @@ const WEEKLY_VIDEOS = [
   { title: 'Attention Sagittarius', url: 'assets/videos/semanal-en/sagitario-432hz.mp4' },
 ];
 const WEEKLY_AUDIOS = [
-  { title: 'My Status', url: 'assets/audio/semanal-en/my-status-432hz.mp3', release: '2026-10-05' },
-  { title: 'I Am the Source', url: 'assets/audio/semanal-en/i-am-the-source-432hz.mp3', release: '2026-10-12' },
-  { title: 'I Chose a Single Reality', url: 'assets/audio/semanal-en/i-chose-a-single-reality-432hz.mp3', release: '2026-10-19' },
-  { title: 'That Is How It Is', url: 'assets/audio/semanal-en/that-is-how-it-is-432hz.mp3', release: '2026-10-26' },
-  { title: 'This Is My Voice Now', url: 'assets/audio/semanal-en/this-is-my-voice-now-432hz.mp3', release: '2026-11-02' },
-  { title: 'Memories of the Infinite', url: 'assets/audio/semanal-en/memories-of-the-infinite-432hz.mp3', release: '2026-11-09' },
-  { title: 'This Is How It\'s Created', url: 'assets/audio/semanal-en/this-is-how-its-created-432hz.mp3', release: '2026-11-16' },
-  { title: 'I Am Who I Choose to Be', url: 'assets/audio/semanal-en/i-am-who-i-choose-to-be-432hz.mp3', release: '2026-11-23' },
-  { title: 'Trust Your Light', url: 'assets/audio/semanal-en/trust-your-light-432hz.mp3', release: '2026-11-30' },
+  { title: 'My Status', url: 'assets/audio/semanal-en/my-status-432hz.mp3', queueWeek: 1 },
+  { title: 'I Am the Source', url: 'assets/audio/semanal-en/i-am-the-source-432hz.mp3', queueWeek: 2 },
+  { title: 'I Chose a Single Reality', url: 'assets/audio/semanal-en/i-chose-a-single-reality-432hz.mp3', queueWeek: 3 },
+  { title: 'That Is How It Is', url: 'assets/audio/semanal-en/that-is-how-it-is-432hz.mp3', queueWeek: 4 },
+  { title: 'This Is My Voice Now', url: 'assets/audio/semanal-en/this-is-my-voice-now-432hz.mp3', queueWeek: 5 },
+  { title: 'Memories of the Infinite', url: 'assets/audio/semanal-en/memories-of-the-infinite-432hz.mp3', queueWeek: 6 },
+  { title: 'This Is How It\'s Created', url: 'assets/audio/semanal-en/this-is-how-its-created-432hz.mp3', queueWeek: 7 },
+  { title: 'I Am Who I Choose to Be', url: 'assets/audio/semanal-en/i-am-who-i-choose-to-be-432hz.mp3', queueWeek: 8 },
+  { title: 'Trust Your Light', url: 'assets/audio/semanal-en/trust-your-light-432hz.mp3', queueWeek: 9 },
   { title: 'I Am Abundance', url: 'assets/audio/semanal-en/ya-soy-abundancia-432hz.mp3' },
   { title: 'Be The Evidence', url: 'assets/audio/semanal-en/se-la-evidencia-432hz.mp3' },
   { title: 'Attention Virgo', url: 'assets/audio/semanal-en/virgo-432hz.mp3' },
@@ -1961,15 +1980,15 @@ function showScreen(name){
 const FREQUENCIES = [
   { title: 'Dream Superposition', url: 'assets/audio/frecuencias/dream-superposition-432hz.mp3' },
   { title: 'Lucid Dreams', url: 'assets/audio/frecuencias/suenos-lucidos-432hz.mp3' },
-  { title: 'Field of Deep Calm', url: 'assets/audio/frecuencias/field-of-deep-calm-432hz.mp3', release: '2026-10-05' },
-  { title: 'Golden Dawn', url: 'assets/audio/frecuencias/golden-dawn-432hz.mp3', release: '2026-10-12' },
-  { title: 'Enjoying the Field of Possibilities', url: 'assets/audio/frecuencias/enjoying-the-field-of-possibilities-432hz.mp3', release: '2026-10-19' },
-  { title: 'Frequency of Rebirth', url: 'assets/audio/frecuencias/frequency-of-rebirth-432hz.mp3', release: '2026-10-26' },
-  { title: 'Vortex of Prosperity', url: 'assets/audio/frecuencias/vortex-of-prosperity-432hz.mp3', release: '2026-11-02' },
-  { title: 'Deep Ocean Meditation', url: 'assets/audio/frecuencias/deep-ocean-meditation-432hz.mp3', release: '2026-11-09' },
-  { title: 'Deep Ocean Immersion', url: 'assets/audio/frecuencias/deep-ocean-immersion-432hz.mp3', release: '2026-11-16' },
-  { title: 'Forest Stillness', url: 'assets/audio/frecuencias/forest-stillness-432hz.mp3', release: '2026-11-23' },
-  { title: 'Forest Silence', url: 'assets/audio/frecuencias/forest-silence-432hz.mp3', release: '2026-11-30' },
+  { title: 'Field of Deep Calm', url: 'assets/audio/frecuencias/field-of-deep-calm-432hz.mp3', queueWeek: 1 },
+  { title: 'Golden Dawn', url: 'assets/audio/frecuencias/golden-dawn-432hz.mp3', queueWeek: 2 },
+  { title: 'Enjoying the Field of Possibilities', url: 'assets/audio/frecuencias/enjoying-the-field-of-possibilities-432hz.mp3', queueWeek: 3 },
+  { title: 'Frequency of Rebirth', url: 'assets/audio/frecuencias/frequency-of-rebirth-432hz.mp3', queueWeek: 4 },
+  { title: 'Vortex of Prosperity', url: 'assets/audio/frecuencias/vortex-of-prosperity-432hz.mp3', queueWeek: 5 },
+  { title: 'Deep Ocean Meditation', url: 'assets/audio/frecuencias/deep-ocean-meditation-432hz.mp3', queueWeek: 6 },
+  { title: 'Deep Ocean Immersion', url: 'assets/audio/frecuencias/deep-ocean-immersion-432hz.mp3', queueWeek: 7 },
+  { title: 'Forest Stillness', url: 'assets/audio/frecuencias/forest-stillness-432hz.mp3', queueWeek: 8 },
+  { title: 'Forest Silence', url: 'assets/audio/frecuencias/forest-silence-432hz.mp3', queueWeek: 9 },
 ];
 
 function handleFrecuenciasNav(){
