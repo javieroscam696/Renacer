@@ -1084,10 +1084,10 @@ function getDailyIndex(sign){
   const ownLen = DATA[sign].daily.length;
   const totalLen = ownLen + SHARED_DAILY.length;
   const signOffset = ORDER.indexOf(sign) * 7;
-  return (dayOfYear(new Date()) + signOffset) % totalLen;
+  return (personalDayCount() + signOffset) % totalLen;
 }
 function getWeeklyIndex(sign){
-  return weekOfYear(new Date()) % DATA[sign].weekly.length;
+  return Math.floor(personalDayCount() / 7) % DATA[sign].weekly.length;
 }
 function getDailyEntry(sign){
   const idx = getDailyIndex(sign);
@@ -1113,6 +1113,23 @@ let isSubscribed = localStorage.getItem('zc_subscribed') === 'true';
 let subscribedEmail = localStorage.getItem('zc_subscribed_email') || '';
 let saved = JSON.parse(localStorage.getItem('zc_saved') || '{}');
 let revealed = JSON.parse(localStorage.getItem('zc_revealed') || '{}');
+
+// firstVisitAt: se guarda una sola vez, la primera vez que este navegador
+// usa la app (antes de suscribirse). Junto con zc_subscribed_since, le da
+// a cada persona su propio punto de partida para las rotaciones de
+// horoscopo diario/semanal y abundancia, en vez de un calendario global
+// compartido por todos.
+let firstVisitAt = Number(localStorage.getItem('zc_first_visit_at') || 0);
+if(!firstVisitAt){
+  firstVisitAt = Date.now();
+  localStorage.setItem('zc_first_visit_at', String(firstVisitAt));
+}
+function personalDayCount(){
+  const subscribedSince = Number(localStorage.getItem('zc_subscribed_since') || 0);
+  const since = (isSubscribed && subscribedSince) ? subscribedSince : firstVisitAt;
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  return Math.floor((Date.now() - since) / DAY_MS);
+}
 
 async function checkSubscriptionActive(email){
   if(HOTMART_BRIDGE_URL.startsWith('REEMPLAZA_')) return null; // puente aun no conectado
@@ -2057,7 +2074,7 @@ const ABUNDANCE = [
   { lines: ["Cambio la imagen que tengo de mí, y lo demás sigue.", "Mi forma de hablar, de actuar y de reaccionar sale de esa versión.", "El mundo refleja el concepto que acepté.", "Yo ya lo acepté.", "No pido permiso para empezar a ser esa versión hoy.", "Lo que ya es cierto por dentro, tarde o temprano se nota afuera."] }
 ];
 function getAbundanceSet(){
-  return ABUNDANCE[dayOfYear(new Date()) % ABUNDANCE.length];
+  return ABUNDANCE[personalDayCount() % ABUNDANCE.length];
 }
 function handleAbundanciaNav(){
   if(!isSubscribed){

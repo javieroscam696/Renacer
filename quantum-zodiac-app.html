@@ -1084,10 +1084,10 @@ function getDailyIndex(sign){
   const ownLen = DATA[sign].daily.length;
   const totalLen = ownLen + SHARED_DAILY.length;
   const signOffset = ORDER.indexOf(sign) * 7;
-  return (dayOfYear(new Date()) + signOffset) % totalLen;
+  return (personalDayCount() + signOffset) % totalLen;
 }
 function getWeeklyIndex(sign){
-  return weekOfYear(new Date()) % DATA[sign].weekly.length;
+  return Math.floor(personalDayCount() / 7) % DATA[sign].weekly.length;
 }
 function getDailyEntry(sign){
   const idx = getDailyIndex(sign);
@@ -1113,6 +1113,22 @@ let isSubscribed = localStorage.getItem('zc_subscribed') === 'true';
 let subscribedEmail = localStorage.getItem('zc_subscribed_email') || '';
 let saved = JSON.parse(localStorage.getItem('zc_saved') || '{}');
 let revealed = JSON.parse(localStorage.getItem('zc_revealed') || '{}');
+
+// firstVisitAt: saved once, the first time this browser uses the app
+// (before subscribing). Together with zc_subscribed_since, it gives each
+// person their own starting point for the daily/weekly horoscope and
+// abundance rotations, instead of one shared global calendar for everyone.
+let firstVisitAt = Number(localStorage.getItem('zc_first_visit_at') || 0);
+if(!firstVisitAt){
+  firstVisitAt = Date.now();
+  localStorage.setItem('zc_first_visit_at', String(firstVisitAt));
+}
+function personalDayCount(){
+  const subscribedSince = Number(localStorage.getItem('zc_subscribed_since') || 0);
+  const since = (isSubscribed && subscribedSince) ? subscribedSince : firstVisitAt;
+  const DAY_MS = 24 * 60 * 60 * 1000;
+  return Math.floor((Date.now() - since) / DAY_MS);
+}
 
 async function checkSubscriptionActive(email){
   if(HOTMART_BRIDGE_URL.startsWith('REEMPLAZA_')) return null; // puente aun no conectado
@@ -2056,7 +2072,7 @@ const ABUNDANCE = [
   { lines: ["I change the image I have of myself, and the rest follows.", "The way I talk, act, and react comes from that version.", "The world reflects the concept I accepted.", "I already accepted it.", "I don't ask permission to start being that version today.", "What's already true inside eventually shows outside."] }
 ];
 function getAbundanceSet(){
-  return ABUNDANCE[dayOfYear(new Date()) % ABUNDANCE.length];
+  return ABUNDANCE[personalDayCount() % ABUNDANCE.length];
 }
 function handleAbundanciaNav(){
   if(!isSubscribed){
