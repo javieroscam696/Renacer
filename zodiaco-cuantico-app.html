@@ -1289,6 +1289,7 @@ function isQueueUnlocked(queueWeek){
   return daysElapsed >= queueWeek * 7;
 }
 const WEEKLY_VIDEOS = [
+  { title: 'Bienvenida', url: 'assets/videos/semanal/bienvenida-zodiaco-cuantico.mp4', free: true },
   { title: 'Consejo: Abundancia', url: 'assets/videos/semanal/consejo-abundancia-432hz.mp4' },
   { title: 'Consejo: Carta Astral', url: 'assets/videos/semanal/consejo-carta-astral-432hz.mp4', queueWeek: 1 },
   { title: 'Consejo: Compatibilidad', url: 'assets/videos/semanal/consejo-compatibilidad-432hz.mp4', queueWeek: 2 },
@@ -1352,24 +1353,30 @@ function setWeeklyTab(tab){
   renderWeeklyButtons();
 }
 
+// getWeeklyList: los no suscritos solo ven los items marcados free:true
+// (ej. el video de bienvenida) — todo lo demas sigue detras del paywall.
+function getWeeklyList(){
+  const fullList = filterReleased(weeklyTab === 'video' ? WEEKLY_VIDEOS : WEEKLY_AUDIOS);
+  return isSubscribed ? fullList : fullList.filter(item => item.free);
+}
+
 function renderWeeklyButtons(){
   const area = document.getElementById('weeklyPlayerArea');
   const weeklyAudioEl = document.getElementById('weeklyAudioEl');
   if(weeklyTab !== 'audio' && weeklyAudioEl) weeklyAudioEl.pause();
 
-  if(!isSubscribed){
-    const label = weeklyTab === 'video' ? 'Los videos' : 'El audio';
-    area.innerHTML = `
-      <div class="paywall-block" style="border-top:none;">
-        <div class="lock-icon">&#128274;</div>
-        <p class="paywall-text">${label} de la semana son para miembros de Zodiaco Cuántico.</p>
-        <button class="subscribe-btn" onclick="openPaywall()">Prueba 7 días gratis</button>
-      </div>`;
-    return;
-  }
-
-  const list = filterReleased(weeklyTab === 'video' ? WEEKLY_VIDEOS : WEEKLY_AUDIOS);
+  const list = getWeeklyList();
   if(!list.length){
+    if(!isSubscribed){
+      const label = weeklyTab === 'video' ? 'Los videos' : 'El audio';
+      area.innerHTML = `
+        <div class="paywall-block" style="border-top:none;">
+          <div class="lock-icon">&#128274;</div>
+          <p class="paywall-text">${label} de la semana son para miembros de Zodiaco Cuántico.</p>
+          <button class="subscribe-btn" onclick="openPaywall()">Prueba 7 días gratis</button>
+        </div>`;
+      return;
+    }
     const label = weeklyTab === 'video' ? 'videos' : 'audios';
     area.innerHTML = `<p class="playlist-empty">Todavía no hay ${label} publicados esta semana. Vuelve pronto.</p>`;
     return;
@@ -1462,7 +1469,7 @@ function wireWeeklyAudioCard(item){
 }
 
 function selectWeeklyIndex(i, autoplay){
-  const list = filterReleased(weeklyTab === 'video' ? WEEKLY_VIDEOS : WEEKLY_AUDIOS);
+  const list = getWeeklyList();
   if(!list.length) return;
   weeklyIndex[weeklyTab] = ((i % list.length) + list.length) % list.length;
   renderWeeklyButtons();
@@ -1562,6 +1569,20 @@ renderGridLocks();
 renderIntroVideo();
 renderWeeklyButtons();
 maybeRevalidateSubscription();
+maybeShowWelcome();
+
+// La primera vez que alguien abre la app (en este navegador), lo llevamos
+// derecho al video de Bienvenida en la seccion de Videos, para que sea lo
+// primero que vea. Solo pasa una vez por dispositivo.
+function maybeShowWelcome(){
+  if(localStorage.getItem('zc_welcome_seen')) return;
+  localStorage.setItem('zc_welcome_seen', 'true');
+  weeklyTab = 'video';
+  weeklyIndex.video = 0;
+  renderWeeklyButtons();
+  const area = document.getElementById('weeklyPlayerArea');
+  if(area) area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
 
 function selectSign(key){
   if(currentSign) document.getElementById('btn-'+currentSign).classList.remove('active');
