@@ -38,9 +38,13 @@ duración objetivo 4 a 8 minutos por episodio.
 2. **Horóscopo** — índigo, corona de constelaciones. Todo lo ve, habla con
    picardía sobre los rasgos de cada signo, es la más cómica/exagerada del
    grupo.
-3. **Compatibilidad** — colores duales entrelazados, dijes-espejo.
-   Empática, un poco entrometida (en el buen sentido), le encanta el drama
-   romántico ajeno.
+3. **Compatibilidad** — mujer de apariencia atemporal, piel clara, cabello
+   largo plateado-blanco en trenzas elaboradas, ojos dorados brillantes,
+   túnica azul noche profundo cubierta de constelaciones y estrellas
+   bordadas, collares en capas con dijes en forma de estrella, aretes a
+   juego, halo detrás de ella formado por la rueda completa del zodiaco en
+   dorado sobre un cielo nocturno estrellado. Empática, un poco entrometida
+   (en el buen sentido), le encanta el drama romántico ajeno.
 4. **Carta Astral** — azul marino/navy, astrolabio, esfera armilar.
    Erudita, metódica, habla como detective: conecta pistas antes de revelar
    la conclusión. La más seria y calmada del grupo.
