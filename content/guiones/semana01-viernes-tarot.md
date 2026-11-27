@@ -47,7 +47,7 @@
 
 ### SEGMENTO 2 — Presentación de la tirada
 
-**Imagen:** Primer plano de las manos de Tarot (uñas oscuras con detalle dorado, anillos finos) barajando la baraja con movimientos lentos y elegantes, cartas con reverso negro y filigrana dorada. Fondo desenfocado en tonos carmesí y negro, luz de vela parpadeando desde un costado.
+**Imagen:** Primer plano de las manos de Tarot (piel clara, anillos dorados en varios dedos, igual que en su imagen de referencia) barajando la baraja con movimientos lentos y elegantes, cartas con reverso negro y filigrana dorada. Fondo desenfocado en tonos carmesí y negro, luz de vela parpadeando desde un costado.
 
 **Narración:**
 
@@ -119,7 +119,7 @@
 
 ### SEGMENTO 6 — El giro: la carta que no debía estar ahí
 
-**Imagen:** Plano cenital/medio de la mesa: las tres cartas ya reveladas en fila, y una **cuarta carta cayendo o apareciendo volteada boca arriba fuera de la fila**, ligeramente inclinada, como si se hubiera deslizado sola de la baraja — su ilustración queda parcialmente en sombra o desenfocada (**El Colgado**, apenas reconocible: una figura de cabeza, tonos azul-morado y dorado, boca arriba sin que se vea con total claridad el detalle). Las manos de Tarot entran al cuadro, quietas, como congeladas a medio gesto de recoger la baraja. Luz de vela parpadea con más intensidad que antes, como si una corriente de aire hubiera entrado.
+**Imagen:** Plano cenital/medio de la mesa: las tres cartas ya reveladas en fila, y una **cuarta carta cayendo o apareciendo volteada boca arriba fuera de la fila**, ligeramente inclinada, como si se hubiera deslizado sola de la baraja — su ilustración queda parcialmente en sombra o desenfocada (**El Colgado**, apenas reconocible: una figura de cabeza, tonos azul-morado y dorado, boca arriba sin que se vea con total claridad el detalle). Las manos de Tarot (piel clara, anillos dorados, igual que en su imagen de referencia) entran al cuadro, quietas, como congeladas a medio gesto de recoger la baraja. Luz de vela parpadea con más intensidad que antes, como si una corriente de aire hubiera entrado.
 
 **Narración (voz baja, genuina sorpresa teatral, sin perder su naturaleza juguetona):**
 
@@ -143,7 +143,7 @@
 
 ### SEGMENTO 7 — Cierre y CTA
 
-**Imagen:** Plano final del rincón de Tarot: la mesa con las cuatro cartas visibles, velas ahora todas encendidas y la escena más cálida/luminosa que en el segmento 1, Tarot de pie detrás de la mesa en silueta (contraluz de las velas, rostro parcialmente cubierto por el velo bordado con pequeños arcanos dorados), una mano apoyada sobre el borde de la mesa cerca de las cartas. Espacio limpio en la parte inferior de la imagen para texto/logo en edición.
+**Imagen:** Plano final del rincón de Tarot: la mesa con las cuatro cartas visibles, velas ahora todas encendidas y la escena más cálida/luminosa que en el segmento 1. Tarot de pie detrás de la mesa, visible de frente/medio cuerpo con su apariencia de referencia exacta (cabello plateado-blanco en trenzas elaboradas, velo transparente blanco-marfil, ojos dorados brillantes, media sonrisa enigmática, capa de terciopelo negro y rojo vino con bordados dorados, joyería dorada en capas), sosteniendo una carta de tarot cerca del rostro, con un sutil remolino de partículas doradas alrededor de ella. Espacio limpio en la parte inferior de la imagen para texto/logo en edición.
 
 **Narración:**
 
@@ -163,6 +163,7 @@
 
 ## NOTA DE PRODUCCIÓN (fuera del guion)
 
+- **Referencia visual fija de Tarot:** su apariencia (rostro, peinado, velo, vestuario, joyería) es fija a partir de una imagen de referencia proporcionada por el cliente — debe verse idéntica en sus 3 apariciones del episodio (segmentos 2, 6 y 7). Usar esa imagen como control visual en cada generación, no solo las descripciones en texto. Detalle completo en `semana01-viernes-tarot-prompts-imagenes.md`.
 - **Imágenes:** usar un set de 8 imágenes fijas de alta calidad (generadas por IA o stock editado) con paleta consistente: negro, carmesí profundo y dorado, velas, terciopelo, humo de incienso. Mantener la misma "locación" (el rincón de Tarot dentro del templo) a lo largo de todo el episodio, variando el encuadre y la cantidad/intensidad de luz de vela (de tenue a más iluminado) para acompañar la tensión narrativa, que sube hacia el giro del segmento 6.
 - **Movimiento:** Ken Burns muy sutil (zoom 3-5% a lo largo de 8-12 segundos por imagen); en las imágenes con velas se puede añadir en edición un parpadeo de luz sutil (overlay de llama o ajuste de brillo oscilante) para dar sensación de movimiento real sin generar video nuevo con IA.
 - **Audio:** sonido ambiente de velas crepitando muy bajo, e idealmente un sonido de "carta deslizándose sobre tela" en el momento exacto en que se menciona cada carta (segmentos 3, 4, 5 y especialmente 6, donde debe sonar distinto/inesperado — más fuerte o más lento que las anteriores — para reforzar el giro).

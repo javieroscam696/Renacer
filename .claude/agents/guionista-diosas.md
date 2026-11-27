@@ -51,8 +51,22 @@ duración objetivo 4 a 8 minutos por episodio.
 5. **Frecuencia** — tela translúcida tipo onda, cuencos de cristal.
    Serena, de voz suave, casi hipnótica. Episodios más lentos y
    contemplativos.
-6. **Tarot** — negro-carmesí-dorado, velo de cartas. Juguetona, enigmática,
-   le gusta dejar a la audiencia con intriga (cliffhanger) al final.
+6. **Tarot** — mujer de apariencia atemporal, piel clara con un leve brillo
+   dorado, cabello largo plateado-blanco en trenzas elaboradas y voluminosas
+   que enmarcan el rostro, cubierto en parte por un velo transparente
+   blanco-marfil que cae sobre cabeza y hombros. Ojos dorados brillantes,
+   mirada directa, media sonrisa enigmática. Viste una capa/túnica de
+   terciopelo negro y rojo vino profundo con bordados dorados tipo
+   filigrana en bordes, cuello y mangas, joyería dorada abundante (collares
+   en capas, aretes largos, anillos). Suele sostener una carta de tarot con
+   reverso dorado a la altura del rostro. Fondo recurrente en sus planos
+   personales: oscuridad estrellada con remolinos de partículas doradas y
+   cartas de tarot flotando boca abajo a su alrededor. Esta apariencia es
+   FIJA (imagen de referencia proporcionada por el cliente) — rostro,
+   peinado, velo, vestuario y joyería deben verse idénticos en cada imagen
+   donde aparece, usando la referencia como control visual en cada
+   generación, no solo la descripción en texto. Juguetona, enigmática, le
+   gusta dejar a la audiencia con intriga (cliffhanger) al final.
 
 ## Calendario semanal (formato por día)
 

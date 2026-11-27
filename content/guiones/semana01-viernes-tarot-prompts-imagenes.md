@@ -11,20 +11,31 @@ barato en créditos que generar 8-18 clips de video.
 
 ### ADN visual — Tarot (cuando aparece en cuadro)
 
-Mujer de apariencia atemporal, piel cálida con un brillo tenue dorado,
-cabello oscuro largo, trenzado en secciones con hilos finos dorados y
-carmesí entrelazados, ojos oscuros con un destello ámbar cuando sonríe de
-lado. Viste una túnica/vestido negro con bordados carmesí y dorado en
-patrones inspirados en arcanos de tarot (soles, lunas, estrellas pequeñas),
-anillos finos dorados en los dedos, uñas oscuras con detalle dorado. Lleva
-siempre un **velo semitransparente negro bordado con pequeños arcanos
-dorados** que cubre parcialmente su rostro — se puede llevar bajado sobre
-la frente o cayendo a un costado, nunca retirado por completo. **Priorizar
-sus manos, la baraja de cartas (reverso negro con filigrana dorada) y su
-silueta a contraluz de vela por encima del detalle facial frontal** — el
-velo mismo es el recurso narrativo perfecto para mantener consistencia
-fácil entre imágenes generadas por separado, igual que se hizo con
-Frecuencia y su rostro de perfil/silueta.
+**Imagen de referencia (fija, usar siempre):** `referencias/tarot-diosa-referencia.jpg`
+
+Mujer de apariencia atemporal, piel clara con un leve brillo dorado.
+Cabello largo plateado-blanco, peinado en trenzas elaboradas y voluminosas
+que enmarcan el rostro, cubierto en parte por un velo transparente
+blanco-marfil que cae sobre la cabeza y los hombros. Ojos dorados
+brillantes y luminosos, mirada directa, media sonrisa enigmática. Viste una
+capa/túnica de terciopelo negro y rojo vino profundo (carmesí) con
+bordados dorados tipo filigrana en bordes, cuello y mangas. Joyería dorada
+abundante: collares en capas con dijes, aretes largos colgantes, anillos
+dorados en varios dedos. Suele sostener entre los dedos una carta de tarot
+con reverso/ilustración dorada a la altura del rostro o el pecho. Fondo
+recurrente cuando aparece en plano personal: oscuridad estrellada con
+remolinos de partículas doradas brillantes (tipo humo mágico) y cartas de
+tarot boca abajo (reverso con filigrana dorada) flotando alrededor a
+distintas distancias y ángulos.
+
+**IMPORTANTE — consistencia de personaje:** esta apariencia es FIJA, con
+imagen de referencia proporcionada por el cliente. Rostro, peinado, velo,
+vestuario y joyería deben verse IDÉNTICOS en cada imagen donde aparece
+Tarot — no reinterpretar ni variar. Al generar cada imagen donde ella
+aparece (Imágenes 2, 6 y 7), usar la imagen de referencia como control
+visual (image-to-image / character reference) además de esta descripción
+en texto — el texto solo no garantiza una cara idéntica entre
+generaciones separadas.
 
 ### ADN visual — El Templo, rincón de Tarot
 
@@ -99,13 +110,15 @@ Atmósfera teatral, cálida y misteriosa a la vez.
 
 **Prompt para generar la imagen:**
 
-Primer plano de las manos de Tarot (piel cálida con brillo dorado tenue,
-anillos finos dorados, uñas oscuras con detalle dorado) barajando una
-baraja de cartas con reverso negro y filigrana dorada, movimiento lento y
-elegante. Fondo desenfocado en tonos carmesí y negro del rincón del
-templo, luz de vela parpadeando desde un costado iluminando los bordes
-dorados de las cartas. No se muestra su rostro. Atmósfera íntima, casi en
-cámara lenta.
+Primer plano de las manos de Tarot (piel clara, anillos dorados en varios
+dedos — igual que en su imagen de referencia) barajando una baraja de
+cartas con reverso negro y filigrana dorada, movimiento lento y elegante.
+Al borde del encuadre se asoma parte de su manga de terciopelo negro y
+rojo vino con bordado dorado. Fondo desenfocado en tonos carmesí y negro
+del rincón del templo, luz de vela parpadeando desde un costado iluminando
+los bordes dorados de las cartas. No se muestra su rostro todavía (decisión
+narrativa, no por consistencia — su cara es fija vía imagen de
+referencia). Atmósfera íntima, casi en cámara lenta.
 
 **Narración:**
 
@@ -218,9 +231,10 @@ una **cuarta carta deslizándose o apareciendo boca arriba fuera de la
 fila**, ligeramente inclinada, como si se hubiera salido sola de la
 baraja — su ilustración (**El Colgado**: una figura de cabeza, tonos
 azul-morado y dorado) queda parcialmente en sombra o algo desenfocada, no
-del todo clara a primera vista. Las manos de Tarot entran al cuadro desde
-un borde, quietas, como congeladas a medio gesto de recoger la baraja — se
-ven las manos y anillos, no el rostro. La luz de las velas parpadea con
+del todo clara a primera vista. Las manos de Tarot (piel clara, anillos
+dorados, igual que en su imagen de referencia) entran al cuadro desde un
+borde, quietas, como congeladas a medio gesto de recoger la baraja — se
+ven las manos y anillos, no el rostro todavía. La luz de las velas parpadea con
 más intensidad que en las imágenes anteriores, como si hubiera entrado una
 corriente de aire. Atmósfera de suspenso elegante, nunca de horror barato.
 
@@ -252,11 +266,16 @@ corriente de aire. Atmósfera de suspenso elegante, nunca de horror barato.
 
 Plano final del rincón de Tarot: la mesa con las cuatro cartas visibles,
 todas las velas encendidas y la escena notablemente más cálida y luminosa
-que en la Imagen 1. Tarot de pie detrás de la mesa, en silueta suave a
-contraluz de las velas, su rostro parcialmente cubierto por el velo negro
-bordado con pequeños arcanos dorados, una mano apoyada cerca del borde de
-la mesa junto a las cartas. Espacio limpio en la parte inferior de la
-imagen para agregar texto/logo en edición.
+que en la Imagen 1. Tarot de pie detrás de la mesa, visible de frente/medio
+cuerpo con su apariencia de referencia exacta: cabello plateado-blanco en
+trenzas elaboradas enmarcando el rostro, velo transparente blanco-marfil
+cayendo sobre cabeza y hombros, ojos dorados brillantes, media sonrisa
+enigmática, capa de terciopelo negro y rojo vino con bordados dorados,
+joyería dorada en capas. Sostiene una carta de tarot con reverso/ilustración
+dorada cerca del rostro. La luz cálida de las velas del templo se funde con
+un sutil remolino de partículas doradas alrededor de ella, como en su
+imagen de referencia. Espacio limpio en la parte inferior de la imagen
+para agregar texto/logo en edición.
 
 **Narración:**
 
@@ -298,13 +317,15 @@ imagen para agregar texto/logo en edición.
   reforzar que algo inesperado está pasando). Si no hay grabaciones
   propias, usar librerías de audio libres de derechos de efectos de
   "card flip" / fuego de vela.
-- **Consistencia de Tarot:** como su rostro siempre está parcialmente
-  cubierto por el velo bordado (nunca se retira del todo, ni se muestra de
-  frente con detalle total), es más fácil mantenerla consistente entre las
-  imágenes donde aparece su figura completa o en silueta (Imágenes 2, 6 y
-  7) — enfoca el generador de imágenes en el velo, las manos con anillos
-  dorados, la baraja de reverso negro/dorado y la silueta a contraluz de
-  vela, no en rasgos faciales frontales detallados.
+- **Consistencia de Tarot:** su apariencia (rostro, peinado, velo,
+  vestuario, joyería) es fija y debe verse idéntica en sus 3 apariciones
+  (Imágenes 2, 6 y 7) — usa la imagen de referencia proporcionada como
+  imagen de control/character-reference en cada generación, no solo la
+  descripción en texto, para que la cara no varíe entre imágenes generadas
+  por separado. En las Imágenes 2 y 6 se enmarcan solo sus manos/antebrazo
+  por decisión narrativa (mantener el misterio hasta el cierre), no por
+  necesidad de evitar inconsistencia facial — en la Imagen 7 se revela su
+  figura completa y debe coincidir exactamente con la referencia.
 - **Continuidad de luz:** la cantidad e intensidad de velas encendidas debe
   ir en aumento progresivo de la Imagen 1 a la Imagen 7 (de tenue/íntimo a
   cálido/luminoso), salvo en la Imagen 6, donde debe haber un parpadeo más
